@@ -61,7 +61,8 @@ export REG_HOST_PORT=5000
 ./script.registry.sh run
 # push running containers to registry
 ./script.registry.sh tag_running
-
+# or tag a specific image
+./script.registry.sh tag someImageName:development
 
 ##################### usage
 ## ensure the ENV vars are set
@@ -202,6 +203,7 @@ gc # purge system
 
 ## script.vault.sh
 
+- [vault docs](https://github.com/nirv-ai/docs/tree/main/vault)
 - actively used for interacting with a tls vault server behind a tls proxy
 - useful for:
   - verifying vault http endpoints from the CLI
