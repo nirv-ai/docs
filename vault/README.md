@@ -41,7 +41,6 @@
 ```sh
 ####################### basic workflow: create root token and unseal vault
 # create a new gpg key for initializing the vault database
-# create key
 gpg --gen-key
 # base64 encode the `gpg: key` value
 gpg --export ABCDEFGHIJKLMNOP | base64 > root.asc
@@ -56,7 +55,7 @@ sudo rm -rf apps/nirvai-core-vault/src/data/*
 ## select create a new raft cluster: atleast 5 key shares, at least 3 key threshold
 ## enter the root.asc file as text into both pgp key fields and download the keys
 cat root.asc
-# dowload the your keys, it should match the following
+# dowload your bank keys, it should match the following
 {
   "keys": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
   "keys_base64": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
@@ -71,6 +70,8 @@ echo keys_base64[] | base64 --decode | gpg -dq
 echo root_token | base64 --decode | gpg -dq
 
 ```
+
+### greenfield: create admin token for managing vault
 
 ### greenfield: configuring vault for operators and developers
 
