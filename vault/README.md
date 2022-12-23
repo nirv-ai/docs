@@ -43,12 +43,12 @@
 ## Scripting with vault
 
 - actively used for interacting with a secured vault server behind a secured proxy
+- [scripting architecture & guidance](../shell/README.md)
 
 ### links
 
 - [curl](https://curl.se/docs/manpage.html)
 - [jq](https://stedolan.github.io/jq/manual/)
-- [all scripts](../shell/README.md)
 
 ```sh
 ####################### requirements
