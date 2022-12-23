@@ -9,7 +9,7 @@
 
 ## VAULT
 
-- vault is an opensource database for sensitive data, and an API for access management
+- vault is an opensource database for sensitive data, and an API for authnz
 - it can be used wherever authentication and authorization is required
 
 ### the philosophy at NIRVai
