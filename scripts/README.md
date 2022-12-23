@@ -2,7 +2,7 @@
 
 > CLI-as-a-Service
 
-- guides for writing cross-platform, resiliant posix compliant shell scripts.\
+- guides for writing cross-platform, resiliant posix compliant shell scripts.
 - nirvai scripts is a single interface to all CLIs supporting NIRVai platform components and packages
 - [source code](https://github.com/nirv-ai/scripts)
 
@@ -22,7 +22,7 @@
 
 ### always use #!/usr/bin/env [SHELL]
 
-- even for sh, so consumers can use whatever shell by setting pointing to the shell of their choosing
+- even for sh, so consumers can use whatever shell by pointing the shebang to the shell of their choosing
 
 ## available scripts
 

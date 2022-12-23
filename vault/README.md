@@ -38,8 +38,12 @@
 
 ### greenfield: create root token and unseal database
 
+- all green field vault instances requires human intervention
+  - create root pgp key
+  - unseal database and download root token
+  - create admin token and never use the root token again
+
 ```sh
-####################### basic workflow: create root token and unseal vault
 # create a new gpg key for initializing the vault database
 gpg --gen-key
 # base64 encode the `gpg: key` value
@@ -62,28 +66,14 @@ cat root.asc
   "root_token": "ROOT_TOKEN_GUARD_WITH_YOUR_LIFE"
 }
 
-
-# login to vault to begin initial server setup
+# decode the keys
 # unseal token: decode each of the keys_base64 in the json provided by vault
 echo keys_base64[] | base64 --decode | gpg -dq
 # root token: decode root_token in the json provded by vault
 echo root_token | base64 --decode | gpg -dq
 
+
 ```
-
-### greenfield: create admin token for managing vault
-
-### greenfield: configuring vault for operators and developers
-
-### greenfield: configuring postgres dynamic creds
-
-- [see docs](https://developer.hashicorp.com/vault/docs/secrets/databases)
-- [postgres vault docs](https://developer.hashicorp.com/vault/docs/secrets/databases/postgresql)
-
-#### creating new database engine
-
-- disable verify connection
-- create connection to postgres
 
 ## scripts
 
@@ -95,18 +85,20 @@ echo root_token | base64 --decode | gpg -dq
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
+
 ####################### requirements
 # curl @see https://curl.se/docs/manpage.html
 # jq @see https://stedolan.github.io/jq/manual/
 
-
-####################### FYI
-# append `--output-policy` to see the policy needed to execute a cmd
-
-
 ####################### interface
 VAULT_ADDR=$VAULT_ADDR
 VAULT_TOKEN=$VAULT_TOKEN
+
+####################### configuring postgres dynamic creds
+####################### creating new database engine
+- disable verify connection
+- create connection to postgres
+
 
 
 ####################### usage
