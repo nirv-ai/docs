@@ -1,4 +1,4 @@
-# nirvai docs
+# nirvai docker
 
 documentation for the NIRVai platform
 
@@ -81,6 +81,6 @@ export REG_HOST_PORT=5000
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.reset.sh)
 
-### script.exec.sh
+### script.exec.container.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.exec.sh)

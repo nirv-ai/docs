@@ -24,7 +24,7 @@
 
 - [docker/compose/refresh](../docker/README.md)
 - [docker/compose/reset](../docker/README.md)
-- [docker/container/exec](../docker/README.md)
+- [docker/cunt/exec](../docker/README.md)
 - [docker/registry](../docker/README.md)
 - [hashicorp/nomad](../nomad/README.md)
 - [hashicorp/vault](../vault/README.md)
