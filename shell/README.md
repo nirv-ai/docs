@@ -1,7 +1,7 @@
 # nirvai docs
 
 guides for writing cross-platform, resiliant posix compliant shell scripts.
-includes documentation for scripts used in nirv.ai
+includes documentation for scripts used at nirv.ai
 
 ## RACEXP
 
