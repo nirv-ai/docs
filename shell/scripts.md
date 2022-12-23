@@ -78,7 +78,7 @@ export REG_HOST_PORT=5000
 ## script.nmd.sh
 
 - actively used for working with nomad
-- requires you have a local docker registry setup, see registry.sh
+- requires you have a local docker registry setup, see registry above
 - access the UI @ [https://localhost:4646](https://localhost:4646/ui/jobs)
 - requires you've setup [TLS with cloudflare cfssl](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
@@ -93,7 +93,8 @@ export REG_HOST_PORT=5000
 ## ^ for vault you need to enable cap_add ipc_lock
 ## ^ for debugging set it to "all"
 # @see registry.sh
-## ^ Failed to find docker auth
+# failed to find docker auth
+## update your server config to not fault on auth errors, or set an auth (see nomad && docker docs)
 ######################
 
 ###################### interface
@@ -191,7 +192,7 @@ get logs jobName deploymentId
 # stopping stuff
 stop job myJobName
 rm myJobName # this purges the job
-system gc # todo: nomad system gc # this is your fkn friend
+gc # purge system
 
 ```
 
