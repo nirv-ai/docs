@@ -4,8 +4,9 @@ documentation for the NIRVai platform
 
 # TLDR
 
-- NIRVai philosophy: if it doesnt copypasta, it doesnt belong in your stack
-- ensure you abide by my teachings to become a true ninja of the dark arts
+the NIRVai philosophy
+
+> if it doesnt copypasta, it doesnt belong in your stack
 
 ## RACEXP
 

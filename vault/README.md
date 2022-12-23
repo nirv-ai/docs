@@ -61,7 +61,11 @@
 
 
 ####################### basic workflow
-
+############ greenfield
+# start the vault server
+./script.refresh.compose.sh core_vault
+# exec into container
+./script.exec core_vault
 
 ####################### interface
 VAULT_ADDR=$VAULT_ADDR

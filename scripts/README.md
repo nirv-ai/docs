@@ -1,6 +1,9 @@
-# nirvai docs
+# nirvai scripts
 
-- guides for writing cross-platform, resiliant posix compliant shell scripts.
+> CLI-as-a-Service
+
+- guides for writing cross-platform, resiliant posix compliant shell scripts.\
+- nirvai scripts is a single interface to all CLIs supporting NIRVai platform components and packages
 - [source code](https://github.com/nirv-ai/scripts)
 
 ## RACEXP
