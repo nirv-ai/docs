@@ -203,4 +203,4 @@ gc # purge system
 
 ## Vault Scripts
 
-- [docs are in the docs repo](https://github.com/nirv-ai/docs/tree/main/vault)
+- [docs are in vault/readme.md](../vault/README.md)

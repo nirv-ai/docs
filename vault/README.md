@@ -1,7 +1,6 @@
 # nirvai docs
 
 - documentation for VAULT @ nirvai
-- [vault scripts](https://github.com/nirv-ai/scripts)
 
 ## RACEXP
 
@@ -49,6 +48,7 @@
 
 - [curl](https://curl.se/docs/manpage.html)
 - [jq](https://stedolan.github.io/jq/manual/)
+- [all scripts](../shell/README.md)
 
 ```sh
 ####################### requirements
