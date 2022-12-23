@@ -110,11 +110,11 @@ NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
 
 
 # ensure you've completed steps in ./script.registry.sh (see above)
-# start the registry and tag-and-push all
-# images backing running containers to the local registry
+# start the registry
 ./script.registry.sh run
+# tag-and-push all images backing running containers to the registry
 ./script.registry.sh tag_running
-# stop all running containers
+# stop all running containers (nomad uses the images in the registry)
 docker compose down
 
 
