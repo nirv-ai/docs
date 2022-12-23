@@ -43,7 +43,7 @@
 ## Scripting with vault
 
 - actively used for interacting with a secured vault server behind a secured proxy
-- [scripting architecture & guidance](../shell/README.md)
+- [scripting architecture & guidance](../scripts/README.md)
 
 ### links
 

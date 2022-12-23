@@ -1,8 +1,12 @@
-# NIRVAI SCRIPTS
+# nirvai docs
 
-- useful scripts for working within a monorepo, e.g. [turborepo](https://turbo.build/repo/docs)
-- additional readme coming soon
+- guides for writing cross-platform, resiliant posix compliant shell scripts.
 - [source code](https://github.com/nirv-ai/scripts)
+
+## RACEXP
+
+- [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
+- [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
 ## TLDR
 
@@ -14,6 +18,15 @@
   - each script requires the service it works with, e.g. registry.sh requires docker, vault requires vault, etc
 - clone the repo and symlink the scripts to the root of your repo
   - some scripts are useful in the root of a specific app, e.g. nmd.sh should be wherever you execute nomad
+
+## best practices
+
+### never use a CLI directly, always create a wrapper
+
+- platform wide upgrades: move to the latest version and update in a single place
+- useful side effects: wouldnt it be great to run fmt, check, and validate on every nomad cmd?
+- standardized interfaces
+- CLIs as a service
 
 ## script.registry.sh
 
