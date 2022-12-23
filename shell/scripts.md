@@ -42,7 +42,7 @@
 # e.g. to use a registry at dev.nirv.ai:5000
 # add the following to /etc/hosts
 127.0.0.1 dev.nirv.ai
-# checkout /letencrypt dir for configuring a TLS cert pointed at dev.nirv.ai
+# checkout /letencrypt dir for configuring a TLS cert pointing to dev.nirv.ai
 ######################
 
 
@@ -138,6 +138,7 @@ nomad system gc # [optional] reset nomad to a green state
 
 # deploy job dev_core
 ./script.nmd.sh run dev_core indexNumber
+./script.nmd.sh dockerlogs # [optional] see logs of all running containers
 
 # on error run
 ./script.nmd.sh get status job jobId # todo
