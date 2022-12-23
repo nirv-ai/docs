@@ -102,11 +102,13 @@ export REG_HOST_PORT=5000
 
 ###################### basic workflow
 ########### cd nirvai/core
-# refresh containers and upsert env.compose.json & yaml
+# refresh containers and upsert .env.${ENV}.compose.{json,yaml}
 ./script.refresh.compose.sh
 
+
 # ensure you've completed steps in ./script.registry.sh (see above)
-# start the registry and push all running container images to local registry
+# start the registry and tag-and-push all
+# images backing running containers to the local registry
 ./script.registry.sh run
 ./script.registry.sh tag_running
 # stop all running containers
@@ -117,22 +119,24 @@ docker compose down
 # you only need to do this the first time
 # symlink the json & yaml files
 ln -s ../../../.env.development.compose.* .
-# symlink the nmd script (expected to be a sibling of nirvai/core)
+# symlink the nomad script (expected to be a sibling of nirvai/core)
 ln -s ../../../../scripts/script.nmd.sh .
 
 ###################### now you can operate nomad
 # start server agent
+# shell 1
 ./script.nmd.sh start -config=development.leader.nomad
+# shell 2
 ./script.nmd.sh get status team
 
-# optionally reset everything to a green state
+# optionally reset everything the dev_core job to a green state
 ./script.nmd.sh rm dev_core
-nomad system gc
+nomad system gc # [optional] reset nomad to a green state
 
-# create a job plan and get job index number
+# create a job plan for dev_core and get job index number
 ./script.nmd.sh get plan dev_core
 
-# deploy dev_core
+# deploy job dev_core
 ./script.nmd.sh run dev_core indexNumber
 
 # on error run
