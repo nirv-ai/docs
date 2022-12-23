@@ -10,7 +10,8 @@
 
 ## VAULT
 
-- vault is an opensource database for sensitive data
+- vault is an opensource database for sensitive data, and an API for access management
+- it can be used wherever authentication and authorization is required
 
 ### the philosophy at NIRVai
 
@@ -33,8 +34,8 @@
 
 ### if your application is `air-gapped`
 
-- continue with 12-factor
 - ensure your application runs from a [chroot](https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/)
+- continue with [12-factor](https://12factor.net/)
 
 ### How do I know if this data is sensitive?
 
@@ -54,11 +55,9 @@
 # curl
 # jq
 
+
 ####################### FYI
 # append `--output-policy` to see the policy needed to execute a cmd
-
-
-
 
 
 ####################### basic workflow
@@ -67,6 +66,7 @@
 ####################### interface
 VAULT_ADDR=$VAULT_ADDR
 VAULT_TOKEN=$VAULT_TOKEN
+
 
 ####################### usage
 ./script.vault.sh poop poop poop
