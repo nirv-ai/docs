@@ -18,7 +18,8 @@
 
 ### Why Vault
 
-- NIRVai is an opensource-first platform, thus our security measures will be more extreme than others
+- NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) opensource platform
+- our architecture patterns will be a bit more extreme than others
 
 ### if your application has network access
 

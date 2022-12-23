@@ -205,15 +205,25 @@ gc # purge system
 
 - [vault docs](https://github.com/nirv-ai/docs/tree/main/vault)
 - actively used for interacting with a tls vault server behind a tls proxy
-- useful for:
-  - verifying vault http endpoints from the CLI
-  - interacting with vault without execing into a container or opening a browser
-- ENV requirements
-  - `export VAULT_ADDR=https://your.vault.addr:and_port`
-  - `export VAULT_TOKEN=your_vault_token`
-    - can be set to an empty string if you dont have one yet
+
+# @see https://curl.se/docs/manpage.html
+
+# @see https://stedolan.github.io/jq/manual/
+
+# @see https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2
+
+# via the CLI you can append `--output-policy`
+
+## to see the policy needed to execute a cmd
 
 ```sh
+####################### basic workflow
+
+
+####################### interface
+VAULT_ADDR=$VAULT_ADDR
+VAULT_TOKEN=$VAULT_TOKEN
+
 ####################### usage
 ./script.vault.sh poop poop poop
 
