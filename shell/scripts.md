@@ -79,7 +79,7 @@ export REG_HOST_PORT=5000
 
 - actively used for working with nomad
 - requires you have a local docker registry setup, see registry above
-- access the UI @ [https://localhost:4646](https://localhost:4646/ui/jobs)
+- access the UI @ [https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
 - requires you've setup [TLS with cloudflare cfssl](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
 ```sh
@@ -97,7 +97,8 @@ export REG_HOST_PORT=5000
 ## update your server config to not fault on auth errors, or set an auth (see nomad && docker docs)
 ######################
 
-###################### interface
+###################### interface:
+# export as ENV vars to enable cli use without going through script.nmd.sh
 NOMAD_ADDR_SUBD=${ENV:-dev}
 NOMAD_ADDR_HOST=${NOMAD_ADDR_HOST:-nirv.ai}
 NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
@@ -129,19 +130,13 @@ ln -s ../../../.env.development.compose.* .
 ln -s ../../../../scripts/script.nmd.sh .
 
 ###################### now you can operate nomad
-# start server agent in bg mode but logs will still stream to stdout
-./script.nmd.sh start -config=development.server.nomad
-# start client agent in bg mode but logs will still stream to stdout
-./script.nmd.sh start -config=development.client.nomad
+# start server agent in bg
+./script.nmd.sh start s -config=development.server.nomad
+# start client agent in bg
+./script.nmd.sh start c -config=development.client.nomad
 # check the team status
 ./script.nmd.sh get status team
-# kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
-kill_service_by_name nomad
 
-# optionally reset the dev_core job to a green state
-./script.nmd.sh rm dev_core
-# [optional] reset nomad to a green state
-nomad system gc
 
 # if ./development.dev_core.nomad doesnt exist
 # create it and get the index number for stdout
@@ -152,13 +147,22 @@ nomad system gc
 ./script.nmd.sh dockerlogs # [optional] see logs of all running containers
 
 # on error run
-./script.nmd.sh get status job jobId # todo
+./script.nmd.sh get status job jobName # includes all allocationIds
 ./script.nmd.sh get status loc allocationId # in event of deployment failure
-./script.nmd.sh get status node # see nodes and there ids
+./script.nmd.sh get status node # see client nodes and there ids
 ./script.nmd.sh dockerlogs # following docker logs of all running containers
 nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
 nomad job history -p job_name # todo
+
+# cleanup
+# rm the job
+./script.nmd.sh rm dev_core
+# kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
+kill_service_by_name nomad
+# reset nomad to a green state if you dont plan on using it later
+nomad system gc
+
 ###################### USAGE
 ## prefix all cmds with ./script.nmd.sh poop poop poop
 ## poop being one of the below
@@ -183,8 +187,8 @@ restart loc allocationId taskName # todo: https://developer.hashicorp.com/nomad/
 exec loc  allocationId cmd .... @ todo https://developer.hashicorp.com/nomad/docs/commands/alloc/exec
 
 # checking on running/failing stuff
-get status node # see nodes and there ids
-get status node nodeId # provding nodeId is super helpful; also provides allocationId
+get status node # see client nodes and there ids
+get status node nodeId # provding a clients nodeId is super helpful; also provides allocationId
 get status loc allocationId # super helpful for checking on failed jobs, provides deployment id
 get status dep deploymentId # super helpful
 get logs jobName deploymentId
