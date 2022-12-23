@@ -40,20 +40,20 @@
 
 - it is
 
-## Scripting with vault
+## scripts
 
-- actively used for interacting with a secured vault server behind a secured proxy
 - [scripting architecture & guidance](../scripts/README.md)
 
-### links
+- actively used for interacting with a secured vault server behind a secured proxy
 
-- [curl](https://curl.se/docs/manpage.html)
-- [jq](https://stedolan.github.io/jq/manual/)
+### script.vault.sh
+
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
 ####################### requirements
-# curl
-# jq
+# curl @see https://curl.se/docs/manpage.html
+# jq @see https://stedolan.github.io/jq/manual/
 
 
 ####################### FYI
