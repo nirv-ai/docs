@@ -78,6 +78,8 @@ export REG_HOST_PORT=5000
 
 - actively used for working with nomad
 - requires you have a local docker registry setup, see registry.sh
+- access the UI @ [https://localhost:4646](https://localhost:4646/ui/jobs)
+- requires you've setup [TLS with cloudflare cfssl](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
 ```sh
 ###################### helpful links
@@ -123,11 +125,14 @@ ln -s ../../../.env.development.compose.* .
 ln -s ../../../../scripts/script.nmd.sh .
 
 ###################### now you can operate nomad
-# start server agent
-# shell 1
-./script.nmd.sh start -config=development.leader.nomad
-# shell 2
+# start server agent in bg mode but logs will still stream to stdout
+./script.nmd.sh start -config=development.server.nomad
+# start client agent in bg mode but logs will still stream to stdout
+./script.nmd.sh start -config=development.client.nomad
+# check the team status
 ./script.nmd.sh get status team
+# kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
+kill_service_by_name nomad
 
 # optionally reset everything the dev_core job to a green state
 ./script.nmd.sh rm dev_core
