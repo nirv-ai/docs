@@ -1,4 +1,4 @@
-# nirvai docs
+# nirvai VAULT
 
 - documentation for VAULT @ nirvai
 
@@ -7,19 +7,13 @@
 - [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
-## VAULT
+## WHY VAULT ?
 
-- vault is an opensource database for sensitive data, and an API for authnz
-- it can be used wherever authentication and authorization is required
+- vault is an opensource database for sensitive data storage, access and control
 
-### the philosophy at NIRVai
+### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
 > if you cant commit it, vault it
-
-### Why Vault
-
-- NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
-- our architecture patterns will be a bit more extreme than others
 
 ### if your application has network access
 
@@ -40,14 +34,63 @@
 
 - it is
 
+## Setting up vault
+
+### greenfield: create root token and unseal database
+
+```sh
+####################### basic workflow: create root token and unseal vault
+# create a new gpg key for initializing the vault database
+# create key
+gpg --gen-key
+# base64 encode the `gpg: key` value
+gpg --export ABCDEFGHIJKLMNOP | base64 > root.asc
+
+# start the vault container with a green state
+# first: remove the {raft,vault}.db if they exist in the core/app/vault dir
+sudo rm -rf apps/nirvai-core-vault/src/data/*
+# next: start the vault server
+./script.reset.compose.sh core_vault
+
+# unseal the database: open https://dev.nirv.ai:8200/
+## select create a new raft cluster: atleast 5 key shares, at least 3 key threshold
+## enter the root.asc file as text into both pgp key fields and download the keys
+cat root.asc
+# dowload the your keys, it should match the following
+{
+  "keys": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
+  "keys_base64": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
+  "root_token": "ROOT_TOKEN_GUARD_WITH_YOUR_LIFE"
+}
+
+
+# login to vault to begin initial server setup
+# unseal token: decode each of the keys_base64 in the json provided by vault
+echo keys_base64[] | base64 --decode | gpg -dq
+# root token: decode root_token in the json provded by vault
+echo root_token | base64 --decode | gpg -dq
+
+```
+
+### greenfield: configuring vault for operators and developers
+
+### greenfield: configuring postgres dynamic creds
+
+- [see docs](https://developer.hashicorp.com/vault/docs/secrets/databases)
+- [postgres vault docs](https://developer.hashicorp.com/vault/docs/secrets/databases/postgresql)
+
+#### creating new database engine
+
+- disable verify connection
+- create connection to postgres
+
 ## scripts
 
 - [scripting architecture & guidance](../scripts/README.md)
 
-- actively used for interacting with a secured vault server behind a secured proxy
-
 ### script.vault.sh
 
+- actively used for interacting with a secured vault server behind a secured proxy
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
@@ -59,13 +102,6 @@
 ####################### FYI
 # append `--output-policy` to see the policy needed to execute a cmd
 
-
-####################### basic workflow
-############ greenfield
-# start the vault server
-./script.refresh.compose.sh core_vault
-# exec into container
-./script.exec core_vault
 
 ####################### interface
 VAULT_ADDR=$VAULT_ADDR

@@ -20,11 +20,15 @@
 - standardized interfaces
 - CLIs as a service
 
+### always use #!/usr/bin/env [SHELL]
+
+- even for sh, so consumers can use whatever shell by setting pointing to the shell of their choosing
+
 ## available scripts
 
 - [docker/compose/refresh](../docker/README.md)
 - [docker/compose/reset](../docker/README.md)
-- [docker/cunt/exec](../docker/README.md)
+- [docker/container/exec](../docker/README.md)
 - [docker/registry](../docker/README.md)
 - [hashicorp/nomad](../nomad/README.md)
 - [hashicorp/vault](../vault/README.md)

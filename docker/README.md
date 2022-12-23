@@ -73,14 +73,14 @@ export REG_HOST_PORT=5000
 
 ```
 
-### script.compose.refresh.sh
+### script.refresh.compose.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.refresh.sh)
 
-### script.compose.reset.sh
+### script.reset.compose.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.reset.sh)
 
-### script.exec.container.sh
+### script.exec.cunt.sh
 
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.exec.sh)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.exec.cunt.sh)
