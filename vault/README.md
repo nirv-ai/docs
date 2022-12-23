@@ -18,22 +18,105 @@
 
 ### Why Vault
 
-- NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) opensource platform
+- NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 - our architecture patterns will be a bit more extreme than others
 
 ### if your application has network access
 
-- remove all your `.env` and other configuration files from gitignore
+- remove all your `.env` and other configuration files from your `.gitignore`
 - move all your sensitive data into vault
 - refactor your application to be resiliant despite unmet requirements (where are my creds?)
-- ensure your application encrypts in transit
+- ensure your application uses a modern TLS version for all communication
+- ensure your application encrypts data in transit
   - if persisting to disk, dont, fkn vault it
 - commit your remaining data & configuration to git (which should contain no PII/etc)
 
 ### if your application is `air-gapped`
 
 - continue with 12-factor
+- ensure your application runs from a [chroot](https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/)
 
-### How do I know if this datum is sensitive?
+### How do I know if this data is sensitive?
 
 - it is
+
+## Scripting with vault
+
+- actively used for interacting with a secured vault server behind a secured proxy
+
+### links
+
+- [curl](https://curl.se/docs/manpage.html)
+- [jq](https://stedolan.github.io/jq/manual/)
+
+```sh
+####################### requirements
+# curl
+# jq
+
+####################### FYI
+# append `--output-policy` to see the policy needed to execute a cmd
+
+
+
+
+
+####################### basic workflow
+
+
+####################### interface
+VAULT_ADDR=$VAULT_ADDR
+VAULT_TOKEN=$VAULT_TOKEN
+
+####################### usage
+./script.vault.sh poop poop poop
+
+# enable a secret engine e.g. kv-v2
+enable secret secretEngineType
+
+# enable approle engine e.g. approle
+enable approle approleType
+
+# list all approles
+list approles
+
+# list enabled secrets engines
+list secret-engines
+
+# list provisioned keys for a postgres role
+list postgres leases dbRoleName
+
+# create a secret-id for roleName
+create approle-secret roleName
+
+# upsert approle appRoleName with a list of attached policies
+create approle appRoleName pol1,polX
+
+# create kv2 secret(s) at secretPath
+# dont prepend `secret/` to secretPath
+# e.g. create secret kv2 poo/in/ur/eye '{"a": "b", "c": "d"}'
+create secret kv2 secretPath jsonString
+
+# get dynamic postgres creds for database role dbRoleName
+get postgres creds dbRoleName
+
+# get the secret (kv-v2) at the given path, e.g. foo
+# dont prepend `secret/` to path
+get secret secretPath
+
+# get the status (sys/healthb) of the vault server
+get status
+
+# get vault credentials for an approle
+get creds roleId secretId
+
+# get all properties associated with an approle
+get approle info appRoleName
+
+# get the approle role_id for roleName
+get approle id appRoleName
+
+# get the openapi spec for some path
+help some/path/
+
+```
