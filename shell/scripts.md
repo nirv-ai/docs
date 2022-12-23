@@ -96,9 +96,10 @@ export REG_HOST_PORT=5000
 ######################
 
 ###################### interface
-ENV=${ENV:-dev}
+NOMAD_ADDR_SUBD=${ENV:-dev}
+NOMAD_ADDR_HOST=${NOMAD_ADDR_HOST:-nirv.ai}
 NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
-NOMAD_ADDR="${NOMAD_ADDR:-https://${ENV}.nirv.ai:${NOMAD_SERVER_PORT}}"
+NOMAD_ADDR="${NOMAD_ADDR:-https://${NOMAD_ADDR_SUBD}.${NOMAD_ADDR_HOST}:${NOMAD_SERVER_PORT}}"
 NOMAD_CACERT="${NOMAD_CACERT:-./tls/nomad-ca.pem}"
 NOMAD_CLIENT_CERT="${NOMAD_CLIENT_CERT:-./tls/cli.pem}"
 NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
@@ -135,11 +136,13 @@ ln -s ../../../../scripts/script.nmd.sh .
 # kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
 kill_service_by_name nomad
 
-# optionally reset everything the dev_core job to a green state
+# optionally reset the dev_core job to a green state
 ./script.nmd.sh rm dev_core
-nomad system gc # [optional] reset nomad to a green state
+# [optional] reset nomad to a green state
+nomad system gc
 
-# create a job plan for dev_core and get job index number
+# if ./development.dev_core.nomad doesnt exist
+# create it and get the index number for stdout
 ./script.nmd.sh get plan dev_core
 
 # deploy job dev_core
