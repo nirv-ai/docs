@@ -2,6 +2,7 @@
 
 - useful scripts for working within a monorepo, e.g. [turborepo](https://turbo.build/repo/docs)
 - additional readme coming soon
+- [source code](https://github.com/nirv-ai/scripts)
 
 ## TLDR
 
