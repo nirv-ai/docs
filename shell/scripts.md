@@ -95,12 +95,13 @@ export REG_HOST_PORT=5000
 ## ^ Failed to find docker auth
 ######################
 
-###################### FYI
-# the UI is available at http://localhost:4646
-# nomad doesnt work well with docker desktop, remove it
-######################
-
-
+###################### interface
+ENV=${ENV:-dev}
+NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
+NOMAD_ADDR="${NOMAD_ADDR:-https://${ENV}.nirv.ai:${NOMAD_SERVER_PORT}}"
+NOMAD_CACERT="${NOMAD_CACERT:-./tls/nomad-ca.pem}"
+NOMAD_CLIENT_CERT="${NOMAD_CLIENT_CERT:-./tls/cli.pem}"
+NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
 
 ###################### basic workflow
 ########### cd nirvai/core
