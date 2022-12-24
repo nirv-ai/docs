@@ -19,10 +19,10 @@
 
 - remove all your `.env` and other configuration files from your `.gitignore`
 - move all your sensitive data into vault
-- refactor your application to be resiliant despite unmet requirements (where are my creds?)
+- refactor your application to be resiliant despite unmet requirements
 - ensure your application uses a modern TLS version for all communication
 - ensure your application encrypts data in transit
-  - if persisting to disk, dont, fkn vault it
+  - if persisting sensitive data to disk, dont, fkn vault it
 - commit your remaining data & configuration to git (which should contain no PII/etc)
 
 ### if your application is `air-gapped`
@@ -36,42 +36,104 @@
 
 ## Setting up vault
 
-### greenfield: create root token and unseal database
+### greenfield: create root token, initialize and unseal database
 
-- all green field vault instances requires human intervention
+- all green field vault instances require human intervention
   - create root pgp key
-  - unseal database and download root token
-  - create admin token and never use the root token again
+  - create root token and unseal database
+  - create admin token
+  - store root token in air gapped bank vault
+- auto unseal: all have costs
+  - alicloud kms
+  - aws kms
+  - azure key vault
+  - gcp cloud kms
+  - oci kms
+  - hsm pkcs11
+- auto unseal: free
+  - vault transit
+- preferred automation: auto unseal with seal transit
+  - couldnt get working: limited capacity to troubleshoot
+- preferred automation: auto unseal with aws kms
+  - [cant afford it](https://aws.amazon.com/kms/pricing/) see alternative automation 1
 
 ```sh
-# create a new gpg key for initializing the vault database
+######################### FYI
+# in all examples: /chroot/jail = ../secrets/dev/apps/vault
+# @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
+
+######################### cd /chroot/jail: create a root gpg key for initializing the vault database
+# create root gpg key
 gpg --gen-key
+
 # base64 encode the `gpg: key` value
 gpg --export ABCDEFGHIJKLMNOP | base64 > root.asc
 
-# start the vault container with a green state
-# first: remove the {raft,vault}.db if they exist in the core/app/vault dir
+
+######################### cd nirv/core: start the vault container with a green state
+# first: stop any running vault containers
+docker compose down
+
+# next: remove previous vault data {e.g. raft,vault}.db
 sudo rm -rf apps/nirvai-core-vault/src/data/*
-# next: start the vault server
+
+# finally: reset the vault server
 ./script.reset.compose.sh core_vault
 
+
+######################### alternative automation method 1: initialize and unseal via operator init
+# confirm `Vault is not initialized`
+vault operator init -status
+
+# inititialize vault
+## -n=key-shares (must match amount of supplied pgp-keys)
+## -t=key-threshold
+### in non dev envs, -n => 5, 3 <= -t <=-n
+vault operator init \
+  -format="json" \
+  -n=1 \
+  -t=1 \
+  -root-token-pgp-key="../secrets/dev/apps/vault/root.asc" \
+  -pgp-keys="../secrets/dev/apps/vault/root.asc" > ../secrets/dev/apps/vault/root.asc.json
+
+
+# unseal vault: will require you to enter the root.asc password
+## if -t > 1 run this cmd in a loop matching the -t value
+vault operator unseal \
+  $(cat ../secrets/dev/apps/vault/root.asc.json \
+    | jq -r '.unseal_keys_b64[0]' \
+    | base64 --decode \
+    | gpg -dq \
+  )
+
+# delete the last 50 cmds from your history:
+history -d 50
+
+
+######################### alternative manual method 1: initialize and unseal via vault UI
 # unseal the database: open https://dev.nirv.ai:8200/
 ## select create a new raft cluster: atleast 5 key shares, at least 3 key threshold
 ## enter the root.asc file as text into both pgp key fields and download the keys
-cat root.asc
-# dowload your bank keys, it should match the following
+## dowload your bank keys, it should match the following
 {
   "keys": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
   "keys_base64": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
   "root_token": "ROOT_TOKEN_GUARD_WITH_YOUR_LIFE"
 }
 
-# decode the keys
-# unseal token: decode each of the keys_base64 in the json provided by vault
-echo keys_base64[] | base64 --decode | gpg -dq
-# root token: decode root_token in the json provded by vault
-echo root_token | base64 --decode | gpg -dq
+```
 
+### greenfield: use root token to create vault admin token and policy
+
+```sh
+
+# verify you can access vault with root token
+export VAULT_TOKEN=$(cat ../secrets/dev/apps/vault/root.asc.json \
+  | jq -r '.root_token' \
+  | base64 --decode \
+  | gpg -dq \
+)
+./script.vault.sh get status
 
 ```
 
