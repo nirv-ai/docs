@@ -42,7 +42,7 @@
   - create root pgp key
   - create root token and unseal database
   - create admin token
-  - store root token in air gapped bank vault
+  - store root token next to your grenade launchers
 - auto unseal: all have costs
   - alicloud kms
   - aws kms
