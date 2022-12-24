@@ -62,15 +62,18 @@
 # in all examples: /chroot/jail = ../secrets/dev/apps/vault
 # @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
-######################### cd /chroot/jail: create a root gpg key for initializing the vault database
+######################### cd /nirv/core: create a root gpg key for initializing the vault database
+# the location to your chroot jail is required in all steps
+export JAIL="../secrets/dev/apps/vault"
+
 # create root gpg key
 gpg --gen-key
 
 # base64 encode the `gpg: key` value
-gpg --export ABCDEFGHIJKLMNOP | base64 > root.asc
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
 
 
-######################### cd nirv/core: start the vault container with a green state
+######################### start the vault container with a green state
 # first: stop any running vault containers
 docker compose down
 
@@ -93,14 +96,14 @@ vault operator init \
   -format="json" \
   -n=1 \
   -t=1 \
-  -root-token-pgp-key="../secrets/dev/apps/vault/root.asc" \
-  -pgp-keys="../secrets/dev/apps/vault/root.asc" > ../secrets/dev/apps/vault/root.asc.json
+  -root-token-pgp-key="$JAIL/root.asc" \
+  -pgp-keys="$JAIL/root.asc" > $JAIL/root.asc.json
 
 
 # unseal vault: will require you to enter the root.asc password
 ## if -t > 1 run this cmd in a loop matching the -t value
 vault operator unseal \
-  $(cat ../secrets/dev/apps/vault/root.asc.json \
+  $(cat $JAIL/root.asc.json \
     | jq -r '.unseal_keys_b64[0]' \
     | base64 --decode \
     | gpg -dq \
@@ -126,14 +129,16 @@ history -d 50
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
+# the location to your chroot jail is required in all steps
+export JAIL="../secrets/dev/apps/vault"
 
 # verify you can access vault with root token
-export VAULT_TOKEN=$(cat ../secrets/dev/apps/vault/root.asc.json \
+export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
 )
-./script.vault.sh get status
+./script.vault.sh list secret-engines
 
 ```
 
