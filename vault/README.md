@@ -184,32 +184,10 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 # AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 # ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
-# --- verification
-## enable approle: UI > access > approle
-./script.vault.sh enable approle approle
-## create required roles
-BFF_APPROLE_PATH=$VAULT_INSTANCE_DIR/config/002-000-auth-init/auth_approle_role_bff.json
-./script.vault.sh create approle $BFF_APPROLE_PATH
-## verify approle role was created
-./script.vault.sh get approle info auth_approle_role_bff
-## get role-id for an approle
-./script.vault.sh get approle id auth_approle_role_bff
-## get secret-id for an approle
-./script.vault.sh create approle-secret auth_approle_role_bff
-# get creds for approle roleId secretId
-./script.vault.sh get creds xyz-321-yzx-321 123-xyz-123-zyx
-## lookup secret-id info for an approle
-./script.vault.sh get approle secret-id auth_approle_role_bff 123-xyz-123-zyx
-## revoke a secret id for an approle
-./script.vault.sh revoke approle-secret-id auth_approle_role_bff 123-xyz-123-zyx
-## list accessors for for an approle role
-./script.vault.sh list approle-axors auth_approle_role_bff
-## list all approle roles
-./script.vault.sh list approles
-## rm approle role
-./script.vault.sh rm approle-role auth_approle_role_bff
-
-
+# approle automation logic
+## enable approle: ./script.vault.sh enable approle approle
+## create approle(s): ./script.vault.sh create approle */auth_approle_role_*.json$
+## ^ auth_dir: $VAULT_INSTANCE_DIR/src/config/002-000-auth-init/*
 
 #################### TODO
 ### enable userpass: UI > access > ...
@@ -284,8 +262,45 @@ BFF_APPROLE_PATH=$VAULT_INSTANCE_DIR/config/002-000-auth-init/auth_approle_role_
 - create connection to postgres
 
 
+####################### USAGE
+############ approle
+## enable approle: UI > access > approle
+./script.vault.sh enable approle approle
 
-####################### usage
+## create an approle
+./script.vault.sh create approle path/to/distinct_approle_config.json
+
+## verify approle role was created
+./script.vault.sh get approle info auth_approle_role_bff
+
+## get role-id for an approle
+./script.vault.sh get approle id auth_approle_role_bff
+
+## get secret-id for an approle
+./script.vault.sh create approle-secret auth_approle_role_bff
+
+# get creds for approle roleId secretId
+./script.vault.sh get creds xyz-321-yzx-321 123-xyz-123-zyx
+
+## lookup secret-id info for an approle
+./script.vault.sh get approle secret-id auth_approle_role_bff 123-xyz-123-zyx
+
+## revoke a secret id for an approle
+./script.vault.sh revoke approle-secret-id auth_approle_role_bff 123-xyz-123-zyx
+
+## list accessors for for an approle role
+./script.vault.sh list approle-axors auth_approle_role_bff
+
+## list all approle roles
+./script.vault.sh list approles
+
+## rm approle role
+./script.vault.sh rm approle-role auth_approle_role_bff
+
+
+
+####################### PREVIOUS
+####################### all of this should be grouped by endpoint
 ./script.vault.sh poop poop poop
 
 # enable a secret engine e.g. kv-v2
