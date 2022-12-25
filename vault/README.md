@@ -105,7 +105,7 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 # root & admin vault tokens and unseal keys
 
 # create root and admin gpg keys if they dont exist in jail
-gpg --gen-key # repeat for for each entity (root, admin, ...) being assigned a gpg key
+gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
 
 # base64 encode the `gpg: key` value of each gpg-key to $JAIL/_NAME_.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
@@ -128,8 +128,6 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 vault operator init -status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
-## -n=key-shares (must match the number of pgp keys you created earlier)
-## -t=key-threshold (# of key shares required to unseal)
 export VAULT_TOKEN='poop' # bypass token requirement, wont work if your token is named poop
 ./script.vault.sh init
 
@@ -138,9 +136,6 @@ vault operator init -status
 
 # unseal vault: will require you to enter password set on pgp key
 ./script.vault.sh unseal
-
-# delete your shell history:
-history -c
 
 ```
 
