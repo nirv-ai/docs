@@ -116,8 +116,8 @@ vault operator unseal \
     | gpg -dq \
   )
 
-# delete the last 50 cmds from your history:
-history -d 50
+# delete your shell history:
+history -c
 
 
 ######################### alternative method 2: UI init and unseal
