@@ -68,10 +68,15 @@
 ######################### interface
 # wherever you will temporarily store created secrets on disk
 export JAIL="../secrets/dev/apps/vault"
+
 # address where you expect the vault server to be running
 export VAULT_ADDR=https://dev.nirv.ai:8300
+
 # config directory for the vault server instance you are bootstrapping
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+
+# run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
+export NIRV_SCRIPT_DEBUG=1
 
 ## setting root token
 ## requires completion of step: `create root pgp keys` (see below)
@@ -89,8 +94,7 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 ## finally verify you have appropriate access, e.g.
 ./script.vault.sh list secret-engines
 
-# cat vault_token & unseal tokens to your shell
-# you only need this if logging in via the UI
+# if logging inthrough the UI: copypasta the tokens
 ./script.vault get_unseal_tokens
 ```
 
@@ -181,23 +185,18 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 ./script.vault.sh process policy_in_dir $VAULT_INSTANCE_DIR/config/001-000-policy-init
 ```
 
-### greenfield: configure secret engines
+### greenfield: enable auth schemes
 
-````sh
+```sh
 # verify you can access vault with root token
-export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
-  | jq -r '.root_token' \
-  | base64 --decode \
-  | gpg -dq \
-)
-./script.vault.sh list secret-engines
-## scripts
+# ensure vault_token points to the admin_vault token
+# (see above)
+
+```
+
+## script.vault.sh documentation
 
 - [scripting architecture & guidance](../scripts/README.md)
-
-### script.vault.sh
-
-- actively used for interacting with a secured vault server behind a secured proxy
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
@@ -205,12 +204,6 @@ export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
 ####################### requirements
 # curl @see https://curl.se/docs/manpage.html
 # jq @see https://stedolan.github.io/jq/manual/
-
-####################### interface
-export VAULT_ADDR=$VAULT_ADDR
-export VAULT_TOKEN=$VAULT_TOKEN
-# run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
-export NIRV_SCRIPT_DEBUG=1
 
 ####################### configuring postgres dynamic creds
 ####################### creating new database engine
@@ -270,4 +263,4 @@ get approle id appRoleName
 # get the openapi spec for some path
 help some/path/
 
-````
+```
