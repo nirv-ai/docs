@@ -183,6 +183,26 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 # TODO: this entire section should be executable by a single cmd
 # AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 # ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+
+# --- verification
+### enable approle: UI > access > approle
+./script.vault.sh enable approle approle
+### configure approle
+### todo
+
+### enable kv-v2: UI > secrets > secret
+./script.vault.sh enable secret kv-2
+### configure kv-v2
+### todo
+
+### enable database: UI > secrets > database
+./script.vault.sh enable database database
+### configure database
+### todo
+
+#### connect postgres database plugin
+##### todo
+##### todo
 ```
 
 ### greenfield: enable & configure all secret engines
