@@ -108,7 +108,7 @@ gpg --gen-key # repeat for for each entity (root, admin, ...) being assigned a g
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 
-# stop any running vault containers
+# stop any running containers
 docker compose down
 
 # remove previous vault data {e.g. raft,vault}.db
