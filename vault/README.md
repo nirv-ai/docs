@@ -54,6 +54,8 @@
 - preferred automation: auto unseal with aws kms
   - [cant afford it](https://aws.amazon.com/kms/pricing/) use seal transit instead
 
+### INTERFACE
+
 ```sh
 
 ######################### FYI
@@ -144,7 +146,7 @@ vault operator init -status
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
-# set and verify root token (see above)
+# set and verify root token (@see `# INTERFACE`)
 
 # create policy for vault administrator
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
@@ -155,7 +157,7 @@ ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_a
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
-# set VAULT_TOKEN to the admin token and verify access (see above)
+# set VAULT_TOKEN to the admin token and verify access (@see `# INTERFACE`)
 
 # restart the vault server and verify the admin token can unseal it
 ./script.refresh.compose.sh core_vault
@@ -165,8 +167,7 @@ ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_adm
 ### greenfield: use admin token to create policies
 
 ```sh
-# ensure vault_token points to the admin_vault token
-# (see above)
+# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
 
 # forcefully sync vault dev configs into vault app
 rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
@@ -179,8 +180,7 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
 ```sh
 # verify you can access vault with root token
-# ensure vault_token points to the admin_vault token
-# (see above)
+# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
 
 # TODO: this entire section should be executable by a single cmd
 # ./script.vault.sh init_auth_schemes
@@ -190,8 +190,7 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
 ```sh
 # verify you can access vault with root token
-# ensure vault_token points to the admin_vault token
-# (see above)
+# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
 
 # TODO: this entire section should be executable by a single cmd
 # ./script.vault.sh init_secret_engines
