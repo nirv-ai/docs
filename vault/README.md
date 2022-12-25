@@ -188,7 +188,8 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 # AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 # ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
-# approle automation logic
+# approle bootstrap automation logic
+## use the approle vault.sh cmds to atuomate the following:
 ## enable approle: ./script.vault.sh enable approle approle
 ## create approle(s): ./script.vault.sh create approle */auth_approle_role_*.json$
 ## ^ auth_dir: $VAULT_INSTANCE_DIR/src/config/002-000-auth-init/*
@@ -289,8 +290,14 @@ get creds xyz-321-yzx-321 123-xyz-123-zyx
 ## lookup secret-id info for an approle
 get approle secret-id $ROLE_NAME 123-xyz-123-zyx
 
+## lookup secret-id-accessor info for an approle
+get approle secret-id-axor $ROLE_NAME 123-xyz-123-zyx
+
 ## revoke a secret id for an approle
 revoke approle-secret-id $ROLE_NAME 123-xyz-123-zyx
+
+## revoke a secret id accessor for an approle
+revoke approle-secret-id-axor $ROLE_NAME 123-xyz-123-zyx
 
 ## list accessors for for an approle role
 list approle-axors $ROLE_NAME
