@@ -149,19 +149,67 @@ export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
 ./script.vault.sh list secret-engines
 
 # create policy: vault admin
-./script.vault.sh create poly apps/nirvai-core-vault/src/config/admin_policy_vault.hcl
+./script.vault.sh create poly apps/nirvai-core-vault/src/config/policy/admin_policy_vault.hcl
 # create role: vault admin
-./script.vault.sh create token child apps/nirvai-core-vault/src/config/admin_role_vault.json > $JAIL/vault_admin.json
+./script.vault.sh create token child apps/nirvai-core-vault/src/config/role/admin_role_vault.json > $JAIL/vault_admin.json
 
 # set VAULT_TOKEN  to the new admin and verify access
 ## open vault_admin.json and remove extra statements so its valid json
 export VAULT_TOKEN=$(cat $JAIL/vault_admin.json | jq -r '.auth.client_token')
 
-# verify your access
+# verify token configuration
 ./script.vault.sh get token self
+# verify admin access
+./script.vault.sh list secret-engines
 
+# restart the vault server and verify the admin token can unseal it
+./scrift.refresh.compose.sh core_vault
+vault operator unseal \
+  $(cat $JAIL/root.asc.json \
+    | jq -r '.unseal_keys_b64[0]' \
+    | base64 --decode \
+    | gpg -dq \
+  )
 ```
 
+### greenfield: use admin token to sync policies
+
+```sh
+# the vault addr & path to chroot jail is required in all steps
+export JAIL="../secrets/dev/apps/vault"
+export VAULT_ADDR=https://dev.nirv.ai:8300
+export VAULT_TOKEN=$(cat $JAIL/vault_admin.json | jq -r '.auth.client_token')
+vault operator unseal \
+  $(cat $JAIL/root.asc.json \
+    | jq -r '.unseal_keys_b64[0]' \
+    | base64 --decode \
+    | gpg -dq \
+  )
+
+# forcefully sync vault dev configs into vault app
+rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
+
+# sync policies: copypasta the below in your terminal
+for policy in apps/nirvai-core-vault/src/config/policy/*; do
+  echo -e "creating policy with:\n$policy"
+  ./script.vault.sh create poly $policy
+done
+```
+
+### greenfield: configure secret engines
+
+````sh
+# the vault addr & path to chroot jail is required in all steps
+export JAIL="../secrets/dev/apps/vault"
+export VAULT_ADDR=https://dev.nirv.ai:8300
+
+# verify you can access vault with root token
+export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
+  | jq -r '.root_token' \
+  | base64 --decode \
+  | gpg -dq \
+)
+./script.vault.sh list secret-engines
 ## scripts
 
 - [scripting architecture & guidance](../scripts/README.md)
@@ -241,4 +289,4 @@ get approle id appRoleName
 # get the openapi spec for some path
 help some/path/
 
-```
+````
