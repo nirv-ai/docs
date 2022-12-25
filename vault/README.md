@@ -57,8 +57,7 @@
 ```sh
 
 ######################### FYI
-# setup a chroot: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
-
+# setup a chroot jail: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
 # havent had any success in curling hcl to vault http api, convert to json via this tool
 # @see https://www.convertsimple.com/convert-hcl-to-json/
@@ -91,10 +90,10 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ### requires completion of step: `create vault admin & token` (see below)
 export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 
-## finally verify you have appropriate access, e.g.
-./script.vault.sh list secret-engines
+# if exporting tokens: verify configuration
+./script.vault.sh get token self
 
-# if logging inthrough the UI: copypasta the tokens
+# if logging in through the UI: copypasta the tokens
 ./script.vault get_unseal_tokens
 ```
 
@@ -152,20 +151,11 @@ history -c
 
 # create policy for vault administrator
 ./script.vault.sh create poly $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+
 # create token for vault administrator
 ./script.vault.sh create token child $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json > $JAIL/admin_vault.json
 
 # set VAULT_TOKEN to the admin token and verify access (see above)
-
-# verify admin can login via UI via the browser
-## you will need to cat the admin & vault token to your shell  (see above)
-## in order to copy paste into the browser
-
-# verify token configuration
-./script.vault.sh get token self
-
-# verify admin access
-./script.vault.sh list secret-engines
 
 # restart the vault server and verify the admin token can unseal it
 ./script.refresh.compose.sh core_vault
