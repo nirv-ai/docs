@@ -183,6 +183,22 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 # ./script.vault.sh init_auth_schemes
 ```
 
+### greenfield: enable & configure all secret engines
+
+```sh
+# verify you can access vault with root token
+# ensure vault_token points to the admin_vault token
+# (see above)
+
+# TODO: this entire section should be executable by a single cmd
+# ./script.vault.sh init_secret_engines
+```
+
+### greenfield: next steps
+
+- Congrats! you have enabled & configured your development environment for vault!
+- If you want to do more with vault, see the main documentation below
+
 ## script.vault.sh documentation
 
 - [scripting architecture & guidance](../scripts/README.md)
