@@ -94,6 +94,8 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 ./script.vault.sh get token self
 
 # if logging in through the UI: copypasta the tokens
+## if youve logged in at the same VAULT_ADDR but with a different VAULT_INSTANCE
+## you will need to clear your browser storage & cache
 ./script.vault get_unseal_tokens
 ```
 
