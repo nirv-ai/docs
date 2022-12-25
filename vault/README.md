@@ -70,12 +70,12 @@
 export JAIL="../secrets/dev/apps/vault"
 export VAULT_ADDR=https://dev.nirv.ai:8300
 
-# create root gpg key
-gpg --gen-key
+# create root and admin gpg keys if they dont exist in jail
+gpg --gen-key # repeat for for each entity being assigned a gpg key
 
-# base64 encode the `gpg: key` value
+# base64 encode the `gpg: key` value of each gpg-key to $JAIL/_NAME_.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
-
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 
 ######################### start the vault with a green state
 # stop any running vault containers
@@ -96,25 +96,28 @@ rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
 vault operator init -status
 
 # inititialize vault
-## -n=key-shares (must match amount of supplied pgp-keys)
-## -t=key-threshold
-### in non dev envs, -n => 5, 3 <= -t <=-n
+## -n=key-shares (must match the number of pgp keys you created earlier)
+## -t=key-threshold (# of key shares required to unseal)
 vault operator init \
   -format="json" \
-  -n=1 \
-  -t=1 \
+  -n=2 \
+  -t=2 \
   -root-token-pgp-key="$JAIL/root.asc" \
-  -pgp-keys="$JAIL/root.asc" > $JAIL/root.asc.json
+  -pgp-keys="$JAIL/root.asc,$JAIL/admin_vault.asc" > $JAIL/root.unseal.json
+# you can now distribute each unseal_keys_b64 to the appropriate people
 
-
-# unseal vault: will require you to enter the root.asc password
-## if -t > 1 run this cmd in a loop matching the -t value
-vault operator unseal \
-  $(cat $JAIL/root.asc.json \
-    | jq -r '.unseal_keys_b64[0]' \
-    | base64 --decode \
-    | gpg -dq \
-  )
+# unseal vault: will require you to enter password set on the root pgp key
+unseal_threshold=$(cat $JAIL/root.unseal.json | jq '.unseal_threshold')
+i=0
+while [ $i -lt $unseal_threshold ]; do
+    vault operator unseal \
+      $(cat $JAIL/root.unseal.json \
+        | jq -r ".unseal_keys_b64[$i]" \
+        | base64 --decode \
+        | gpg -dq \
+      )
+    i=$(( i + 1 ))
+done
 
 # delete your shell history:
 history -c
