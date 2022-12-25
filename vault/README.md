@@ -55,10 +55,6 @@ export VAULT_ADDR=https://dev.nirv.ai:8300
 # config directory for the vault server instance you are bootstrapping
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
 
-
-# unseal cmd
-## you will need to rerun this whenever you restart the vault server
-./script.vault.sh unseal
 ```
 
 ### greenfield: create root token, initialize and unseal database
@@ -122,7 +118,7 @@ vault operator init \
 # verify `Vault is initialized
 vault operator init -status
 
-# unseal vault: will require you to enter password set on the root pgp key
+# unseal vault: will require you to enter password set on pgp key
 ./script.vault.sh unseal
 
 # delete your shell history:
@@ -157,9 +153,7 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 ./script.vault.sh list secret-engines
 
 # restart the vault server and verify the admin token can unseal it
-## restart vault (then rerun unseal cmd in previous step)
 ./script.refresh.compose.sh core_vault
-##
 ./script.vault.sh unseal
 ```
 
