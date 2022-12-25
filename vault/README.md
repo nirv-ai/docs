@@ -62,9 +62,13 @@
 # in all examples: /chroot/jail = ../secrets/dev/apps/vault
 # @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
-######################### cd /nirv/core: create a root gpg key for initializing the vault database
-# the location to your chroot jail is required in all steps
+# havent had any success in curling hcl to vault http api, convert to json via this tool
+# @see https://www.convertsimple.com/convert-hcl-to-json/
+
+######################### cd /nirv/core: create a root gpg key
+# the vault addr & path to chroot jail is required in all steps
 export JAIL="../secrets/dev/apps/vault"
+export VAULT_ADDR=https://dev.nirv.ai:8300
 
 # create root gpg key
 gpg --gen-key
@@ -73,18 +77,21 @@ gpg --gen-key
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
 
 
-######################### start the vault container with a green state
-# first: stop any running vault containers
+######################### start the vault with a green state
+# stop any running vault containers
 docker compose down
 
-# next: remove previous vault data {e.g. raft,vault}.db
+# remove previous vault data {e.g. raft,vault}.db
 sudo rm -rf apps/nirvai-core-vault/src/data/*
+
+# forcefully sync vault dev configs into vault app
+rsync -a --delete ../scripts/config/vault/ apps/nirvai-core-vault/src/config
 
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
 
 
-######################### alternative automation method 1: initialize and unseal via operator init
+######################### alternative method 1: CLI init & unseal
 # confirm `Vault is not initialized`
 vault operator init -status
 
@@ -113,7 +120,7 @@ vault operator unseal \
 history -d 50
 
 
-######################### alternative manual method 1: initialize and unseal via vault UI
+######################### alternative method 2: UI init and unseal
 # unseal the database: open https://dev.nirv.ai:8200/
 ## select create a new raft cluster: atleast 5 key shares, at least 3 key threshold
 ## enter the root.asc file as text into both pgp key fields and download the keys
@@ -129,8 +136,9 @@ history -d 50
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
-# the location to your chroot jail is required in all steps
+# the vault addr & path to chroot jail is required in all steps
 export JAIL="../secrets/dev/apps/vault"
+export VAULT_ADDR=https://dev.nirv.ai:8300
 
 # verify you can access vault with root token
 export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
@@ -140,6 +148,10 @@ export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
 )
 ./script.vault.sh list secret-engines
 
+# create role: vault admin
+./script.vault.sh create token child config/vault/vault_admin/admin_role_vault.json
+# create policy: vault admin
+./script.vault.sh create policy config/vault/vault_admin/admin_policy_vault.hcl
 ```
 
 ## scripts
@@ -158,8 +170,10 @@ export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
 # jq @see https://stedolan.github.io/jq/manual/
 
 ####################### interface
-VAULT_ADDR=$VAULT_ADDR
-VAULT_TOKEN=$VAULT_TOKEN
+export VAULT_ADDR=$VAULT_ADDR
+export VAULT_TOKEN=$VAULT_TOKEN
+# run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
+export NIRV_SCRIPT_DEBUG=1
 
 ####################### configuring postgres dynamic creds
 ####################### creating new database engine
