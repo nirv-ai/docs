@@ -36,6 +36,24 @@
 
 ## Setting up vault
 
+- all green field vault instances require human intervention
+  - create root pgp key
+  - create root token and unseal database
+  - create admin token
+  - store root token next to your grenade launchers
+- auto unseal: all have costs
+  - alicloud kms
+  - aws kms
+  - azure key vault
+  - gcp cloud kms
+  - oci kms
+  - hsm pkcs11
+- auto unseal: free
+  - vault transit
+- preferred automation [todo]: auto unseal with seal transit
+- preferred automation: auto unseal with aws kms
+  - [cant afford it](https://aws.amazon.com/kms/pricing/) use seal transit instead
+
 ```sh
 
 ######################### FYI
@@ -55,31 +73,33 @@ export VAULT_ADDR=https://dev.nirv.ai:8300
 # config directory for the vault server instance you are bootstrapping
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
 
+## setting root token
+## requires completion of step: `create root pgp keys` (see below)
+export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
+  | jq -r '.root_token' \
+  | base64 --decode \
+  | gpg -dq \
+)
+
+## setting admin token
+### manually open and verify $JAIL/admin_vault.json is valid json
+### requires completion of step: `create vault admin & token` (see below)
+export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
+
+## finally verify you have appropriate access, e.g.
+./script.vault.sh list secret-engines
+
+# to cat vault_token & unseal tokens to your shell
+./script.vault get_unseal_tokens
 ```
 
 ### greenfield: create root token, initialize and unseal database
 
-- all green field vault instances require human intervention
-  - create root pgp key
-  - create root token and unseal database
-  - create admin token
-  - store root token next to your grenade launchers
-- auto unseal: all have costs
-  - alicloud kms
-  - aws kms
-  - azure key vault
-  - gcp cloud kms
-  - oci kms
-  - hsm pkcs11
-- auto unseal: free
-  - vault transit
-- preferred automation: auto unseal with seal transit
-  - couldnt get working: limited capacity to troubleshoot
-- preferred automation: auto unseal with aws kms
-  - [cant afford it](https://aws.amazon.com/kms/pricing/) see alternative automation 1
-
 ```sh
-######################### cd /nirv/core: create a root gpg key
+######################### cd /nirv/core: create a root gpg key and restart vault instance
+# a human is required to create and distribute
+# root & admin vault tokens and unseal keys
+
 # create root and admin gpg keys if they dont exist in jail
 gpg --gen-key # repeat for for each entity (root, admin, ...) being assigned a gpg key
 
@@ -87,7 +107,6 @@ gpg --gen-key # repeat for for each entity (root, admin, ...) being assigned a g
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 
-######################### start the vault with a green state
 # stop any running vault containers
 docker compose down
 
@@ -100,22 +119,17 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
 
-
-######################### alternative method 1: CLI init & unseal
-# confirm `Vault is not initialized`
+######################### initial and unseal vault
+# confirm `Vault IS NOT initialized`
 vault operator init -status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
 ## -n=key-shares (must match the number of pgp keys you created earlier)
 ## -t=key-threshold (# of key shares required to unseal)
-vault operator init \
-  -format="json" \
-  -n=2 \
-  -t=2 \
-  -root-token-pgp-key="$JAIL/root.asc" \
-  -pgp-keys="$JAIL/root.asc,$JAIL/admin_vault.asc" > $JAIL/root.unseal.json
+export VAULT_TOKEN='poop' # bypass token requirement, wont work if your token is named poop
+./script.vault.sh init
 
-# verify `Vault is initialized
+# verify `Vault IS initialized`
 vault operator init -status
 
 # unseal vault: will require you to enter password set on pgp key
@@ -129,26 +143,21 @@ history -c
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
-# verify you can access vault with root token
-export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
-  | jq -r '.root_token' \
-  | base64 --decode \
-  | gpg -dq \
-)
-./script.vault.sh list secret-engines
+# set and verify root token (see above)
 
 # create policy for vault administrator
 ./script.vault.sh create poly $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 # create token for vault administrator
 ./script.vault.sh create token child $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json > $JAIL/admin_vault.json
 
-# set VAULT_TOKEN to the new admin and verify access
-## open $JAIL/admin_vault.json and ensure its valid json
-export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
+# set VAULT_TOKEN to the admin token and verify access (see above)
 
-# verify admin can login via UI via the browser
+# verify admin can login via UI via the browser: e.g. dev.nirv.ai:8300
+# get admin token and unseal tokens
+
 # verify token configuration
 ./script.vault.sh get token self
+
 # verify admin access
 ./script.vault.sh list secret-engines
 
@@ -159,12 +168,9 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 
 ### greenfield: use admin token to create policies
 
-- requires env vars set in previous step
-
 ```sh
-# ensure vault_token points to the admin token
-# then run unseal cmd in previous step
-export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
+# ensure vault_token points to the admin_vault token
+# (see above)
 
 # forcefully sync vault dev configs into vault app
 rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
@@ -176,8 +182,6 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 ### greenfield: configure secret engines
 
 ````sh
-# the vault addr & path to chroot jail is required in all steps
-
 # verify you can access vault with root token
 export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
   | jq -r '.root_token' \
