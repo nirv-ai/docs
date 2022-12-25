@@ -89,7 +89,8 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 ## finally verify you have appropriate access, e.g.
 ./script.vault.sh list secret-engines
 
-# to cat vault_token & unseal tokens to your shell
+# cat vault_token & unseal tokens to your shell
+# you only need this if logging in via the UI
 ./script.vault get_unseal_tokens
 ```
 
@@ -152,8 +153,9 @@ history -c
 
 # set VAULT_TOKEN to the admin token and verify access (see above)
 
-# verify admin can login via UI via the browser: e.g. dev.nirv.ai:8300
-# get admin token and unseal tokens
+# verify admin can login via UI via the browser
+## you will need to cat the admin & vault token to your shell  (see above)
+## in order to copy paste into the browser
 
 # verify token configuration
 ./script.vault.sh get token self
