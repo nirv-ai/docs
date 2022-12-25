@@ -171,7 +171,7 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 ./script.refresh.compose.sh core_vault
 ```
 
-### greenfield: use admin token to sync policies
+### greenfield: use admin token to create policies
 
 - requires env vars set in previous step
 
@@ -183,12 +183,8 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 # forcefully sync vault dev configs into vault app
 rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
-# initial policies
-for file_starts_with_policy_ in $VAULT_INSTANCE_DIR/config/001-000-policy-init/*; do
-  case $file_starts_with_policy_ in
-  *"/policy_"*) ./script.vault.sh create poly $file_starts_with_policy_ ;;
-  esac
-done
+# create all policies in policy dir
+./script.vault.sh process policy_in_dir $VAULT_INSTANCE_DIR/config/001-000-policy-init
 ```
 
 ### greenfield: configure secret engines
