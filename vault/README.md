@@ -262,40 +262,44 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 
 
 ####################### USAGE
+# follow steps in `# INTERFACE` to setup your cli
+# then invoke cmds below, e.g:
+./script.vault.sh poop poop poop
+
 ############ approle
 ROLE_NAME=auth_approle_role_bff
 ## enable approle: UI > access > approle
-./script.vault.sh enable approle approle
+enable approle approle
 
-## create an approle
-./script.vault.sh create approle path/to/distinct_approle_config.json
+## create/update an approle
+create approle path/to/distinct_approle_config.json
 
 ## verify approle role was created
-./script.vault.sh get approle info $ROLE_NAME
+get approle info $ROLE_NAME
 
 ## get role-id for an approle
-./script.vault.sh get approle id $ROLE_NAME
+get approle id $ROLE_NAME
 
-## get secret-id for an approle
-./script.vault.sh create approle-secret $ROLE_NAME
+## create secret-id for an approle
+create approle-secret $ROLE_NAME
 
 # get creds for approle roleId secretId
-./script.vault.sh get creds xyz-321-yzx-321 123-xyz-123-zyx
+get creds xyz-321-yzx-321 123-xyz-123-zyx
 
 ## lookup secret-id info for an approle
-./script.vault.sh get approle secret-id $ROLE_NAME 123-xyz-123-zyx
+get approle secret-id $ROLE_NAME 123-xyz-123-zyx
 
 ## revoke a secret id for an approle
-./script.vault.sh revoke approle-secret-id $ROLE_NAME 123-xyz-123-zyx
+revoke approle-secret-id $ROLE_NAME 123-xyz-123-zyx
 
 ## list accessors for for an approle role
-./script.vault.sh list approle-axors $ROLE_NAME
+list approle-axors $ROLE_NAME
 
 ## list all approle roles
-./script.vault.sh list approles
+list approles
 
 ## rm approle role
-./script.vault.sh rm approle-role $ROLE_NAME
+rm approle-role $ROLE_NAME
 
 
 
