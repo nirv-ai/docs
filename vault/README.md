@@ -36,6 +36,41 @@
 
 ## Setting up vault
 
+```sh
+
+######################### FYI
+# in all examples: /chroot/jail = ../secrets/dev/apps/vault
+# @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
+
+# havent had any success in curling hcl to vault http api, convert to json via this tool
+# @see https://www.convertsimple.com/convert-hcl-to-json/
+# haha ^ didnt work either
+# fear the copypasta: https://gist.github.com/v6/f4683336eb1c4a6a98a0f3cf21e62df2
+
+######################### interface
+# wherever you will temporarily store created secrets on disk
+export JAIL="../secrets/dev/apps/vault"
+# address where you expect the vault server to be running
+export VAULT_ADDR=https://dev.nirv.ai:8300
+# config directory for the vault server instance you are bootstrapping
+export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+
+
+# unseal cmd
+## you will need to rerun this whenever you restart the vault server
+unseal_threshold=$(cat $JAIL/root.unseal.json | jq '.unseal_threshold')
+i=0
+while [ $i -lt $unseal_threshold ]; do
+    vault operator unseal \
+      $(cat $JAIL/root.unseal.json \
+        | jq -r ".unseal_keys_b64[$i]" \
+        | base64 --decode \
+        | gpg -dq \
+      )
+    i=$(( i + 1 ))
+done
+```
+
 ### greenfield: create root token, initialize and unseal database
 
 - all green field vault instances require human intervention
@@ -58,20 +93,9 @@
   - [cant afford it](https://aws.amazon.com/kms/pricing/) see alternative automation 1
 
 ```sh
-######################### FYI
-# in all examples: /chroot/jail = ../secrets/dev/apps/vault
-# @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
-
-# havent had any success in curling hcl to vault http api, convert to json via this tool
-# @see https://www.convertsimple.com/convert-hcl-to-json/
-
 ######################### cd /nirv/core: create a root gpg key
-# the vault addr & path to chroot jail is required in all steps
-export JAIL="../secrets/dev/apps/vault"
-export VAULT_ADDR=https://dev.nirv.ai:8300
-
 # create root and admin gpg keys if they dont exist in jail
-gpg --gen-key # repeat for for each entity being assigned a gpg key
+gpg --gen-key # repeat for for each entity (root, admin, ...) being assigned a gpg key
 
 # base64 encode the `gpg: key` value of each gpg-key to $JAIL/_NAME_.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
@@ -82,10 +106,10 @@ gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 docker compose down
 
 # remove previous vault data {e.g. raft,vault}.db
-sudo rm -rf apps/nirvai-core-vault/src/data/*
+sudo rm -rf $VAULT_INSTANCE_DIR/data/*
 
-# forcefully sync vault dev configs into vault app
-rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
+# forcefully sync vault dev configs into the vault instance config dir
+rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
@@ -95,7 +119,7 @@ rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
 # confirm `Vault is not initialized`
 vault operator init -status
 
-# inititialize vault
+# inititialize vault & distribute each unseal_keys_b64 to the appropriate people
 ## -n=key-shares (must match the number of pgp keys you created earlier)
 ## -t=key-threshold (# of key shares required to unseal)
 vault operator init \
@@ -104,98 +128,66 @@ vault operator init \
   -t=2 \
   -root-token-pgp-key="$JAIL/root.asc" \
   -pgp-keys="$JAIL/root.asc,$JAIL/admin_vault.asc" > $JAIL/root.unseal.json
-# you can now distribute each unseal_keys_b64 to the appropriate people
+
+# verify `Vault is initialized
+vault operator init -status
 
 # unseal vault: will require you to enter password set on the root pgp key
-unseal_threshold=$(cat $JAIL/root.unseal.json | jq '.unseal_threshold')
-i=0
-while [ $i -lt $unseal_threshold ]; do
-    vault operator unseal \
-      $(cat $JAIL/root.unseal.json \
-        | jq -r ".unseal_keys_b64[$i]" \
-        | base64 --decode \
-        | gpg -dq \
-      )
-    i=$(( i + 1 ))
-done
+## see setup section for unseal cmd
 
 # delete your shell history:
 history -c
-
-
-######################### alternative method 2: UI init and unseal
-# unseal the database: open https://dev.nirv.ai:8200/
-## select create a new raft cluster: atleast 5 key shares, at least 3 key threshold
-## enter the root.asc file as text into both pgp key fields and download the keys
-## dowload your bank keys, it should match the following
-{
-  "keys": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
-  "keys_base64": ["SOME_KEY1", "SOME_KEY2", "SOME_KEY3", ...],
-  "root_token": "ROOT_TOKEN_GUARD_WITH_YOUR_LIFE"
-}
 
 ```
 
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
-# the vault addr & path to chroot jail is required in all steps
-export JAIL="../secrets/dev/apps/vault"
-export VAULT_ADDR=https://dev.nirv.ai:8300
-
 # verify you can access vault with root token
-export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
+export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
 )
 ./script.vault.sh list secret-engines
 
-# create policy: vault admin
-./script.vault.sh create poly apps/nirvai-core-vault/src/config/policy/admin_policy_vault.hcl
-# create role: vault admin
-./script.vault.sh create token child apps/nirvai-core-vault/src/config/role/admin_role_vault.json > $JAIL/vault_admin.json
+# create policy for vault administrator
+./script.vault.sh create poly $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+# create token for vault administrator
+./script.vault.sh create token child $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json > $JAIL/admin_vault.json
 
-# set VAULT_TOKEN  to the new admin and verify access
-## open vault_admin.json and remove extra statements so its valid json
-export VAULT_TOKEN=$(cat $JAIL/vault_admin.json | jq -r '.auth.client_token')
+# set VAULT_TOKEN to the new admin and verify access
+## open $JAIL/admin_vault.json and ensure its valid json
+export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 
+# verify admin can login via UI via the browser
 # verify token configuration
 ./script.vault.sh get token self
 # verify admin access
 ./script.vault.sh list secret-engines
 
 # restart the vault server and verify the admin token can unseal it
-./scrift.refresh.compose.sh core_vault
-vault operator unseal \
-  $(cat $JAIL/root.asc.json \
-    | jq -r '.unseal_keys_b64[0]' \
-    | base64 --decode \
-    | gpg -dq \
-  )
+## restart vault (then rerun unseal cmd in previous step)
+./script.refresh.compose.sh core_vault
 ```
 
 ### greenfield: use admin token to sync policies
 
+- requires env vars set in previous step
+
 ```sh
-# the vault addr & path to chroot jail is required in all steps
-export JAIL="../secrets/dev/apps/vault"
-export VAULT_ADDR=https://dev.nirv.ai:8300
-export VAULT_TOKEN=$(cat $JAIL/vault_admin.json | jq -r '.auth.client_token')
-vault operator unseal \
-  $(cat $JAIL/root.asc.json \
-    | jq -r '.unseal_keys_b64[0]' \
-    | base64 --decode \
-    | gpg -dq \
-  )
+# ensure vault_token points to the admin token
+# then run unseal cmd in previous step
+export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 
 # forcefully sync vault dev configs into vault app
-rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
+rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
-# sync policies: copypasta the below in your terminal
-for policy in apps/nirvai-core-vault/src/config/policy/*; do
-  echo -e "creating policy with:\n$policy"
-  ./script.vault.sh create poly $policy
+# initial policies
+for file_starts_with_policy_ in $VAULT_INSTANCE_DIR/config/001-000-policy-init/*; do
+  case $file_starts_with_policy_ in
+  *"/policy_"*) ./script.vault.sh create poly $file_starts_with_policy_ ;;
+  esac
 done
 ```
 
@@ -203,8 +195,6 @@ done
 
 ````sh
 # the vault addr & path to chroot jail is required in all steps
-export JAIL="../secrets/dev/apps/vault"
-export VAULT_ADDR=https://dev.nirv.ai:8300
 
 # verify you can access vault with root token
 export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
