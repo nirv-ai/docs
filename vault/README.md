@@ -67,14 +67,18 @@
 # fear the copypasta: https://gist.github.com/v6/f4683336eb1c4a6a98a0f3cf21e62df2
 
 ######################### interface
+# base config directory for the vault server instance you are bootstrapping
+# base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
+# you should mount private configs & overrides at a separate location
+export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+NIRVAI_VAULT_CONFIG_PATH=../configs/vault/
+rsync -a --delete $NIRVAI_VAULT_CONFIG_PATH $VAULT_INSTANCE_DIR/config
+
 # wherever you will temporarily store created secrets on disk
 export JAIL="../secrets/dev/apps/vault"
 
 # address where you expect the vault server to be running
 export VAULT_ADDR=https://dev.nirv.ai:8300
-
-# config directory for the vault server instance you are bootstrapping
-export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
 
 # run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
 export NIRV_SCRIPT_DEBUG=1
@@ -98,7 +102,7 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 # if logging in through the UI: copypasta the tokens
 ## if youve logged in at the same VAULT_ADDR but with a different VAULT_INSTANCE
 ## you will need to clear your browser storage & cache
-./script.vault get_unseal_tokens
+./script.vault.sh get_unseal_tokens
 ```
 
 ### greenfield: create root token, initialize and unseal database
@@ -120,9 +124,6 @@ docker compose down
 
 # remove previous vault data {e.g. raft,vault}.db
 sudo rm -rf $VAULT_INSTANCE_DIR/data/*
-
-# forcefully sync vault dev configs into the vault instance config dir
-rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
@@ -157,7 +158,7 @@ ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_a
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
-# set VAULT_TOKEN to the admin token and verify access (@see `# INTERFACE`)
+# set and verify admin token (@see `# INTERFACE`)
 
 # restart the vault server and verify the admin token can unseal it
 ./script.refresh.compose.sh core_vault
@@ -167,33 +168,31 @@ ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_adm
 ### greenfield: use admin token to create policies
 
 ```sh
-# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
-
-# forcefully sync vault dev configs into vault app
-rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
+# set and verify admin token (@see `# INTERFACE`)
 
 # create all policies in policy dir
-./script.vault.sh process policy_in_dir $VAULT_INSTANCE_DIR/config/001-000-policy-init
+POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
+./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
 ### greenfield: enable & configure all auth schemes
 
 ```sh
-# verify you can access vault with root token
-# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
+# set and verify admin token (@see `# INTERFACE`)
 
 # TODO: this entire section should be executable by a single cmd
-# ./script.vault.sh init_auth_schemes
+# AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
+# ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 ```
 
 ### greenfield: enable & configure all secret engines
 
 ```sh
-# verify you can access vault with root token
-# ensure vault_token points to the admin_vault token (@see `# INTERFACE`)
+# set and verify admin token (@see `# INTERFACE`)
 
 # TODO: this entire section should be executable by a single cmd
-# ./script.vault.sh init_secret_engines
+# SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
+# ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
 ```
 
 ### greenfield: next steps
