@@ -66,6 +66,10 @@
 # haha ^ didnt work either
 # fear the copypasta: https://gist.github.com/v6/f4683336eb1c4a6a98a0f3cf21e62df2
 
+####################### requirements
+# curl @see https://curl.se/docs/manpage.html
+# jq @see https://stedolan.github.io/jq/manual/
+
 ######################### interface
 # base config directory for the vault server instance you are bootstrapping
 # base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
@@ -251,11 +255,6 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
-
-####################### requirements
-# curl @see https://curl.se/docs/manpage.html
-# jq @see https://stedolan.github.io/jq/manual/
-
 ####################### configuring postgres dynamic creds
 ####################### creating new database engine
 - disable verify connection
@@ -264,6 +263,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 
 ####################### USAGE
 ############ approle
+ROLE_NAME=auth_approle_role_bff
 ## enable approle: UI > access > approle
 ./script.vault.sh enable approle approle
 
@@ -271,31 +271,31 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ./script.vault.sh create approle path/to/distinct_approle_config.json
 
 ## verify approle role was created
-./script.vault.sh get approle info auth_approle_role_bff
+./script.vault.sh get approle info $ROLE_NAME
 
 ## get role-id for an approle
-./script.vault.sh get approle id auth_approle_role_bff
+./script.vault.sh get approle id $ROLE_NAME
 
 ## get secret-id for an approle
-./script.vault.sh create approle-secret auth_approle_role_bff
+./script.vault.sh create approle-secret $ROLE_NAME
 
 # get creds for approle roleId secretId
 ./script.vault.sh get creds xyz-321-yzx-321 123-xyz-123-zyx
 
 ## lookup secret-id info for an approle
-./script.vault.sh get approle secret-id auth_approle_role_bff 123-xyz-123-zyx
+./script.vault.sh get approle secret-id $ROLE_NAME 123-xyz-123-zyx
 
 ## revoke a secret id for an approle
-./script.vault.sh revoke approle-secret-id auth_approle_role_bff 123-xyz-123-zyx
+./script.vault.sh revoke approle-secret-id $ROLE_NAME 123-xyz-123-zyx
 
 ## list accessors for for an approle role
-./script.vault.sh list approle-axors auth_approle_role_bff
+./script.vault.sh list approle-axors $ROLE_NAME
 
 ## list all approle roles
 ./script.vault.sh list approles
 
 ## rm approle role
-./script.vault.sh rm approle-role auth_approle_role_bff
+./script.vault.sh rm approle-role $ROLE_NAME
 
 
 
