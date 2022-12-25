@@ -39,8 +39,8 @@
 ```sh
 
 ######################### FYI
-# in all examples: /chroot/jail = ../secrets/dev/apps/vault
-# @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
+# setup a chroot: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
+
 
 # havent had any success in curling hcl to vault http api, convert to json via this tool
 # @see https://www.convertsimple.com/convert-hcl-to-json/
@@ -58,17 +58,7 @@ export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
 
 # unseal cmd
 ## you will need to rerun this whenever you restart the vault server
-unseal_threshold=$(cat $JAIL/root.unseal.json | jq '.unseal_threshold')
-i=0
-while [ $i -lt $unseal_threshold ]; do
-    vault operator unseal \
-      $(cat $JAIL/root.unseal.json \
-        | jq -r ".unseal_keys_b64[$i]" \
-        | base64 --decode \
-        | gpg -dq \
-      )
-    i=$(( i + 1 ))
-done
+./script.vault.sh unseal
 ```
 
 ### greenfield: create root token, initialize and unseal database
@@ -133,7 +123,7 @@ vault operator init \
 vault operator init -status
 
 # unseal vault: will require you to enter password set on the root pgp key
-## see setup section for unseal cmd
+./script.vault.sh unseal
 
 # delete your shell history:
 history -c
@@ -169,6 +159,8 @@ export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 # restart the vault server and verify the admin token can unseal it
 ## restart vault (then rerun unseal cmd in previous step)
 ./script.refresh.compose.sh core_vault
+##
+./script.vault.sh unseal
 ```
 
 ### greenfield: use admin token to create policies
