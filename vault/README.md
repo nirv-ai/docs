@@ -190,6 +190,26 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ### configure approle
 ### todo
 
+### enable userpass: UI > access > ...
+# ./script.vault.sh enable userpass userpass
+### configure userpass
+### todo
+
+### enable aws: UI > access > ...
+# ./script.vault.sh enable aws aws
+### configure aws
+### todo
+```
+
+### greenfield: enable & configure all secret engines
+
+```sh
+# set and verify admin token (@see `# INTERFACE`)
+
+# TODO: this entire section should be executable by a single cmd
+# SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
+# ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
+
 ### enable kv-v2: UI > secrets > secret
 ./script.vault.sh enable secret kv-2
 ### configure kv-v2
@@ -203,16 +223,11 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 #### connect postgres database plugin
 ##### todo
 ##### todo
-```
 
-### greenfield: enable & configure all secret engines
-
-```sh
-# set and verify admin token (@see `# INTERFACE`)
-
-# TODO: this entire section should be executable by a single cmd
-# SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
-# ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
+### enable ssh: UI > secrets > ...
+# ./script.vault.sh enable ssh ssh
+### configure ssh
+### todo
 ```
 
 ### greenfield: next steps
