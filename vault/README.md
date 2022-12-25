@@ -85,7 +85,7 @@ docker compose down
 sudo rm -rf apps/nirvai-core-vault/src/data/*
 
 # forcefully sync vault dev configs into vault app
-rsync -a --delete ../scripts/config/vault/ apps/nirvai-core-vault/src/config
+rsync -a --delete ../configs/vault/ apps/nirvai-core-vault/src/config
 
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
@@ -148,10 +148,18 @@ export VAULT_TOKEN=$(cat $JAIL/root.asc.json \
 )
 ./script.vault.sh list secret-engines
 
-# create role: vault admin
-./script.vault.sh create token child config/vault/vault_admin/admin_role_vault.json
 # create policy: vault admin
-./script.vault.sh create policy config/vault/vault_admin/admin_policy_vault.hcl
+./script.vault.sh create poly apps/nirvai-core-vault/src/config/admin_policy_vault.hcl
+# create role: vault admin
+./script.vault.sh create token child apps/nirvai-core-vault/src/config/admin_role_vault.json > $JAIL/vault_admin.json
+
+# set VAULT_TOKEN  to the new admin and verify access
+## open vault_admin.json and remove extra statements so its valid json
+export VAULT_TOKEN=$(cat $JAIL/vault_admin.json | jq -r '.auth.client_token')
+
+# verify your access
+./script.vault.sh get token self
+
 ```
 
 ## scripts
