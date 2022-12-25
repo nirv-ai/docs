@@ -147,10 +147,13 @@ vault operator init -status
 # set and verify root token (see above)
 
 # create policy for vault administrator
-./script.vault.sh create poly $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+./script.vault.sh create poly $ADMIN_POLICY_CONFIG
+
 
 # create token for vault administrator
-./script.vault.sh create token child $VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json > $JAIL/admin_vault.json
+ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
+./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
 # set VAULT_TOKEN to the admin token and verify access (see above)
 
