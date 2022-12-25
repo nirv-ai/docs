@@ -172,13 +172,15 @@ rsync -a --delete ../configs/vault/ $VAULT_INSTANCE_DIR/config
 ./script.vault.sh process policy_in_dir $VAULT_INSTANCE_DIR/config/001-000-policy-init
 ```
 
-### greenfield: enable auth schemes
+### greenfield: enable & configure all auth schemes
 
 ```sh
 # verify you can access vault with root token
 # ensure vault_token points to the admin_vault token
 # (see above)
 
+# TODO: this entire section should be executable by a single cmd
+# ./script.vault.sh init_auth_schemes
 ```
 
 ## script.vault.sh documentation
