@@ -155,6 +155,8 @@ vault operator init -status
 ### greenfield: use root token to create vault admin token and policy
 
 ```sh
+# TODO: this entire sectino should be exactuable by a single cmd
+
 # set and verify root token (@see `# INTERFACE`)
 
 # create policy for vault administrator
