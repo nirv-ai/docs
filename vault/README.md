@@ -191,14 +191,14 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: use admin token to create tokes in token dir
+### greenfield: use admin token to create token roles in token role dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# create all policies in policy dir
-TOKEN_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-init
-./script.vault.sh process token_in_dir $TOKEN_DIR
+# create all token roles in token role dir
+TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
+./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
 ### greenfield: use admin token to enable features in feature dir
