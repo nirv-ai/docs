@@ -254,8 +254,7 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 ## database role config: secret_database.DB_NAME.role.ROLE_NAME.json
 ### ^ would configure ROLE_NAME for the database with DB_NAME
 ### NOTE: we only support databases that support rotate-root creds
-### fk that databse if it doesnt
-### vault write -force database/rotate-root/my-database will be triggered automatically
+### vault user creds will be automatically rotated
 
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
