@@ -46,20 +46,8 @@
 - all green field vault instances require human intervention
   - create root pgp key
   - create root token and unseal database
-  - create admin token
+  - create and distribute admin token(s)
   - store root token next to your grenade launchers
-- auto unseal: all have costs
-  - alicloud kms
-  - aws kms
-  - azure key vault
-  - gcp cloud kms
-  - oci kms
-  - hsm pkcs11
-- auto unseal: free
-  - vault transit
-- preferred automation [todo]: auto unseal with seal transit
-- preferred automation: auto unseal with aws kms
-  - [cant afford it](https://aws.amazon.com/kms/pricing/) use seal transit instead
 
 ```sh
 
