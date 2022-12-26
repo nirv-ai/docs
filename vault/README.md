@@ -188,15 +188,13 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# to set a vault feature to be enabled
-## create a directory containing empty files, whose names match syntax:
-### your/feature/dir/enable.THIS_THING.AT_THIS_PATH
-### e.g. /feature/dir/enable.kv-v2.secret
+# create a directory containing empty files, filename syntax:
+## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
+## e.g. /feature/dir/enable.kv-v2.secret
 ## e.g. /feature/dir/enable.kv-v2.frontend
 ### will enable secret engine kv-v2 at paths secret/ && frontend/
 ### currently we only auto enable features at top-level paths
-#### bad: enable.kv-v2.microfrontend.app1.snazzle
-#### works: enable.database.pg, enable.database.arango
+### bad: enable.kv-v2.microfrontend.app1.snazzle
 
 # enable all features
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
@@ -209,25 +207,15 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
+# create a directory containing distinct json files, filename syntax:
+## your/auth/dir/auth_approle_role_ROLE_NAME.json
+## e.g. /auth/dir/auth_approle_role_backend.json
+## e.g. /auth/dir/auth_approle_role_cache.json
+### will create/update approle(s) using the configuration in each file
+
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
-# approle bootstrap automation logic
-## use the approle vault.sh cmds to atuomate the following:
-## enable approle: ./script.vault.sh enable approle approle
-## create approle(s): ./script.vault.sh create approle */auth_approle_role_*.json$
-## ^ auth_dir: $VAULT_INSTANCE_DIR/src/config/002-000-auth-init/*
-
-#################### TODO
-### enable userpass: UI > access > ...
-# ./script.vault.sh enable userpass userpass
-### configure userpass
-### todo
-
-### enable aws: UI > access > ...
-# ./script.vault.sh enable aws aws
-### configure aws
-### todo
 ```
 
 ### greenfield: configure all secret engines
