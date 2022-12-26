@@ -190,13 +190,13 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 
 # create a directory containing empty files, filename syntax:
 ## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
-## e.g. /feature/dir/enable.kv-v2.secret
-## e.g. /feature/dir/enable.kv-v2.frontend
+## e.g. feature/dir/enable.kv-v2.secret
+## e.g. feature/dir/enable.kv-v2.frontend
 ### will enable secret engine kv-v2 at paths secret/ && frontend/
 ### currently we only auto enable features at top-level paths
 ### bad: enable.kv-v2.microfrontend.app1.snazzle
 
-# enable all features
+# enable all features in feature dir
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 ./script.vault.sh process enable_feature $FEATURE_DIR
 
@@ -207,10 +207,10 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# create a directory containing distinct json files, filename syntax:
+# create a directory containing json config files, filename syntax:
 ## your/auth/dir/auth_approle_role_ROLE_NAME.json
-## e.g. /auth/dir/auth_approle_role_backend.json
-## e.g. /auth/dir/auth_approle_role_cache.json
+## e.g. auth/dir/auth_approle_role_backend.json
+## e.g. auth/dir/auth_approle_role_cache.json
 ### will create/update approle(s) using the configuration in each file
 
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
@@ -227,6 +227,8 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 # SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 # ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
 
+# TODO: set kv1 path to secret: better perf than v2
+# TODO: set kv2 path to vsecret: powerful usecases
 ### enable kv-v2: UI > secrets > secret
 ./script.vault.sh enable kv-v2 secret
 ### configure kv-v2
