@@ -75,8 +75,8 @@
 # base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
 # you should mount private configs & overrides at a separate location
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
-REPO_CONFIG_VAUT_PATH=../configs/vault/
-rsync -a --delete $REPO_CONFIG_VAUT_PATH $VAULT_INSTANCE_DIR/config
+REPO_CONFIG_VAULT_PATH=../configs/vault/
+rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_DIR/config
 
 # wherever you will temporarily store created secrets on disk
 export JAIL="../secrets/dev/apps/vault"
@@ -180,14 +180,34 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: enable & configure all auth schemes
+### greenfield: enable vault features
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# TODO: this entire section should be executable by a single cmd
-# AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
-# ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+# to set a vault feature to be enabled
+## create a directory containing empty files, whose names match syntax:
+### your/feature/dir/enable.THIS_THING.AT_THIS_PATH
+### e.g. /feature/dir/enable.kv-v2.secret
+## e.g. /feature/dir/enable.kv-v2.frontend
+### will enable secret engine kv-v2 at paths secret/ && frontend/
+### currently we only auto enable features at top-level paths
+#### bad: enable.kv-v2.microfrontend.app1.snazzle
+#### works: enable.database.pg, enable.database.arango
+
+# enable all features
+FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
+./script.vault.sh process enable_feature $FEATURE_DIR
+
+```
+
+### greenfield: configure all auth schemes
+
+```sh
+# set and verify admin token (@see `# INTERFACE`)
+
+AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
+./script.vault.sh process auths_in_dir $AUTH_SCHEME_DIR
 
 # approle bootstrap automation logic
 ## use the approle vault.sh cmds to atuomate the following:
@@ -207,7 +227,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ### todo
 ```
 
-### greenfield: enable & configure all secret engines
+### greenfield: configure all secret engines
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
