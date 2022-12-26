@@ -1,6 +1,8 @@
 # NIRVai VAULT
 
 - documentation for VAULT @ nirvai
+- [scripting architecture & guidance](../scripts/README.md)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ## RACEXP
 
@@ -269,9 +271,6 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 - If you want to do more with vault, see the main documentation below
 
 ## script.vault.sh documentation
-
-- [scripting architecture & guidance](../scripts/README.md)
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
 
 ```sh
 ####################### configuring postgres dynamic creds
