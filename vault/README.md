@@ -1,8 +1,9 @@
 # NIRVai VAULT
 
-- documentation for VAULT @ nirvai
+- documentation for vault
 - [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
+- [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
 
 ## RACEXP
 
@@ -117,7 +118,9 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ./script.vault.sh get token self
 ```
 
-### greenfield: create root token, initialize and unseal database
+### new vault server setup
+
+#### create root token, initialize and unseal database
 
 ```sh
 ######################### cd /nirv/core: create a root gpg key and restart vault instance
@@ -154,9 +157,9 @@ vault operator init -status
 
 ```
 
-### greenfield: use root token to create admin policy & token
+#### use root token to create admin policy & token
 
-- this is the last time you should ever use the root token
+> this is the last time you should ever use the root token
 
 ```sh
 # set root token & unseal db (@see `# INTERFACE`)
@@ -171,7 +174,7 @@ ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_adm
 
 ```
 
-### greenfield: use admin token to create policies in policy dir
+#### use admin token to create policies in policy dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -181,7 +184,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: use admin token to create token roles in token role dir
+#### use admin token to create token roles in token role dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -191,7 +194,7 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
-### greenfield: use admin token to enable features in feature dir
+#### use admin token to enable features in feature dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -210,7 +213,7 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
 
 ```
 
-### greenfield: use admin token to configure auth schemes in auth dir
+#### use admin token to configure auth schemes in auth dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -226,7 +229,7 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 
 ```
 
-### greenfield: use admin token to configure secret engines in engine dir
+#### use admin token to configure secret engines in engine dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -252,12 +255,15 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 
 ```
 
-### greenfield: next steps
+#### next steps
 
 - Congrats! you have enabled & configured your development environment for vault!
 - If you want to do more with vault, see the main documentation below
 
 ## script.vault.sh documentation
+
+- TODO: update this section before merging to develop
+  - its missing massive amounts of documentation
 
 ```sh
 ####################### configuring postgres dynamic creds
