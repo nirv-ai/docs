@@ -175,7 +175,6 @@ vault operator init -status
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 ./script.vault.sh create poly $ADMIN_POLICY_CONFIG
 
-
 # create token for vault administrator
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
@@ -209,14 +208,12 @@ TOKEN_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-init
 
 # create a directory containing empty files, filename syntax:
 ## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
-## e.g. feature/dir/enable.kv-v2.secret
-## e.g. feature/dir/enable.kv-v2.frontend
-### will enable secret engine kv-v2 at paths secret/ && frontend/
+## e.g. feature/dir/enable.kv-v2.secret # for versioned sensitive data
+## e.g. feature/dir/enable.kv-v1.env # for immutable sensitived data with increased perf
+### will enable secret engine kv-v2 at paths secret/ && kv-v1 at path env/
 ### currently we only auto enable features at top-level paths
 ### bad: enable.kv-v2.microfrontend.app1.snazzle
 
-# TODO: add kv1, for most cases you'll want kv1
-# unless you need versioned secrets
 # enable all features in feature dir
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 ./script.vault.sh process enable_feature $FEATURE_DIR
@@ -248,36 +245,9 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 # SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 # ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
 
-# TODO: set kv1 path to secret: better perf than v2
-# TODO: set kv2 path to vsecret: powerful usecases
-### enable kv-v2: UI > secrets > secret
-./script.vault.sh enable kv-v2 secret
-### configure kv-v2
 ### todo
-
-### enable database: UI > secrets > database
-./script.vault.sh enable database database
-### configure database
-### todo
-
 #### connect postgres database plugin
-##### todo
-##### todo
 
-### enable ssh: UI > secrets > ...
-# ./script.vault.sh enable ssh ssh
-### configure ssh
-### todo
-
-### enable nomad: nomad > secrets > ...
-# ./script.vault.sh enable nomad nomad
-### configure nomad
-### todo
-
-### enable terraform-cloud: UI > secrets > ...
-# ./script.vault.sh enable tfcloud tfcloud
-### configure tfcloud
-### todo
 ```
 
 ### greenfield: next steps
