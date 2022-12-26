@@ -92,6 +92,17 @@ export VAULT_ADDR=https://dev.nirv.ai:8300
 # run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
 export NIRV_SCRIPT_DEBUG=1
 
+# if logging in through the UI: copypasta the tokens and open the browser to $VAULT_ADDR
+## if youve logged in at the same VAULT_ADDR but with a different VAULT_INSTANCE installation
+## you may need to clear your browser storage & cache
+./script.vault.sh get_unseal_tokens
+
+
+# if logging in via the CLI
+## 1. export the appropriate token
+## 2. unseal db if required
+## 3. verify token configuration
+
 ## setting root token
 ## requires completion of step: `create root pgp keys` (see below)
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
@@ -100,18 +111,16 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | gpg -dq \
 )
 
-## setting admin token
+## setting a different token (e.g. admin)
+### requires completion of step: `create vault admin & token`
 ### manually open and verify $JAIL/admin_vault.json is valid json
-### requires completion of step: `create vault admin & token` (see below)
 export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
 
-# if exporting tokens: verify configuration
-./script.vault.sh get token self
+## unseal the DB if its sealed (requires password used when creating the pgp key)
+./script.vault.sh unseal
 
-# if logging in through the UI: copypasta the tokens
-## if youve logged in at the same VAULT_ADDR but with a different VAULT_INSTANCE
-## you will need to clear your browser storage & cache
-./script.vault.sh get_unseal_tokens
+## verify your token configuration
+./script.vault.sh get token self
 ```
 
 ### greenfield: create root token, initialize and unseal database
@@ -149,17 +158,14 @@ export VAULT_TOKEN='poop'
 # verify `Vault *IS* initialized`
 vault operator init -status
 
-# unseal vault: will require you to enter password set on pgp key
-./script.vault.sh unseal
-
 ```
 
-### greenfield: use root token to create vault admin token and policy
+### greenfield: use admin token to create admin policy & token
+
+- this is the last time you should ever use the root token
 
 ```sh
-# TODO: this entire sectino should be exactuable by a single cmd
-
-# set and verify root token (@see `# INTERFACE`)
+# set root token & unseal db (@see `# INTERFACE`)
 
 # create policy for vault administrator
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
@@ -170,24 +176,29 @@ ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_a
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
-# set and verify admin token (@see `# INTERFACE`)
-
-# restart the vault server and verify the admin token can unseal it
-./script.refresh.compose.sh core_vault
-./script.vault.sh unseal
 ```
 
-### greenfield: use admin token to create policies
+### greenfield: use admin token to create policies in policy dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
 # create all policies in policy dir
-POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
+POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: enable vault features
+### greenfield: use admin token to create all tokes in token dir
+
+```sh
+# set and verify admin token (@see `# INTERFACE`)
+
+# create all policies in policy dir
+TOKEN_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-init
+./script.vault.sh process token_in_dir $TOKEN_DIR
+```
+
+### greenfield: use admin token to enable all features in feature dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
