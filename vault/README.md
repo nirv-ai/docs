@@ -10,6 +10,9 @@
 ## WHY VAULT ?
 
 - vault is an opensource database for sensitive data storage, access and control
+- our goal is to have:
+  - an immutable vault instance: automation from greenfield to prod
+  - persistent storage: vault server life cycle should have 0 impact on data persistence
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
@@ -207,7 +210,7 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 # set and verify admin token (@see `# INTERFACE`)
 
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
-./script.vault.sh process auths_in_dir $AUTH_SCHEME_DIR
+./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
 # approle bootstrap automation logic
 ## use the approle vault.sh cmds to atuomate the following:
