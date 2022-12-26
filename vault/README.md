@@ -196,6 +196,8 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ### currently we only auto enable features at top-level paths
 ### bad: enable.kv-v2.microfrontend.app1.snazzle
 
+# TODO: add kv1, for most cases you'll want kv1
+# unless you need versioned secrets
 # enable all features in feature dir
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 ./script.vault.sh process enable_feature $FEATURE_DIR
