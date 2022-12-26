@@ -118,7 +118,9 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ## setting a different token (e.g. admin)
 ### requires completion of step: `create vault admin & token`
 ### manually open and verify $JAIL/admin_vault.json is valid json
-export VAULT_TOKEN=$(cat $JAIL/admin_vault.json | jq -r '.auth.client_token')
+### ^ logs may exist if created when NIRVAI_SCRIPT_DEBUG was set
+USE_VAULT_TOKEN=admin_vault
+export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
 ## unseal the DB if its sealed (requires password used when creating the pgp key)
 ./script.vault.sh unseal
@@ -215,7 +217,7 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
 ### bad: enable.kv-v2.microfrontend.app1.snazzle
 
 # enable all features in feature dir
-FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
+FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
 ./script.vault.sh process enable_feature $FEATURE_DIR
 
 ```
@@ -241,9 +243,8 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# TODO: this entire section should be executable by a single cmd
-# SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
-# ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
+SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
+./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ### todo
 #### connect postgres database plugin
