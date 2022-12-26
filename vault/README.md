@@ -245,13 +245,14 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 
 # depending on the type of engine your configuring, the filename has different formats:
 
-## kv-v2: secret_kv2.PATH.config.json # configure the kv2 engine enabled at PATH/
-### e.g. if using the our kv2 enable_feature file: then the config:
-#### secret_kv2.secret.config.json would configure it at path secret/
+## kv-v2: secret_kv2.PATH.config.json
+### ^ configure the kv2 engine enabled at PATH/
 
-## database: secret_database.DB_NAME.config.json would configure the DB with DB_NAME
-### e.g.: if using our nirvai postgres config file:
-#### secret_database.nirvai.config.json would configure postgres-plugin db with name nirvai
+## database config: secret_database.DB_NAME.config.json
+### ^ configure the database with DB_NAME
+
+## database role config: secret_database.DB_NAME.role.ROLE_NAME.json
+### ^ would configure ROLE_NAME for the database with DB_NAME
 
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
