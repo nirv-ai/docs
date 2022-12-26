@@ -92,11 +92,16 @@ export VAULT_ADDR=https://dev.nirv.ai:8300
 # run `unset NIRV_SCRIPT_DEBUG && history -c` when debugging complete
 export NIRV_SCRIPT_DEBUG=1
 
-# if logging in through the UI: copypasta the tokens and open the browser to $VAULT_ADDR
-## if youve logged in at the same VAULT_ADDR but with a different VAULT_INSTANCE installation
-## you may need to clear your browser storage & cache
-./script.vault.sh get_unseal_tokens
+# the below steps require you to complete:
+## section: `create root token, initialize and unseal database`
+## section: `use root token to create admin policy & token`
 
+
+# if logging in through the UI: copypasta the tokens and open the browser to $VAULT_ADDR
+## if youve logged in at the same VAULT_ADDR created with a different root token
+## you may need to clear your browser storage & cache
+# get unseal tokens and use them to unseal db and login to vault
+./script.vault.sh get_unseal_tokens
 
 # if logging in via the CLI
 ## 1. export the appropriate token
@@ -104,7 +109,6 @@ export NIRV_SCRIPT_DEBUG=1
 ## 3. verify token configuration
 
 ## setting root token
-## requires completion of step: `create root pgp keys` (see below)
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -160,7 +164,7 @@ vault operator init -status
 
 ```
 
-### greenfield: use admin token to create admin policy & token
+### greenfield: use root token to create admin policy & token
 
 - this is the last time you should ever use the root token
 
@@ -188,7 +192,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: use admin token to create all tokes in token dir
+### greenfield: use admin token to create tokes in token dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -198,7 +202,7 @@ TOKEN_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-init
 ./script.vault.sh process token_in_dir $TOKEN_DIR
 ```
 
-### greenfield: use admin token to enable all features in feature dir
+### greenfield: use admin token to enable features in feature dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -219,7 +223,7 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-001-enable-features
 
 ```
 
-### greenfield: configure all auth schemes
+### greenfield: use admin token to configure auth schemes in auth dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -235,7 +239,7 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 
 ```
 
-### greenfield: configure all secret engines
+### greenfield: use admin token to configure secret engines in engine dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
