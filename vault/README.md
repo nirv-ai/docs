@@ -1,4 +1,4 @@
-# nirvai VAULT
+# NIRVai VAULT
 
 - documentation for VAULT @ nirvai
 
@@ -75,8 +75,8 @@
 # base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
 # you should mount private configs & overrides at a separate location
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
-NIRVAI_VAULT_CONFIG_PATH=../configs/vault/
-rsync -a --delete $NIRVAI_VAULT_CONFIG_PATH $VAULT_INSTANCE_DIR/config
+REPO_CONFIG_VAUT_PATH=../configs/vault/
+rsync -a --delete $REPO_CONFIG_VAUT_PATH $VAULT_INSTANCE_DIR/config
 
 # wherever you will temporarily store created secrets on disk
 export JAIL="../secrets/dev/apps/vault"
@@ -133,14 +133,15 @@ sudo rm -rf $VAULT_INSTANCE_DIR/data/*
 ./script.reset.compose.sh core_vault
 
 ######################### initial and unseal vault
-# confirm `Vault IS NOT initialized`
+# confirm `Vault *IS NOT* initialized`
 vault operator init -status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
-export VAULT_TOKEN='poop' # bypass token requirement, wont work if your token is named poop
+## bypass token requirement, wont work if your token is named poop
+export VAULT_TOKEN='poop'
 ./script.vault.sh init
 
-# verify `Vault IS initialized`
+# verify `Vault *IS* initialized`
 vault operator init -status
 
 # unseal vault: will require you to enter password set on pgp key
@@ -216,7 +217,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 # ./script.vault.sh process secret_in_dir $SECRET_ENGINE_DIR
 
 ### enable kv-v2: UI > secrets > secret
-./script.vault.sh enable secret kv-2
+./script.vault.sh enable kv-v2 secret
 ### configure kv-v2
 ### todo
 
@@ -268,7 +269,9 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/001-000-policy-init
 ./script.vault.sh poop poop poop
 
 ############ approle
+# all approle examples use the following role name
 ROLE_NAME=auth_approle_role_bff
+
 ## enable approle: UI > access > approle
 enable approle approle
 
@@ -284,8 +287,8 @@ get approle id $ROLE_NAME
 ## create secret-id for an approle
 create approle-secret $ROLE_NAME
 
-# get creds for approle roleId secretId
-get creds xyz-321-yzx-321 123-xyz-123-zyx
+# get approle credentials for approle roleId secretId
+get approle-creds xyz-321-yzx-321 123-xyz-123-zyx
 
 ## lookup secret-id info for an approle
 get approle secret-id $ROLE_NAME 123-xyz-123-zyx
@@ -314,14 +317,11 @@ rm approle-role $ROLE_NAME
 ####################### all of this should be grouped by endpoint
 ./script.vault.sh poop poop poop
 
-# enable a secret engine e.g. kv-v2
-enable secret secretEngineType
+# enable a kv-2 secret engine at path secret/
+enable kv-v2 secret
 
-# enable approle engine e.g. approle
-enable approle approleType
-
-# list all approles
-list approles
+# enable database secret engine at path database/
+enable database database
 
 # list enabled secrets engines
 list secret-engines
@@ -329,11 +329,6 @@ list secret-engines
 # list provisioned keys for a postgres role
 list postgres leases dbRoleName
 
-# create a secret-id for roleName
-create approle-secret roleName
-
-# upsert approle appRoleName with a list of attached policies
-create approle appRoleName pol1,polX
 
 # create kv2 secret(s) at secretPath
 # dont prepend `secret/` to secretPath
@@ -347,17 +342,8 @@ get postgres creds dbRoleName
 # dont prepend `secret/` to path
 get secret secretPath
 
-# get the status (sys/healthb) of the vault server
+# get the status (sys/health) of the vault server
 get status
-
-# get vault credentials for an approle
-get creds roleId secretId
-
-# get all properties associated with an approle
-get approle info appRoleName
-
-# get the approle role_id for roleName
-get approle id appRoleName
 
 # get the openapi spec for some path
 help some/path/
