@@ -262,6 +262,27 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 
 ```
 
+#### use admin token to create initial auth tokens for downstream services
+
+```sh
+# set and verify admin token (@see `# INTERFACE`)
+
+# depending on the type of authentication scheme
+# the filename template will have different formats:
+
+## app role: token_create.approle.APPROLE_ROLE_NAME.SAVE_AS_FILE_IN_$JAIL
+## ^ e.g. token_create.approle.auth_approle_role_bff.bff
+### ^ create approle token for role auth_approle_role_bff
+### ^ save token as $JAIL/bff.json
+
+## token role: token_create.token_role.TOKEN_ROLE_NAME.SAVE_AS_FILE_IN_$JAIL
+## ^ e.g. token_create.token_role.periodic_infra.nomad
+## ^ create a periodic batch token for nomad as token $JAIL/nomad.json
+
+TOKEN_INIT_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
+./script.vault.sh process engine_config $SECRET_ENGINE_DIR
+```
+
 #### next steps
 
 - Congrats! you have enabled & configured your development environment for vault!
@@ -355,9 +376,9 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ./script.vault.sh create poly $ADMIN_POLICY_CONFIG
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
-# only use the admin token
+
 export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
-# ./script.vault.sh unseal
+./script.vault.sh unseal
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ./script.vault.sh process enable_feature $FEATURE_DIR
