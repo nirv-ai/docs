@@ -270,18 +270,13 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 # depending on the type of authentication scheme
 # the filename template will have different formats:
 
-## app role: token_create_approle.ROLE_NAME.FILE_NAME
+## app role template: token_create_approle.ROLE_NAME.FILE_NAME
 ## e.g. token_create_approle.auth_approle_role_bff.bff
-### ^ if file $JAIL/auth_approle_role_bff.id.json doesnt exist
-###### retrieve role-id and save it to file
-###### multiple apps can reuse the same role-id for authentication
-### ^ save new secret-id for auth_approle_role_bff as $JAIL/auth_approle_role_bff.bff.json
-##### each app instance should get a distinct secret-id for authentication
+## ^ save role-id and secret-id as $JAIL/auth_approle_role_bff.bff.json
 
-## token role: token_create_token_role.ROLE_NAME.FILE_NAME
-## ^ e.g. token_create_token_role.periodic_infra.nomad
-##### save new token with role periodic_infra as $JAIL/nomad.json
-##### each nomad server should receive a distinct token role token
+## token role template: token_create_token_role.ROLE_NAME.FILE_NAME
+## e.g. token_create_token_role.periodic_infra.nomad
+## ^ save new token for role periodic_infra as $JAIL/periodic_infra.nomad.json
 
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
