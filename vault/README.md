@@ -82,7 +82,7 @@ export VAULT_ADDR=https://dev.nirv.ai:8300
 export NIRV_SCRIPT_DEBUG=1
 
 # the below steps require you to complete:
-## section: `create root token, initialize and unseal database`
+## section: `create root and admin_vault tokens`
 ## section: `use root token to create admin policy & token`
 
 
@@ -273,22 +273,22 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ```sh
 ######################### FYI
 # from hashicorp docs: a human is required to create the initial root and admin tokens
-## complete section `create root token, initialize and unseal database`
+## complete section `create root and admin_vault tokens`
 
 ----------
 # if you're using the root token beyond this line: I have failed you
 ----------
 
 ######################### REQUIREMENTS
-# your on a debian compatible host (ubuntu is free, and regolith is supa dupa fly)
-# your directory structure matches:
+# debian compatible host (e.g. ubuntu or regolith)
+# directory structure matches:
 ./you-are-here
-├── configs # clone https://github.com/nirv-ai/configs
-├── ${CORE_SERVICE_DIR_NAME} # clone https://github.com/nirv-ai/core-service-template
+├── configs # https://github.com/nirv-ai/configs
+├── ${CORE_SERVICE_DIR_NAME} # https://github.com/nirv-ai/core-service-template
 │   ├── script.vault.sh # https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh
 │   ├── script.refresh.compose.sh # https://github.com/nirv-ai/scripts/blob/develop/script.refresh.compose.sh
 │   ├── script.reset.compose.sh # https://github.com/nirv-ai/scripts/blob/develop/script.reset.compose.sh
-├── scripts # clone https://github.com/nirv-ai/scripts
+├── scripts # https://github.com/nirv-ai/scripts
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   ├── dev
 │   │   ├── apps
