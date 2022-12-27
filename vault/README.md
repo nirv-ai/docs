@@ -1,8 +1,9 @@
 # NIRVai VAULT
 
-- documentation for VAULT @ nirvai
+- documentation for vault
 - [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
+- [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
 
 ## RACEXP
 
@@ -18,7 +19,7 @@
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
-> if you cant commit it, vault it
+> if you cant commit it - _vault it_
 
 ### if your application has network access
 
@@ -41,46 +42,34 @@
 
 ## Setting up vault
 
+- generally this should be the first step _in all microservices_ deployed at NIRVai
+- `unless` your application requires access to 0 sensitive data and relies purely on configuration committed to git
+
 ### INTERFACE
 
+- TODO: there should be 0 use of vault CLI commands
+  - all invocations should go through the http api
 - all green field vault instances require human intervention
   - create root pgp key
   - create root token and unseal database
-  - create admin token
+  - create and distribute admin token(s)
   - store root token next to your grenade launchers
-- auto unseal: all have costs
-  - alicloud kms
-  - aws kms
-  - azure key vault
-  - gcp cloud kms
-  - oci kms
-  - hsm pkcs11
-- auto unseal: free
-  - vault transit
-- preferred automation [todo]: auto unseal with seal transit
-- preferred automation: auto unseal with aws kms
-  - [cant afford it](https://aws.amazon.com/kms/pricing/) use seal transit instead
 
 ```sh
 
 ######################### FYI
 # setup a chroot jail: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
-# havent had any success in curling hcl to vault http api, convert to json via this tool
-# @see https://www.convertsimple.com/convert-hcl-to-json/
-# haha ^ didnt work either
-# fear the copypasta: https://gist.github.com/v6/f4683336eb1c4a6a98a0f3cf21e62df2
-
 ####################### requirements
 # curl @see https://curl.se/docs/manpage.html
 # jq @see https://stedolan.github.io/jq/manual/
 
 ######################### interface
-# base config directory for the vault server instance you are bootstrapping
-# base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
-# you should mount private configs & overrides at a separate location
+# src dir for the vault server your working in
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+# base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
+# you should mount private configs & overrides at a separate location
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_DIR/config
 
 # wherever you will temporarily store created secrets on disk
@@ -97,10 +86,11 @@ export NIRV_SCRIPT_DEBUG=1
 ## section: `use root token to create admin policy & token`
 
 
-# if logging in through the UI: copypasta the tokens and open the browser to $VAULT_ADDR
+# if logging in through the UI:
+## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if youve logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
-# get unseal tokens and use them to unseal db and login to vault
+## get unseal tokens and use them to unseal db and login to vault
 ./script.vault.sh get_unseal_tokens
 
 # if logging in via the CLI
@@ -108,7 +98,7 @@ export NIRV_SCRIPT_DEBUG=1
 ## 2. unseal db if required
 ## 3. verify token configuration
 
-## setting root token
+## export root token
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -119,20 +109,24 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ### requires completion of step: `create vault admin & token`
 ### manually open and verify $JAIL/admin_vault.json is valid json
 ### ^ logs may exist if created when NIRVAI_SCRIPT_DEBUG was set
+## export admin_vault token
 USE_VAULT_TOKEN=admin_vault
 export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
-## unseal the DB if its sealed (requires password used when creating the pgp key)
+## unseal the DB if its sealed
+## (requires password used when creating the pgp key)
 ./script.vault.sh unseal
 
 ## verify your token configuration
 ./script.vault.sh get token self
 ```
 
-### greenfield: create root token, initialize and unseal database
+### new vault server setup
+
+#### create root and admin_vault tokens
 
 ```sh
-######################### cd /nirv/core: create a root gpg key and restart vault instance
+######################### cd /nirv/core
 # a human is required to create and distribute
 # root & admin vault tokens and unseal keys
 
@@ -142,6 +136,12 @@ gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg ke
 # base64 encode the `gpg: key` value of each gpg-key to $JAIL/_NAME_.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
 gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
+
+```
+
+#### wipe, initialize and unseal vault
+
+```sh
 
 # stop any running containers
 docker compose down
@@ -166,9 +166,9 @@ vault operator init -status
 
 ```
 
-### greenfield: use root token to create admin policy & token
+#### use root token to create admin policy & token
 
-- this is the last time you should ever use the root token
+> this is the last time you should ever use the root token
 
 ```sh
 # set root token & unseal db (@see `# INTERFACE`)
@@ -183,7 +183,7 @@ ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_adm
 
 ```
 
-### greenfield: use admin token to create policies in policy dir
+#### use admin token to create policies in policy dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -193,7 +193,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
-### greenfield: use admin token to create token roles in token role dir
+#### use admin token to create token roles in token role dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -203,18 +203,18 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
-### greenfield: use admin token to enable features in feature dir
+#### use admin token to enable features in feature dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# create a directory containing empty files, filename syntax:
+# filename template
 ## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
 ## e.g. feature/dir/enable.kv-v2.secret # for versioned sensitive data
-## e.g. feature/dir/enable.kv-v1.env # for immutable sensitived data with increased perf
-### will enable secret engine kv-v2 at paths secret/ && kv-v1 at path env/
-### currently we only auto enable features at top-level paths
-### bad: enable.kv-v2.microfrontend.app1.snazzle
+## e.g. feature/dir/enable.kv-v1.env # for immutable data with increased perf
+## currently we only auto enable features at top-level paths
+### wont work: enable.kv-v2.microfrontend.app1.snazzle
+### will work: enable.kv-v2.mfe-app1-snazzle
 
 # enable all features in feature dir
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
@@ -222,7 +222,7 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
 
 ```
 
-### greenfield: use admin token to configure auth schemes in auth dir
+#### use admin token to configure auth schemes in auth dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
@@ -238,129 +238,120 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 
 ```
 
-### greenfield: use admin token to configure secret engines in engine dir
+#### use admin token to configure secret engines in engine dir
 
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# depending on the type of engine your configuring, the filename has different formats:
+# depending on the type of secret engine your configuring
+# the filename template will have different formats:
 
 ## kv-v2: secret_kv2.PATH.config.json
 ### ^ configure the kv2 engine enabled at PATH/
 
 ## database config: secret_database.DB_NAME.config.json
-### ^ configure the database with DB_NAME
+### ^ configure the database DB_NAME
 
 ## database role config: secret_database.DB_NAME.role.ROLE_NAME.json
-### ^ would configure ROLE_NAME for the database with DB_NAME
+### ^ configure ROLE_NAME for database DB_NAME
 ### NOTE: we only support databases that support rotate-root creds
-### vault user creds will be automatically rotated
+### the vault root creds will be automatically rotated
 
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
-### todo
-#### connect postgres database plugin
-
 ```
 
-### greenfield: next steps
+#### next steps
 
 - Congrats! you have enabled & configured your development environment for vault!
-- If you want to do more with vault, see the main documentation below
+- If you want to do more with vault: [checkout the usage documentation](./usage.md)
+- We have a little secret:
 
-## script.vault.sh documentation
+> _you can bootstrap your entire stack with this copypasta_
 
 ```sh
-####################### configuring postgres dynamic creds
-####################### creating new database engine
-- disable verify connection
-- create connection to postgres
+######################### FYI
+# from hashicorp docs: a human is required to create the initial root and admin tokens
+## complete section `create root token, initialize and unseal database`
+
+----------
+# if you're using the root token beyond this line: I have failed you
+----------
+
+######################### REQUIREMENTS
+# your on a debian compatible host (ubuntu is free, and regolith is supa dupa fly)
+# your directory structure matches:
+./you-are-here
+├── configs # clone https://github.com/nirv-ai/configs
+├── ${CORE_SERVICE_DIR_NAME} # clone https://github.com/nirv-ai/core-service-template
+│   ├── script.vault.sh # https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh
+│   ├── script.refresh.compose.sh # https://github.com/nirv-ai/scripts/blob/develop/script.refresh.compose.sh
+│   ├── script.reset.compose.sh # https://github.com/nirv-ai/scripts/blob/develop/script.reset.compose.sh
+├── scripts # clone https://github.com/nirv-ai/scripts
+├── secrets # chroot jail, a temporary folder or private git repo
+│   ├── dev
+│   │   ├── apps
+│   │   │   └── vault # following pgp keys must be manually created
+│   │   │       ├── admin_vault.asc
+│   │   │       ├── root.asc
+
+######################### # COPYPASTA START
+
+# INPUTS: edit these to match the core-service you're developing
+CORE_SERVICE_DIR_NAME=core
+PREFIX=nirvai
+VAULT_INSTANCE_SRC_DIR=apps/${PREFIX}-core-vault/src
+VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
+USE_VAULT_TOKEN=admin_vault
+REPO_CONFIG_VAULT_PATH=../configs/vault/
+
+ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
+POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
+TOKEN_ROLE_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-002-token-role-init
+FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
+AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
+SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 
 
-####################### USAGE
-# follow steps in `# INTERFACE` to setup your cli
-# then invoke cmds below, e.g:
-./script.vault.sh poop poop poop
-
-############ approle
-# all approle examples use the following role name
-ROLE_NAME=auth_approle_role_bff
-
-## enable approle: UI > access > approle
-enable approle approle
-
-## create/update an approle
-create approle path/to/distinct_approle_config.json
-
-## verify approle role was created
-get approle info $ROLE_NAME
-
-## get role-id for an approle
-get approle id $ROLE_NAME
-
-## create secret-id for an approle
-create approle-secret $ROLE_NAME
-
-# get approle credentials for approle roleId secretId
-get approle-creds xyz-321-yzx-321 123-xyz-123-zyx
-
-## lookup secret-id info for an approle
-get approle secret-id $ROLE_NAME 123-xyz-123-zyx
-
-## lookup secret-id-accessor info for an approle
-get approle secret-id-axor $ROLE_NAME 123-xyz-123-zyx
-
-## revoke a secret id for an approle
-revoke approle-secret-id $ROLE_NAME 123-xyz-123-zyx
-
-## revoke a secret id accessor for an approle
-revoke approle-secret-id-axor $ROLE_NAME 123-xyz-123-zyx
-
-## list accessors for for an approle role
-list approle-axors $ROLE_NAME
-
-## list all approle roles
-list approles
-
-## rm approle role
-rm approle-role $ROLE_NAME
+export JAIL="$(pwd)/secrets/dev/apps/vault"
+export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
+export NIRV_SCRIPT_DEBUG=0
 
 
-
-####################### PREVIOUS
-####################### all of this should be grouped by endpoint
-./script.vault.sh poop poop poop
-
-# enable a kv-2 secret engine at path secret/
-enable kv-v2 secret
-
-# enable database secret engine at path database/
-enable database database
-
-# list enabled secrets engines
-list secret-engines
-
-# list provisioned keys for a postgres role
-list postgres leases dbRoleName
+cd $CORE_SERVICE_DIR_NAME
+docker compose down
 
 
-# create kv2 secret(s) at secretPath
-# dont prepend `secret/` to secretPath
-# e.g. create secret kv2 poo/in/ur/eye '{"a": "b", "c": "d"}'
-create secret kv2 secretPath jsonString
+sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
+rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+./script.reset.compose.sh
 
-# get dynamic postgres creds for database role dbRoleName
-get postgres creds dbRoleName
 
-# get the secret (kv-v2) at the given path, e.g. foo
-# dont prepend `secret/` to path
-get secret secretPath
+export VAULT_TOKEN='initilize vault with root pgp key'
+./script.vault.sh init
 
-# get the status (sys/health) of the vault server
-get status
 
-# get the openapi spec for some path
-help some/path/
+export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
+  | jq -r '.root_token' \
+  | base64 --decode \
+  | gpg -dq \
+)
+./script.vault.sh unseal
+./script.vault.sh create poly $ADMIN_POLICY_CONFIG
+./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
+
+export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
+./script.vault.sh process policy_in_dir $POLICY_DIR
+./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
+./script.vault.sh process enable_feature $FEATURE_DIR
+./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 ```
+
+
+https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-b72c-7ef5fcf8360a.mp4
+
+
