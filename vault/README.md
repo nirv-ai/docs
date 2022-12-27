@@ -366,7 +366,9 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 
 ########################## COPYPASTA END
 
+# TODO: add these to video
 ########################## VALIDATION
+# TODO: show everything thats created in UI
 # via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
 # ./script.vault.sh get_unseal_tokens
 
