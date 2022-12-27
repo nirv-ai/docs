@@ -70,7 +70,6 @@ list secret-engines
 # list provisioned keys for a postgres role
 list postgres leases dbRoleName
 
-
 # create kv2 secret(s) at secretPath
 # dont prepend `secret/` to secretPath
 # e.g. create secret kv2 poo/in/ur/eye '{"a": "b", "c": "d"}'
