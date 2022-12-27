@@ -351,3 +351,8 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ```
+
+
+https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-b72c-7ef5fcf8360a.mp4
+
+
