@@ -1,6 +1,11 @@
-# nirvai docs
+# NIRVai docs
 
 documentation for the NIRVai platform
+
+## RACEXP
+
+- [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
+- [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
 # TLDR
 
@@ -12,17 +17,17 @@ https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-
 
 ## NIRVai developer experience
 
-> {
+> const devExperience = {
+>
 > ...[unixPhiisophy](https://en.wikipedia.org/wiki/Unix_philosophy),
+>
 > ...[immutableInfrastructure](https://www.hashicorp.com/resources/what-is-mutable-vs-immutable-infrastructure),
+>
 > ...[plugAndPlay](https://medium.com/@volodymyrfrolov/pluggable-microservices-734457c3a3b3),
+>
 > ...[zeroTrust](https://www.crowdstrike.com/cybersecurity-101/zero-trust-security/)
+>
 > }
-
-## RACEXP
-
-- [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
-- [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
 ## documentation
 
