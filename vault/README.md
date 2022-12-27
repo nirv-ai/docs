@@ -296,7 +296,7 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 │   │   │       ├── admin_vault.asc
 │   │   │       ├── root.asc
 
-######################### # COPYPASTA START
+########################## COPYPASTA START
 
 # INPUTS: edit these to match the core-service you're developing
 CORE_SERVICE_DIR_NAME=core
@@ -327,9 +327,15 @@ docker compose down
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 
-###
-./script.reset.compose.sh # this will wipe all of your docker images & containers
-###
+# default: wipe all containers, images and volumes
+./script.reset.compose.sh
+
+# alternative: only wipe vault
+## ./script.reset.compose.sh ${PREFIX}_vault 1
+
+# alternative 2: activate specific microservice(s) for development without wiping data
+## ./script.refresh.compose.sh ${PREFIX}_postgres
+## ./script.refresh.compose.sh ${PREFIX}_vault
 
 export VAULT_TOKEN='initilize vault with root pgp key'
 ./script.vault.sh init
@@ -351,4 +357,6 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process enable_feature $FEATURE_DIR
 ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
+
+########################## COPYPASTA END
 ```
