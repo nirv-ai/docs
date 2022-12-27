@@ -274,9 +274,9 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ## e.g. token_create_approle.auth_approle_role_bff.bff
 ### ^ if file $JAIL/auth_approle_role_bff.id.json doesnt exist
 ###### retrieve role-id and save it to file
-###### multiple servers can reuse the same role-id for authentication
-### ^ save new secret-id for auth_approle_role_bff as $JAIL/bff.json
-##### each server should get a distinct secret-id for authentication
+###### multiple apps can reuse the same role-id for authentication
+### ^ save new secret-id for auth_approle_role_bff as $JAIL/auth_approle_role_bff.bff.json
+##### each app instance should get a distinct secret-id for authentication
 
 ## token role: token_create_token_role.ROLE_NAME.FILE_NAME
 ## ^ e.g. token_create_token_role.periodic_infra.nomad
