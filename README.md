@@ -8,6 +8,8 @@ the NIRVai philosophy
 
 > if it doesnt copypasta, it doesnt belong in your stack
 
+https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-b72c-7ef5fcf8360a.mp4
+
 ## RACEXP
 
 - [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
@@ -20,5 +22,3 @@ the NIRVai philosophy
 - [scripts](./scripts/README.md)
 - [terraform](./terraform/README.md)
 - [vault](./vault/README.md)
-
-https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-b72c-7ef5fcf8360a.mp4
