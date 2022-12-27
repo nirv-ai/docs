@@ -338,6 +338,7 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-002-token-role-init
 FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
+TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 
 
 export JAIL="$(pwd)/secrets/dev/apps/vault"
@@ -388,6 +389,7 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process enable_feature $FEATURE_DIR
 ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
+./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
 
 ########################## COPYPASTA END
 
