@@ -275,8 +275,12 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 ## ^ save role-id and secret-id as $JAIL/auth_approle_role_bff.bff.json
 
 ## token role template: token_create_token_role.ROLE_NAME.FILE_NAME
-## e.g. token_create_token_role.periodic_infra.nomad
-## ^ save new token for role periodic_infra as $JAIL/periodic_infra.nomad.json
+## e.g. token_create_token_role.batch_infra.cd
+## ^ save batch token for role batch_infra as $JAIL/batch_infra.cd.json
+#### by default batch tokes must complete there jobs within 30 minutes
+## e.g. token_create_token_role.periodic_infra.ci
+## ^ save periodic token for role periodic_infra as $JAIL/periodic_infra.ci.json
+#### by default periodic tokens must be renewed every 30 days
 
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
@@ -302,7 +306,7 @@ TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ######################### REQUIREMENTS
 # debian compatible host (e.g. ubuntu or regolith)
 # directory structure matches:
-./you-are-here
+├ you-are-here
 ├── configs # https://github.com/nirv-ai/configs
 ├── ${CORE_SERVICE_DIR_NAME} # https://github.com/nirv-ai/core-service-template
 │   ├── script.vault.sh # https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh
