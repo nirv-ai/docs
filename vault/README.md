@@ -90,7 +90,7 @@ export NIRV_SCRIPT_DEBUG=1
 ## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if youve logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
-## get unseal tokens and use them to unseal db and login to vault
+## get unseal tokens and use them to unseal db and login to vault UI
 ./script.vault.sh get_unseal_tokens
 
 # if logging in via the CLI
@@ -270,18 +270,17 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 # depending on the type of authentication scheme
 # the filename template will have different formats:
 
-## app role: token_create_approle.ROLE_NAME.FILE_NAME
+## app role template: token_create_approle.ROLE_NAME.FILE_NAME
 ## e.g. token_create_approle.auth_approle_role_bff.bff
-### ^ if file $JAIL/auth_approle_role_bff.id.json doesnt exist
-###### retrieve role-id and save it to file
-###### multiple apps can reuse the same role-id for authentication
-### ^ save new secret-id for auth_approle_role_bff as $JAIL/auth_approle_role_bff.bff.json
-##### each app instance should get a distinct secret-id for authentication
+## ^ save role-id and secret-id as $JAIL/auth_approle_role_bff.bff.json
 
-## token role: token_create_token_role.ROLE_NAME.FILE_NAME
-## ^ e.g. token_create_token_role.periodic_infra.nomad
-##### save new token with role periodic_infra as $JAIL/nomad.json
-##### each nomad server should receive a distinct token role token
+## token role template: token_create_token_role.ROLE_NAME.FILE_NAME
+## e.g. token_create_token_role.batch_infra.cd
+## ^ save batch token for role batch_infra as $JAIL/batch_infra.cd.json
+#### by default batch tokens expire after 20 minutes: good for CD
+## e.g. token_create_token_role.periodic_infra.ci
+## ^ save periodic token for role periodic_infra as $JAIL/periodic_infra.ci.json
+#### by default periodic must renew within 30 days: good for CI
 
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
@@ -307,7 +306,7 @@ TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ######################### REQUIREMENTS
 # debian compatible host (e.g. ubuntu or regolith)
 # directory structure matches:
-./you-are-here
+├ you-are-here
 ├── configs # https://github.com/nirv-ai/configs
 ├── ${CORE_SERVICE_DIR_NAME} # https://github.com/nirv-ai/core-service-template
 │   ├── script.vault.sh # https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh
@@ -331,6 +330,7 @@ VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
 
+# CONFIGS: edit these to configure all supported vault features
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
@@ -395,11 +395,12 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 
 # TODO: add these to video
 ########################## VALIDATION
-# TODO: show everything thats created in UI
+# TODO: show everything thats created by going the vault UI
 # via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
 # ./script.vault.sh get_unseal_tokens
 
 # via cli
+# TODO: show everything thats created by curling the http api
 ./script.vault.sh get status
 ./script.vault.sh get token self
 ./script.vault.sh get postgres creds readonly
