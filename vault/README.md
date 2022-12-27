@@ -66,11 +66,11 @@
 
 ######################### interface
 # src dir for the vault server your working in
-export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+export VAULT_INSTANCE_SRC_DIR=apps/nirvai-core-vault/src
 # base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
 # you should mount private configs & overrides at a separate location
-rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_DIR/config
+rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 
 # wherever you will temporarily store created secrets on disk
 export JAIL="../secrets/dev/apps/vault"
@@ -147,7 +147,7 @@ gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 docker compose down
 
 # remove previous vault data {e.g. raft,vault}.db
-sudo rm -rf $VAULT_INSTANCE_DIR/data/*
+sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 
 # finally: reset the vault server
 ./script.reset.compose.sh core_vault
@@ -174,11 +174,11 @@ vault operator init -status
 # set root token & unseal db (@see `# INTERFACE`)
 
 # create policy for vault administrator
-ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
+ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 ./script.vault.sh create poly $ADMIN_POLICY_CONFIG
 
 # create token for vault administrator
-ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_admin_vault.json
+ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
 ```
@@ -189,7 +189,7 @@ ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_DIR/config/000-000-vault-admin-init/token_adm
 # set and verify admin token (@see `# INTERFACE`)
 
 # create all policies in policy dir
-POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
+POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
@@ -199,7 +199,7 @@ POLICY_DIR=$VAULT_INSTANCE_DIR/config/000-001-policy-init
 # set and verify admin token (@see `# INTERFACE`)
 
 # create all token roles in token role dir
-TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
+TOKEN_ROLE_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-002-token-role-init
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
@@ -217,7 +217,7 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
 ### will work: enable.kv-v2.mfe-app1-snazzle
 
 # enable all features in feature dir
-FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
+FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
 ./script.vault.sh process enable_feature $FEATURE_DIR
 
 ```
@@ -233,7 +233,7 @@ FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
 ## e.g. auth/dir/auth_approle_role_cache.json
 ### will create/update approle(s) using the configuration in each file
 
-AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
+AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
 ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
 ```
@@ -257,7 +257,7 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 ### NOTE: we only support databases that support rotate-root creds
 ### the vault root creds will be automatically rotated
 
-SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
+SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ```
@@ -283,7 +283,7 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ### ^ save a new token for token role periodic_infra
 ### ^ save token for nomad server1 as $JAIL/nomad.json
 
-TOKEN_INIT_DIR=$VAULT_INSTANCE_DIR/config/004-000-token-init
+TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
 ```
 
