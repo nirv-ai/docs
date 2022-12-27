@@ -19,13 +19,13 @@ https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-
 
 > const devExperience = {
 >
-> ...[unixPhiisophy](https://en.wikipedia.org/wiki/Unix_philosophy),
+> ...[Unix Phiisophy](https://en.wikipedia.org/wiki/Unix_philosophy),
 >
-> ...[immutableInfrastructure](https://www.hashicorp.com/resources/what-is-mutable-vs-immutable-infrastructure),
+> ...[Immutable Infrastructure](https://www.hashicorp.com/resources/what-is-mutable-vs-immutable-infrastructure),
 >
-> ...[plugAndPlay](https://medium.com/@volodymyrfrolov/pluggable-microservices-734457c3a3b3),
+> ...[Plug and Play](https://medium.com/@volodymyrfrolov/pluggable-microservices-734457c3a3b3),
 >
-> ...[zeroTrust](https://www.crowdstrike.com/cybersecurity-101/zero-trust-security/)
+> ...[Zero Trust](https://www.crowdstrike.com/cybersecurity-101/zero-trust-security/)
 >
 > }
 
