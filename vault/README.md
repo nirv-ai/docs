@@ -326,8 +326,10 @@ docker compose down
 
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-./script.reset.compose.sh
 
+###
+./script.reset.compose.sh # this will wipe all of your docker images & containers
+###
 
 export VAULT_TOKEN='initilize vault with root pgp key'
 ./script.vault.sh init
