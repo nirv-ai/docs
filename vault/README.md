@@ -19,7 +19,7 @@
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
-> if you cant commit it, vault it
+> if you cant commit it - _vault it_
 
 ### if your application has network access
 
@@ -42,8 +42,13 @@
 
 ## Setting up vault
 
+- generally this should be the first step _in all microservices_ deployed at NIRVai
+- `unless` your application requires access to 0 sensitive data and relies purely on configuration committed to git
+
 ### INTERFACE
 
+- TODO: there should be 0 use of vault CLI commands
+  - all invocations should go through the http api
 - all green field vault instances require human intervention
   - create root pgp key
   - create root token and unseal database
@@ -55,21 +60,16 @@
 ######################### FYI
 # setup a chroot jail: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
-# havent had any success in curling hcl to vault http api, convert to json via this tool
-# @see https://www.convertsimple.com/convert-hcl-to-json/
-# haha ^ didnt work either
-# fear the copypasta: https://gist.github.com/v6/f4683336eb1c4a6a98a0f3cf21e62df2
-
 ####################### requirements
 # curl @see https://curl.se/docs/manpage.html
 # jq @see https://stedolan.github.io/jq/manual/
 
 ######################### interface
-# base config directory for the vault server instance you are bootstrapping
-# base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
-# you should mount private configs & overrides at a separate location
+# src dir for the vault server your working in
 export VAULT_INSTANCE_DIR=apps/nirvai-core-vault/src
+# base vault configs: https://github.com/nirv-ai/configs/tree/develop/vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
+# you should mount private configs & overrides at a separate location
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_DIR/config
 
 # wherever you will temporarily store created secrets on disk
@@ -86,10 +86,11 @@ export NIRV_SCRIPT_DEBUG=1
 ## section: `use root token to create admin policy & token`
 
 
-# if logging in through the UI: copypasta the tokens and open the browser to $VAULT_ADDR
+# if logging in through the UI:
+## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if youve logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
-# get unseal tokens and use them to unseal db and login to vault
+## get unseal tokens and use them to unseal db and login to vault
 ./script.vault.sh get_unseal_tokens
 
 # if logging in via the CLI
@@ -97,7 +98,7 @@ export NIRV_SCRIPT_DEBUG=1
 ## 2. unseal db if required
 ## 3. verify token configuration
 
-## setting root token
+## export root token
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -108,10 +109,12 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ### requires completion of step: `create vault admin & token`
 ### manually open and verify $JAIL/admin_vault.json is valid json
 ### ^ logs may exist if created when NIRVAI_SCRIPT_DEBUG was set
+## export admin_vault token
 USE_VAULT_TOKEN=admin_vault
 export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
-## unseal the DB if its sealed (requires password used when creating the pgp key)
+## unseal the DB if its sealed
+## (requires password used when creating the pgp key)
 ./script.vault.sh unseal
 
 ## verify your token configuration
@@ -123,7 +126,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 #### create root token, initialize and unseal database
 
 ```sh
-######################### cd /nirv/core: create a root gpg key and restart vault instance
+######################### cd /nirv/core
 # a human is required to create and distribute
 # root & admin vault tokens and unseal keys
 
@@ -199,13 +202,13 @@ TOKEN_ROLE_DIR=$VAULT_INSTANCE_DIR/config/000-002-token-role-init
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# create a directory containing empty files, filename syntax:
+# filename template
 ## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
 ## e.g. feature/dir/enable.kv-v2.secret # for versioned sensitive data
-## e.g. feature/dir/enable.kv-v1.env # for immutable sensitived data with increased perf
-### will enable secret engine kv-v2 at paths secret/ && kv-v1 at path env/
-### currently we only auto enable features at top-level paths
-### bad: enable.kv-v2.microfrontend.app1.snazzle
+## e.g. feature/dir/enable.kv-v1.env # for immutable data with increased perf
+## currently we only auto enable features at top-level paths
+### wont work: enable.kv-v2.microfrontend.app1.snazzle
+### will work: enable.kv-v2.mfe-app1-snazzle
 
 # enable all features in feature dir
 FEATURE_DIR=$VAULT_INSTANCE_DIR/config/001-000-enable-feature
@@ -234,24 +237,22 @@ AUTH_SCHEME_DIR=$VAULT_INSTANCE_DIR/config/002-000-auth-init
 ```sh
 # set and verify admin token (@see `# INTERFACE`)
 
-# depending on the type of engine your configuring, the filename has different formats:
+# depending on the type of secret engine your configuring
+# the filename template will have different formats:
 
 ## kv-v2: secret_kv2.PATH.config.json
 ### ^ configure the kv2 engine enabled at PATH/
 
 ## database config: secret_database.DB_NAME.config.json
-### ^ configure the database with DB_NAME
+### ^ configure the database DB_NAME
 
 ## database role config: secret_database.DB_NAME.role.ROLE_NAME.json
-### ^ would configure ROLE_NAME for the database with DB_NAME
+### ^ configure ROLE_NAME for database DB_NAME
 ### NOTE: we only support databases that support rotate-root creds
-### vault user creds will be automatically rotated
+### the vault root creds will be automatically rotated
 
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
-
-### todo
-#### connect postgres database plugin
 
 ```
 
@@ -266,12 +267,6 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_DIR/config/003-000-secret-engine-init
   - its missing massive amounts of documentation
 
 ```sh
-####################### configuring postgres dynamic creds
-####################### creating new database engine
-- disable verify connection
-- create connection to postgres
-
-
 ####################### USAGE
 # follow steps in `# INTERFACE` to setup your cli
 # then invoke cmds below, e.g:
