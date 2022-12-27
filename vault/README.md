@@ -332,10 +332,12 @@ rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 # alternative 1: only wipe specific services
 ## sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 ## rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+## ../script.reset.compose.sh core_proxy 1
 ## ./script.reset.compose.sh core_postgres 1
 ## ./script.reset.compose.sh core_vault 1
 
 # alternative 2: restart specific service(s)
+## ./script.refresh.compose.sh core_proxy
 ## ./script.refresh.compose.sh core_postgres
 ## ./script.refresh.compose.sh core_vault
 
@@ -365,6 +367,10 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ########################## COPYPASTA END
 
 ########################## VALIDATION
+# via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
+# ./script.vault.sh get_unseal_tokens
+
+# via cli
 ./script.vault.sh get status
 ./script.vault.sh get token self
 ./script.vault.sh get postgres creds readonly
