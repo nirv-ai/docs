@@ -341,6 +341,7 @@ export VAULT_TOKEN='initilize vault with root pgp key'
 ./script.vault.sh init
 
 
+# skip this section if admin token has already been created
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -352,6 +353,7 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 
 
 export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
+# ./script.vault.sh unseal # unseal with admin token
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ./script.vault.sh process enable_feature $FEATURE_DIR
