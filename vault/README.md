@@ -331,11 +331,11 @@ rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 ./script.reset.compose.sh
 
 # alternative: only wipe vault
-## ./script.reset.compose.sh ${PREFIX}_vault 1
+## ./script.reset.compose.sh core_vault 1
 
 # alternative 2: activate specific microservice(s) for development without wiping data
-## ./script.refresh.compose.sh ${PREFIX}_postgres
-## ./script.refresh.compose.sh ${PREFIX}_vault
+## ./script.refresh.compose.sh core_postgres
+## ./script.refresh.compose.sh core_vault
 
 export VAULT_TOKEN='initilize vault with root pgp key'
 ./script.vault.sh init
