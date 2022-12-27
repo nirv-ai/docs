@@ -324,16 +324,18 @@ cd $CORE_SERVICE_DIR_NAME
 docker compose down
 
 
+# default: wipe all containers, images and volumes
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-
-# default: wipe all containers, images and volumes
 ./script.reset.compose.sh
 
-# alternative: only wipe vault
+# alternative 1: only wipe specific services
+## sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
+## rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+## ./script.reset.compose.sh core_postgres 1
 ## ./script.reset.compose.sh core_vault 1
 
-# alternative 2: activate specific microservice(s) for development without wiping data
+# alternative 2: restart specific service(s)
 ## ./script.refresh.compose.sh core_postgres
 ## ./script.refresh.compose.sh core_vault
 
@@ -351,9 +353,9 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 ./script.vault.sh create poly $ADMIN_POLICY_CONFIG
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
-
+# only use the admin token
 export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
-# ./script.vault.sh unseal # unseal with admin token
+# ./script.vault.sh unseal
 ./script.vault.sh process policy_in_dir $POLICY_DIR
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ./script.vault.sh process enable_feature $FEATURE_DIR
@@ -361,4 +363,11 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ########################## COPYPASTA END
+
+########################## VALIDATION
+./script.vault.sh get status
+./script.vault.sh get token self
+./script.vault.sh get postgres creds readonly
+./script.vault.sh get postgres creds readwrite
+./script.vault.sh get postgres creds readstatic
 ```
