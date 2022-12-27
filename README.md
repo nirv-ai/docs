@@ -4,11 +4,20 @@ documentation for the NIRVai platform
 
 # TLDR
 
-the NIRVai philosophy
+the NIRVai Mindset
 
 > if it doesnt copypasta, it doesnt belong in your stack
 
 https://user-images.githubusercontent.com/10324554/209608898-83135d43-35ff-4e7b-b72c-7ef5fcf8360a.mp4
+
+## NIRVai developer experience
+
+> {
+> ...[unixPhiisophy](https://en.wikipedia.org/wiki/Unix_philosophy),
+> ...[immutableInfrastructure](https://www.hashicorp.com/resources/what-is-mutable-vs-immutable-infrastructure),
+> ...[plugAndPlay](https://medium.com/@volodymyrfrolov/pluggable-microservices-734457c3a3b3),
+> ...[zeroTrust](https://www.crowdstrike.com/cybersecurity-101/zero-trust-security/)
+> }
 
 ## RACEXP
 
