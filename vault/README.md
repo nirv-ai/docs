@@ -90,7 +90,7 @@ export NIRV_SCRIPT_DEBUG=1
 ## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if youve logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
-## get unseal tokens and use them to unseal db and login to vault
+## get unseal tokens and use them to unseal db and login to vault UI
 ./script.vault.sh get_unseal_tokens
 
 # if logging in via the CLI
@@ -277,10 +277,10 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 ## token role template: token_create_token_role.ROLE_NAME.FILE_NAME
 ## e.g. token_create_token_role.batch_infra.cd
 ## ^ save batch token for role batch_infra as $JAIL/batch_infra.cd.json
-#### by default batch tokes must complete there jobs within 30 minutes
+#### by default batch tokens expire after 20 minutes: good for CD
 ## e.g. token_create_token_role.periodic_infra.ci
 ## ^ save periodic token for role periodic_infra as $JAIL/periodic_infra.ci.json
-#### by default periodic tokens must be renewed every 30 days
+#### by default periodic must renew within 30 days: good for CI
 
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
@@ -400,7 +400,7 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 # ./script.vault.sh get_unseal_tokens
 
 # via cli
-# TODO: should everything thats created by curling the http api
+# TODO: show everything thats created by curling the http api
 ./script.vault.sh get status
 ./script.vault.sh get token self
 ./script.vault.sh get postgres creds readonly
