@@ -391,11 +391,12 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 
 # TODO: add these to video
 ########################## VALIDATION
-# TODO: show everything thats created in UI
+# TODO: show everything thats created by going the vault UI
 # via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
 # ./script.vault.sh get_unseal_tokens
 
 # via cli
+# TODO: should everything thats created by curling the http api
 ./script.vault.sh get status
 ./script.vault.sh get token self
 ./script.vault.sh get postgres creds readonly
