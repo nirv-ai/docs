@@ -280,8 +280,8 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 
 ## token role: token_create_token_role.ROLE_NAME.FILE_NAME
 ## ^ e.g. token_create_token_role.periodic_infra.nomad
-### ^ save a new token for token role periodic_infra
-### ^ save token for nomad server1 as $JAIL/nomad.json
+##### save new token with role periodic_infra as $JAIL/nomad.json
+##### each nomad server should receive a distinct token role token
 
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
