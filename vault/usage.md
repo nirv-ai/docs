@@ -55,10 +55,27 @@ rm approle-role $ROLE_NAME
 ########## SECRET KV1
 # for simplicity, all examples store secrets under a rolename
 ROLE_NAME=auth_approle_role_bff
-# for simplicity, all examples use a path to a file
-DATA_FILE=$SECRET_DATA_HYDRATE_DIR/secret_kv1.env.auth_approle_role_bff.json
+# all examples use the following file path
+DATA_FILE=$SECREAT_DATA_INIT_DIR/secret_kv1.env.auth_approle_role_bff.json
 
 create secret kv1 $ROLE_NAME $DATA_FILE
+list secret-keys kv1
+get secret kv1 $ROLE_NAME
+rm secret kv1 $ROLE_NAME
+
+########## SECRET KV2
+# for simplicity, all examples store secrets under a rolename
+ROLE_NAME=auth_approle_role_bff
+# all examples use the following file path
+DATA_FILE=$SECREAT_DATA_INIT_DIR/secret_kv2.secret.auth_approle_role_bff.json
+
+get secret-kv2-config
+get secret kv2 $ROLE_NAME # latest version
+get secret kv2 $ROLE_NAME 1 # first version, 2 = second version, etc
+create secret kv2 $ROLE_NAME $DATA_FILE
+patch secret kv2 $ROLE_NAME $DATA_FILE # { ...prev, ..data_file }
+list secret-keys kv2
+rm secret kv2 $ROLE_NAME
 
 ####################### PREVIOUS
 ####################### all of this should be grouped by domain

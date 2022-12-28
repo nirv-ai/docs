@@ -118,27 +118,48 @@ REPO_CONFIG_VAULT_PATH=../configs/vault/
 # path to the vault admin policy
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 
-# path to the vaullt admin token config
+# path to the vault admin token config
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 
-# directory filled with policies to create
+# directory filled with HCL files
+# each HCL file is a policy to create
 POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
 
-# directory filled with token role configurations to create
+# directory filled with json files
+## each file configures a token role to create
 TOKEN_ROLE_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-002-token-role-init
 
-# directory filled with empty files: each filename describing a feature to enable
+# directory filled with empty files
+## each filename denotes a feature and the path at which it should be enabled
 FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
 
-# directory filled with authentication configuration files
+# directory filled with json files
+## each file configures an authentication scheme
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
 
-# directory filled with empty files: each filename denotes a secret engine, and the path to enable it
-SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
-
-# directory filled with empty files: each filename create a token role token for a downstream service
+# directory filled with empty files
+## each filename create a token role token for a downstream service
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 
+# directory filled with empty files
+## each filename specifies parameters for a secret engine
+### we only support databases that support root credential rotation
+### the root credential will be rotated immediately after initialization
+### e.g. secret_database.DB_NAME.config.json
+### e.g. secret_database.DB_NAME.role.ROLE_NAME.json
+SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
+
+# directory filled with json files
+## each filename denotes a secret engine, path enabled, path to store secret
+SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
+
+
+# change the default path at which a vault feature is enabled
+## you will also have to manually change the default configs
+export SECRET_KV1_PATH=
+export SECRET_KV2_PATH=
+export DB_PATH=
+export AUTH_PATH=
 
 # wherever you will temporarily store created secrets on disk
 export JAIL="$(pwd)/secrets/dev/apps/vault"
@@ -350,6 +371,27 @@ export VAULT_TOKEN='poop'
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
 ```
 
+#### use admin token to hydrate initial secret data for downstream services
+
+```sh
+# set and verify admin token (@see `# INTERFACE`)
+
+# depending on the type of secret engine
+# the filename template will have different formats:
+
+## KV V1 secret engine: hydrate_kv1.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
+## e.g. secret_kv1.env.auth_approle_role_bff.json
+## ^ upsert data at secret-path auth_approle_role_bff in the kv1 engine enabled at env
+## ^ you can retrieve the data via env/auth_approle_role_bff
+
+## KV V2 secret engine: hydrate_kv2.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
+## e.g. secret_kv2.secret.auth_approle_role_bff.json
+## ^ upsert data at secret-path auth_approle_role_bff in the kv2 engine enabled at secret
+## ^ you can retrieve the data via secret/data/auth_approle_role_bff
+
+./script.vault.sh process secret_data_in_dir $TOKEN_INIT_DIR
+```
+
 #### next steps
 
 - Congrats! you have a zero trust development environment backed by VAULT!
@@ -367,7 +409,7 @@ export VAULT_TOKEN='poop'
 
 ########################## COPYPASTA START
 
-# INPUTS: edit these to match the core-service you're developing
+# INPUTS: edit to match the your directory structure
 CORE_SERVICE_DIR_NAME=core
 PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=core-vault
@@ -376,7 +418,13 @@ VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
 
-# CONFIGS: edit these to configure all supported vault features
+# FEATURE PATHS: optional
+export SECRET_KV1_PATH=
+export SECRET_KV2_PATH=
+export DB_PATH=
+export AUTH_PATH=
+
+# CONFIGS: edit to modify all supported vault features
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
@@ -385,7 +433,7 @@ FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
 SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
-SECRET_DATA_HYDRATE_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-hydrate
+SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
 
 export JAIL="$(pwd)/secrets/dev/apps/vault"
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
