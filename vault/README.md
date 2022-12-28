@@ -214,6 +214,8 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 # this logs all your vault token as plain text in your shell
 # this logs the minimum amount of unseal tokens required to unseal vault
 ./script.vault.sh get_unseal_tokens
+# or you can retrieve a single token
+./script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2, etc.
 ################# DANGER ###################
 ```
 
