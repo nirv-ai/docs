@@ -210,13 +210,15 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if you've logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
+############################################
 ################# DANGER ###################
-# this logs all your vault token as plain text in your shell
+# this logs all your unseal tokens & vault token as plain text in your shell
 # this logs the minimum amount of unseal tokens required to unseal vault
 ./script.vault.sh get_unseal_tokens
-# or you can retrieve a single token
-./script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2, etc.
+# or you can retrieve a single unseal token only (wont log your vault token)
+./script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
 ################# DANGER ###################
+############################################
 ```
 
 ### NEW VAULT SERVER SETUP
