@@ -122,7 +122,7 @@ ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/poli
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
 
 # directory filled with HCL files
-# each HCL file is a policy to create
+## each HCL file is a policy to create
 POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
 
 # directory filled with json files
@@ -137,25 +137,21 @@ FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
 ## each file configures an authentication scheme
 AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
 
+# directory filled with json files
+## each filename specifies parameters for a secret engine
+## each file contains data specific to thing being initialized
+SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
+
 # directory filled with empty files
 ## each filename create a token role token for a downstream service
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
-
-# directory filled with empty files
-## each filename specifies parameters for a secret engine
-### we only support databases that support root credential rotation
-### the root credential will be rotated immediately after initialization
-### e.g. secret_database.DB_NAME.config.json
-### e.g. secret_database.DB_NAME.role.ROLE_NAME.json
-SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 
 # directory filled with json files
 ## each filename denotes a secret engine, path enabled, path to store secret
 SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
 
-
 # change the default path at which a vault feature is enabled
-## you will also have to manually change the default configs
+## you will also have to manually change the default configs filename template
 export SECRET_KV1_PATH=
 export SECRET_KV2_PATH=
 export DB_PATH=
@@ -169,6 +165,8 @@ export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
 
 # set to 1 to turn on debugging and log statements made via script.vault.sh
 # run `unset NIRV_SCRIPT_DEBUG && history -c` to delete history after debugging
+## this will create invalid json files if set 1, as log statements will be in the file
+## this bug is a feature, so you dont forget to turn it off
 export NIRV_SCRIPT_DEBUG=0
 
 # every CMD after this line expects you to be in the root of your monorepo
@@ -197,24 +195,26 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 
 ## using admin (or any other) token to authenticate to vault
 ### requires completion of step: `create vault admin & token`
-### manually open and verify $JAIL/admin_vault.json is valid json
-### ^ logs may exist if created when NIRVAI_SCRIPT_DEBUG was set
-## export admin_vault token
+### manually open and verify $JAIL/admin_vault.json is valid json (only if debugging is on)
 USE_VAULT_TOKEN=admin_vault
 export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
-## unseal the DB if its sealed and verify your token
+## unseal the DB if its sealed and verify vault server status & token info
 ## (requires password used when creating the pgp key)
 ./script.vault.sh unseal
+./script.vault get status
 ./script.vault.sh get token self
 
 
 # if logging in through the UI:
 ## copypasta the tokens and open the browser to $VAULT_ADDR
-## if youve logged in at the same VAULT_ADDR created with a different root token
+## if you've logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
-## get unseal tokens and use them to unseal db and login to vault UI
+################# DANGER ###################
+# this logs all your vault token as plain text in your shell
+# this logs the minimum amount of unseal tokens required to unseal vault
 ./script.vault.sh get_unseal_tokens
+################# DANGER ###################
 ```
 
 ### NEW VAULT SERVER SETUP
