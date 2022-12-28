@@ -5,9 +5,17 @@
 
 ```sh
 ####################### USAGE
-# follow steps in `# INTERFACE` to setup your cli
-# then invoke cmds below, e.g:
-./script.vault.sh poop poop poop
+./script.vault.sh arg arg arg
+
+############ enabling features: enable engine_type at_path
+# enable a kv-2 secret engine at path secret/
+enable kv-v2 secret
+enable kv-v1 env
+enable database database
+enable approle approle
+
+# list enabled secrets engines
+list secret-engines
 
 ############ approle
 # all approle examples use the following role name
@@ -52,20 +60,36 @@ list approles
 ## rm approle role
 rm approle-role $ROLE_NAME
 
+########## SECRET KV1
+# for simplicity, all examples store secrets under a rolename
+ROLE_NAME=auth_approle_role_bff
+# all examples use the following file path
+DATA_FILE=$SECRET_DATA_INIT_DIR/secret_kv1.env.auth_approle_role_bff.json
 
+create secret kv1 $ROLE_NAME $DATA_FILE
+list secret-keys kv1
+get secret kv1 $ROLE_NAME
+rm secret kv1 $ROLE_NAME
+
+########## SECRET KV2
+# for simplicity, all examples store secrets under a rolename
+ROLE_NAME=auth_approle_role_bff
+# all examples use the following file path
+DATA_FILE=$SECRET_DATA_INIT_DIR/secret_kv2.secret.auth_approle_role_bff.json
+
+get secret-kv2-config
+get secret kv2 $ROLE_NAME # latest version
+get secret kv2 $ROLE_NAME 1 # first version, 2 = second version, etc
+create secret kv2 $ROLE_NAME $DATA_FILE
+patch secret kv2 $ROLE_NAME $DATA_FILE # { ...prev, ..data_file }
+list secret-keys kv2
+rm secret kv2 $ROLE_NAME
 
 ####################### PREVIOUS
-####################### all of this should be grouped by endpoint
+####################### all of this should be grouped by domain
 ./script.vault.sh poop poop poop
 
-# enable a kv-2 secret engine at path secret/
-enable kv-v2 secret
 
-# enable database secret engine at path database/
-enable database database
-
-# list enabled secrets engines
-list secret-engines
 
 # list provisioned keys for a postgres role
 list postgres leases dbRoleName
