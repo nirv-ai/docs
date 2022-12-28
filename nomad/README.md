@@ -13,7 +13,7 @@ documentation for the NIRVai platform
 
 ### script.nmd.sh
 
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.nmd.sh)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/nomad)
 - actively used for working with nomad
 - requires you have a local docker registry setup, see registry above
 - access the UI @ [https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
