@@ -397,6 +397,7 @@ docker compose down
 
 
 # default: wipe all containers, images and volumes
+# then recreate everything as if its the first time
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 ./script.reset.compose.sh
@@ -404,11 +405,11 @@ rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 # alternative 1: only wipe specific services
 ## sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 ## rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-## ../script.reset.compose.sh core_proxy 1
+## ./script.reset.compose.sh core_proxy 1
 ## ./script.reset.compose.sh core_postgres 1
 ## ./script.reset.compose.sh core_vault 1
 
-# alternative 2: restart specific service(s)
+# alternative 2: simple restart of specific service(s)
 ## ./script.refresh.compose.sh core_proxy
 ## ./script.refresh.compose.sh core_postgres
 ## ./script.refresh.compose.sh core_vault
