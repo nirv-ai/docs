@@ -5,9 +5,17 @@
 
 ```sh
 ####################### USAGE
-# follow steps in `# INTERFACE` to setup your cli
-# then invoke cmds below, e.g:
-./script.vault.sh poop poop poop
+./script.vault.sh arg arg arg
+
+############ enabling features: enable engine_type at_path
+# enable a kv-2 secret engine at path secret/
+enable kv-v2 secret
+enable kv-v1 env
+enable database database
+enable approle approle
+
+# list enabled secrets engines
+list secret-engines
 
 ############ approle
 # all approle examples use the following role name
@@ -81,14 +89,7 @@ rm secret kv2 $ROLE_NAME
 ####################### all of this should be grouped by domain
 ./script.vault.sh poop poop poop
 
-# enable a kv-2 secret engine at path secret/
-enable kv-v2 secret
 
-# enable database secret engine at path database/
-enable database database
-
-# list enabled secrets engines
-list secret-engines
 
 # list provisioned keys for a postgres role
 list postgres leases dbRoleName

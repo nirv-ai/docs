@@ -50,15 +50,21 @@
 - if your directory structure does not match below
 - simplify modify the inputs in `# INTERFACE` section
 - [get the scripts from here](https://github.com/nirv-ai/scripts)
+- [get the configs from here](https://github.com/nirv-ai/scripts)
 
 ```sh
 
 ######################### REQUIREMENTS
-# debian compatible host (e.g. ubuntu or regolith)
+# curl @see https://curl.se/docs/manpage.html
+# jq @see https://stedolan.github.io/jq/manual/
+
+# debian compatible host (only tested on ubuntu)
 # directory structure matches:
 ├ you-are-here
 ├── configs
 ├── ${CORE_SERVICE_DIR_NAME}
+│   ├── compose.yaml
+│   ├── apps/{app1..X}/{...}
 │   ├── script.vault.sh
 │   ├── script.refresh.compose.sh
 │   ├── script.reset.compose.sh
@@ -84,9 +90,6 @@
 ######################### FYI
 # setup a chroot jail: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
 
-####################### requirements
-# curl @see https://curl.se/docs/manpage.html
-# jq @see https://stedolan.github.io/jq/manual/
 
 ######################### interface
 # monorepo containing all of your applications
@@ -150,13 +153,6 @@ TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 ## each filename denotes a secret engine, path enabled, path to store secret
 SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
 
-# change the default path at which a vault feature is enabled
-## you will also have to manually change the default configs filename template
-export SECRET_KV1_PATH=
-export SECRET_KV2_PATH=
-export DB_PATH=
-export AUTH_PATH=
-
 # wherever you will temporarily store created secrets on disk
 export JAIL="$(pwd)/secrets/dev/apps/vault"
 
@@ -176,40 +172,27 @@ cd $CORE_SERVICE_DIR_NAME
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 
 
-# the below steps require you to complete:
+```
+
+### LOG INTO THE UI
+
+#### login through the UI
+
+```sh
+
+# the below steps require you to _atleast_ complete:
 ## section: `create root and admin_vault tokens`
 ## section: `use root token to create admin policy & token`
 
-
-# if logging in via the CLI
-## 1. export the appropriate token
-## 2. unseal db if required
-## 3. verify token configuration
-
-## export root token for creating admin token
-export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
-  | jq -r '.root_token' \
-  | base64 --decode \
-  | gpg -dq \
-)
-
-## using admin (or any other) token to authenticate to vault
-### requires completion of step: `create vault admin & token`
-### manually open and verify $JAIL/admin_vault.json is valid json (only if debugging is on)
-USE_VAULT_TOKEN=admin_vault
-export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
-
-## unseal the DB if its sealed and verify vault server status & token info
-## (requires password used when creating the pgp key)
-./script.vault.sh unseal
-./script.vault get status
-./script.vault.sh get token self
-
+## I recommended you come back
+## after you've reached the end of this file instead
 
 # if logging in through the UI:
 ## copypasta the tokens and open the browser to $VAULT_ADDR
 ## if you've logged in at the same VAULT_ADDR created with a different root token
 ## you may need to clear your browser storage & cache
+
+
 ############################################
 ################# DANGER ###################
 # this logs all your unseal tokens & vault token as plain text in your shell
@@ -223,7 +206,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 
 ### NEW VAULT SERVER SETUP
 
-#### create root and admin_vault tokens
+#### create root and admin_vault pgp keys
 
 ```sh
 ######################### cd /nirv/core
@@ -239,7 +222,7 @@ gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
 
 ```
 
-#### wipe, initialize and unseal vault
+#### wipe and initialize vault server
 
 ```sh
 # stop any running containers
@@ -252,12 +235,12 @@ sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 ./script.reset.compose.sh core_vault
 
 ######################### initial and unseal vault
+export VAULT_TOKEN='initialzing vault'
+
 # confirm `Vault *IS NOT* initialized`
 ./script.vault.sh get status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
-## bypass token requirement, wont work if your token is named poop
-export VAULT_TOKEN='poop'
 ./script.vault.sh init
 
 # verify `Vault *IS* initialized`
@@ -265,41 +248,68 @@ export VAULT_TOKEN='poop'
 
 ```
 
+#### set root token and unseal db
+
+```sh
+## export root token
+export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
+  | jq -r '.root_token' \
+  | base64 --decode \
+  | gpg -dq \
+)
+
+## (requires password used when creating the pgp key)
+./script.vault.sh unseal
+./script.vault.sh get status
+./script.vault.sh get token self
+```
+
 #### use root token to create admin policy & token
 
 > this is the last time you should ever use the root token
 
 ```sh
-# set root token & unseal db (@see `# INTERFACE`)
-
 # create policy then token for vault administrator
 ./script.vault.sh create poly $ADMIN_POLICY_CONFIG
 ./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 ```
 
+#### set admin token and unseal db
+
+```sh
+
+## using admin (or any previously created) token to authenticate to vault
+USE_VAULT_TOKEN=admin_vault
+export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+
+## unseal the DB if its sealed and verify vault server status & token info
+## (requires password used when creating the pgp key)
+./script.vault.sh unseal
+./script.vault.sh get status
+./script.vault.sh get token self
+
+```
+
 #### use admin token to create policies in policy dir
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
-# create all policies in policy dir
 ./script.vault.sh process policy_in_dir $POLICY_DIR
-
 ```
 
 #### use admin token to create token roles in token role dir
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
-# create all token roles in token role dir
 ./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
 #### use admin token to enable features in feature dir
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
 # filename template
 ## your/feature/dir/enable.THIS_THING.AT_THIS_PATH
@@ -317,7 +327,7 @@ export VAULT_TOKEN='poop'
 #### use admin token to configure auth schemes in auth dir
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
 # create a directory containing json config files, filename syntax:
 ## your/auth/dir/auth_approle_role_ROLE_NAME.json
@@ -332,7 +342,7 @@ export VAULT_TOKEN='poop'
 #### use admin token to configure secret engines in engine dir
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
 # depending on the type of secret engine your configuring
 # the filename template will have different formats:
@@ -348,6 +358,7 @@ export VAULT_TOKEN='poop'
 ### NOTE: we only support databases that support rotate-root creds
 ### the vault root creds will be automatically rotated
 
+# this requires a postgres DB to be running, see configs
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ```
@@ -355,7 +366,7 @@ export VAULT_TOKEN='poop'
 #### use admin token to create initial auth tokens for downstream services
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
 # depending on the type of authentication scheme
 # the filename template will have different formats:
@@ -378,7 +389,7 @@ export VAULT_TOKEN='poop'
 #### use admin token to hydrate initial secret data for downstream services
 
 ```sh
-# set and verify admin token (@see `# INTERFACE`)
+# set and verify admin token (@see `# set admin token and unseal db`)
 
 # depending on the type of secret engine
 # the filename template will have different formats:
@@ -419,12 +430,6 @@ VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
 
-# FEATURE PATHS: optional
-export SECRET_KV1_PATH=
-export SECRET_KV2_PATH=
-export DB_PATH=
-export AUTH_PATH=
-
 # CONFIGS: edit to modify all supported vault features
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
@@ -449,6 +454,7 @@ docker compose down
 # then recreate everything as if its the first time
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+# this will start $CORE_SERVICE_DIR_NAME/compose.yaml
 ./script.reset.compose.sh
 
 # alternative 1: only wipe specific services
