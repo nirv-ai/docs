@@ -69,7 +69,7 @@
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   ├── dev
 │   │   ├── apps
-│   │   │   └── vault # following pgp keys must be manually created (see below)
+│   │   │   └── vault # pgp.asc files must be manually created (see below)
 │   │   │       ├── admin_vault.asc
 │   │   │       ├── root.asc
 
