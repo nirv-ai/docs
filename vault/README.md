@@ -1,7 +1,7 @@
 # NIRVai VAULT
 
 - documentation for vault
-- [scripting architecture & guidance](../scripts/README.md)
+- [scripting architecture & guidance](.scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/vault)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
 
@@ -50,6 +50,7 @@
 - if your directory structure does not match below
 - simplify modify the inputs in `# INTERFACE` section
 - [get the scripts from here](https://github.com/nirv-ai/scripts)
+  - [add them to your path](../scripts/README.md)
 - [get the configs from here](https://github.com/nirv-ai/scripts)
 
 ```sh
@@ -65,13 +66,10 @@
 ├── ${CORE_SERVICE_DIR_NAME}
 │   ├── compose.yaml
 │   ├── apps/{app1..X}/{...}
-│   ├── script.vault.sh
-│   ├── script.refresh.compose.sh
-│   ├── script.reset.compose.sh
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   ├── dev
 │   │   ├── apps
-│   │   │   └── vault # following pgp keys must be manually created (see below)
+│   │   │   └── vault # pgp.asc files must be manually created (see below)
 │   │   │       ├── admin_vault.asc
 │   │   │       ├── root.asc
 
@@ -197,9 +195,9 @@ rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 ################# DANGER ###################
 # this logs all your unseal tokens & vault token as plain text in your shell
 # this logs the minimum amount of unseal tokens required to unseal vault
-./script.vault.sh get_unseal_tokens
+script.vault.sh get_unseal_tokens
 # or you can retrieve a single unseal token only (wont log your vault token)
-./script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
+script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
 ################# DANGER ###################
 ############################################
 ```
@@ -232,19 +230,19 @@ docker compose down
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 
 # finally: reset the vault server
-./script.reset.compose.sh core_vault
+script.reset.compose.sh core_vault
 
 ######################### initial and unseal vault
 export VAULT_TOKEN='initialzing vault'
 
 # confirm `Vault *IS NOT* initialized`
-./script.vault.sh get status
+script.vault.sh get status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
-./script.vault.sh init
+script.vault.sh init
 
 # verify `Vault *IS* initialized`
-./script.vault.sh get status
+script.vault.sh get status
 
 ```
 
@@ -259,9 +257,9 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 )
 
 ## (requires password used when creating the pgp key)
-./script.vault.sh unseal
-./script.vault.sh get status
-./script.vault.sh get token self
+script.vault.sh unseal
+script.vault.sh get status
+script.vault.sh get token self
 ```
 
 #### use root token to create admin policy & token
@@ -270,8 +268,8 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
 
 ```sh
 # create policy then token for vault administrator
-./script.vault.sh create poly $ADMIN_POLICY_CONFIG
-./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
+script.vault.sh create poly $ADMIN_POLICY_CONFIG
+script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 ```
 
 #### set admin token and unseal db
@@ -284,9 +282,9 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 
 ## unseal the DB if its sealed and verify vault server status & token info
 ## (requires password used when creating the pgp key)
-./script.vault.sh unseal
-./script.vault.sh get status
-./script.vault.sh get token self
+script.vault.sh unseal
+script.vault.sh get status
+script.vault.sh get token self
 
 ```
 
@@ -295,7 +293,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ```sh
 # set and verify admin token (@see `# set admin token and unseal db`)
 
-./script.vault.sh process policy_in_dir $POLICY_DIR
+script.vault.sh process policy_in_dir $POLICY_DIR
 ```
 
 #### use admin token to create token roles in token role dir
@@ -303,7 +301,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ```sh
 # set and verify admin token (@see `# set admin token and unseal db`)
 
-./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
+script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 ```
 
 #### use admin token to enable features in feature dir
@@ -320,7 +318,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ### will work: enable.kv-v2.mfe-app1-snazzle
 
 # enable all features in feature dir
-./script.vault.sh process enable_feature $FEATURE_DIR
+script.vault.sh process enable_feature $FEATURE_DIR
 
 ```
 
@@ -335,7 +333,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ## e.g. auth/dir/auth_approle_role_cache.json
 ### will create/update approle(s) using the configuration in each file
 
-./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 
 ```
 
@@ -359,7 +357,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ### the vault root creds will be automatically rotated
 
 # this requires a postgres DB to be running, see configs
-./script.vault.sh process engine_config $SECRET_ENGINE_DIR
+script.vault.sh process engine_config $SECRET_ENGINE_DIR
 
 ```
 
@@ -383,7 +381,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ## ^ save periodic token for role periodic_infra as $JAIL/periodic_infra.ci.json
 #### by default periodic must renew within 30 days: good for CI
 
-./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
+script.vault.sh process token_in_dir $TOKEN_INIT_DIR
 ```
 
 #### use admin token to hydrate initial secret data for downstream services
@@ -401,7 +399,7 @@ export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token
 ## KV V2 secret engine: hydrate_kv2.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
 ## e.g. secret_kv2.secret.auth_approle_role_bff.json
 ## ^ upsert data at secret-path auth_approle_role_bff in the kv2 engine enabled at secret
-./script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
+script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ```
 
 #### next steps
@@ -455,22 +453,22 @@ docker compose down
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 # this will start $CORE_SERVICE_DIR_NAME/compose.yaml
-./script.reset.compose.sh
+script.reset.compose.sh
 
 # alternative 1: only wipe specific services
 ## sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 ## rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-## ./script.reset.compose.sh core_proxy 1
-## ./script.reset.compose.sh core_postgres 1
-## ./script.reset.compose.sh core_vault 1
+## script.reset.compose.sh core_proxy 1
+## script.reset.compose.sh core_postgres 1
+## script.reset.compose.sh core_vault 1
 
 # alternative 2: simple restart of specific service(s)
-## ./script.refresh.compose.sh core_proxy
-## ./script.refresh.compose.sh core_postgres
-## ./script.refresh.compose.sh core_vault
+## script.refresh.compose.sh core_proxy
+## script.refresh.compose.sh core_postgres
+## script.refresh.compose.sh core_vault
 
 export VAULT_TOKEN='initilize vault with root pgp key'
-./script.vault.sh init
+script.vault.sh init
 
 
 # skip this section if admin token has already been created
@@ -479,34 +477,34 @@ export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | base64 --decode \
   | gpg -dq \
 )
-./script.vault.sh unseal
-./script.vault.sh create poly $ADMIN_POLICY_CONFIG
-./script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
+script.vault.sh unseal
+script.vault.sh create poly $ADMIN_POLICY_CONFIG
+script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
 
 export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
-./script.vault.sh unseal
-./script.vault.sh process policy_in_dir $POLICY_DIR
-./script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
-./script.vault.sh process enable_feature $FEATURE_DIR
-./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
-./script.vault.sh process engine_config $SECRET_ENGINE_DIR
-./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
-./script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
+script.vault.sh unseal
+script.vault.sh process policy_in_dir $POLICY_DIR
+script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
+script.vault.sh process enable_feature $FEATURE_DIR
+script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+script.vault.sh process engine_config $SECRET_ENGINE_DIR
+script.vault.sh process token_in_dir $TOKEN_INIT_DIR
+script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ########################## COPYPASTA END
 
 ########################## VALIDATION
 # via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
-# ./script.vault.sh get_unseal_tokens
+# script.vault.sh get_unseal_tokens
 
 # via cli
 ## validate vault & admin token
-./script.vault.sh get status
-./script.vault.sh get token self
-./script.vault.sh get_unseal_tokens
+script.vault.sh get status
+script.vault.sh get token self
+script.vault.sh get_unseal_tokens
 ## validate dynamic db creds
-./script.vault.sh get postgres creds readonly
-./script.vault.sh get postgres creds readwrite
-./script.vault.sh get postgres creds readstatic
+script.vault.sh get postgres creds readonly
+script.vault.sh get postgres creds readwrite
+script.vault.sh get postgres creds readstatic
 
 ```

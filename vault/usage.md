@@ -5,7 +5,7 @@
 
 ```sh
 ####################### USAGE
-./script.vault.sh arg arg arg
+vault.sh arg arg arg
 
 ############ enabling features: enable engine_type at_path
 # enable a kv-2 secret engine at path secret/
@@ -87,7 +87,7 @@ rm secret kv2 $ROLE_NAME
 
 ####################### PREVIOUS
 ####################### all of this should be grouped by domain
-./script.vault.sh poop poop poop
+vault.sh poop poop poop
 
 
 

@@ -47,14 +47,14 @@ NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
 ###################### basic workflow
 ########### cd nirvai/core
 # refresh containers and upsert .env.${ENV}.compose.{json,yaml}
-./script.refresh.compose.sh
+refresh.compose.sh
 
 
-# ensure you've completed steps in ./script.registry.sh (see above)
+# ensure you've completed steps in registry.sh (see above)
 # start the registry
-./script.registry.sh run
+registry.sh run
 # tag-and-push all images backing running containers to the registry
-./script.registry.sh tag_running
+registry.sh tag_running
 # stop all running containers (nomad uses the images in the registry)
 docker compose down
 
@@ -68,40 +68,40 @@ ln -s ../../../../scripts/script.nmd.sh .
 
 ###################### now you can operate nomad
 # start server agent in bg
-./script.nmd.sh start s -config=development.server.nomad
+nmd.sh start s -config=development.server.nomad
 # start client agent in bg
-./script.nmd.sh start c -config=development.client.nomad
+nmd.sh start c -config=development.client.nomad
 # check the team status
-./script.nmd.sh get status team
+nmd.sh get status team
 
 
 # if ./development.dev_core.nomad doesnt exist
 # create it and get the index number for stdout
-./script.nmd.sh get plan dev_core
+nmd.sh get plan dev_core
 
 # deploy job dev_core
-./script.nmd.sh run dev_core indexNumber
-./script.nmd.sh dockerlogs # [optional] see logs of all running containers
+nmd.sh run dev_core indexNumber
+nmd.sh dockerlogs # [optional] see logs of all running containers
 
 # on error run
-./script.nmd.sh get status job jobName # includes all allocationIds
-./script.nmd.sh get status loc allocationId # in event of deployment failure
-./script.nmd.sh get status node # see client nodes and there ids
-./script.nmd.sh dockerlogs # following docker logs of all running containers
+nmd.sh get status job jobName # includes all allocationIds
+nmd.sh get status loc allocationId # in event of deployment failure
+nmd.sh get status node # see client nodes and there ids
+nmd.sh dockerlogs # following docker logs of all running containers
 nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
 nomad job history -p job_name # todo
 
 # cleanup
 # rm the job
-./script.nmd.sh rm dev_core
+nmd.sh rm dev_core
 # kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
 kill_service_by_name nomad
 # reset nomad to a green state if you dont plan on using it later
 nomad system gc
 
 ###################### USAGE
-## prefix all cmds with ./script.nmd.sh poop poop poop
+## prefix all cmds with nmd.sh poop poop poop
 ## poop being one of the below
 
 # check on the server

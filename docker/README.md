@@ -55,16 +55,16 @@ export REG_HOST_PORT=5000
 
 ###################### basic workflow
 # start the registry
-./script.registry.sh run
+registry.sh run
 # push running containers to registry
-./script.registry.sh tag_running
+registry.sh tag_running
 # or tag a specific image
-./script.registry.sh tag someImageName:development
+registry.sh tag someImageName:development
 
 ##################### usage
 ## ensure the ENV vars are set
 ## its setup to point for local development at dev.nirv.ai
-./script.registry.sh poop
+registry.sh poop
 
 > run: runs a registry
 > reset: purges and restarts a registry

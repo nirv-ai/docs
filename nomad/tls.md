@@ -44,7 +44,7 @@ echo '{}' | cfssl gencert -ca=nomad-ca.pem -ca-key=nomad-ca-key.pem -profile=cli
 ln -s /path/to/where/you/keep/secrets/tls .
 
 # generate a gossipkey and add to the server configuration
-./script.nmd.sh create gossipkey
+nmd.sh create gossipkey
 # nomad should already be configured to use the tls directory
 # for both client & server
 
