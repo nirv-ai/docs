@@ -495,22 +495,18 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ########################## COPYPASTA END
 
-# TODO: add these to video
 ########################## VALIDATION
-# TODO: show everything thats created by going the vault UI
 # via UI: get tokens then open browser to $VAULT_DOMAIN_AND_PORT
 # ./script.vault.sh get_unseal_tokens
 
 # via cli
-# TODO: show everything thats created by curling the http api
 ## validate vault & admin token
 ./script.vault.sh get status
 ./script.vault.sh get token self
+./script.vault.sh get_unseal_tokens
 ## validate dynamic db creds
 ./script.vault.sh get postgres creds readonly
 ./script.vault.sh get postgres creds readwrite
 ./script.vault.sh get postgres creds readstatic
-## validate approle for nodejs bff server
-ROLE_NAME=auth_approle_role_bff
-./script.vault.sh get approle-creds 2a4f6253-e518-c598-3ee0-99a68c809d17 f3f11143-b1bb-ec3a-0df8-c231c673cc8f
+
 ```
