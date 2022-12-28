@@ -11,6 +11,17 @@
 - [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
+## INSTALLATION
+
+- wherever you've closed this repo, add the path to your init file
+
+```sh
+# if `pwd` === home/poop/git/private/nirv/scripts
+# update your ~/.bashrc
+export PATH="/home/poop/git/private/nirv/scripts:$PATH"
+
+```
+
 ## best practices
 
 ### never use a CLI directly, always create a wrapper
@@ -26,9 +37,9 @@
 
 ## available scripts
 
+- [hashicorp/vault](../vault/README.md)
 - [docker/compose/refresh](../docker/README.md)
 - [docker/compose/reset](../docker/README.md)
 - [docker/container/exec](../docker/README.md)
 - [docker/registry](../docker/README.md)
 - [hashicorp/nomad](../nomad/README.md)
-- [hashicorp/vault](../vault/README.md)

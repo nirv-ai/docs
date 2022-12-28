@@ -7,13 +7,13 @@ documentation for the NIRVai platform
 - [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
-## scripts
+## available scripts
 
 - [scripting architecture & guidance](../scripts/README.md)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker)
 
 ### script.registry.sh
 
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.registry.sh)
 - actively used for working with a private docker registry on localhost
 
 ```sh

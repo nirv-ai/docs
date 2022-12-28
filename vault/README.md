@@ -2,7 +2,7 @@
 
 - documentation for vault
 - [scripting architecture & guidance](../scripts/README.md)
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.vault.sh)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/vault)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
 
 ## RACEXP
