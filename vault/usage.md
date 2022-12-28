@@ -52,10 +52,16 @@ list approles
 ## rm approle role
 rm approle-role $ROLE_NAME
 
+########## SECRET KV1
+# for simplicity, all examples store secrets under a rolename
+ROLE_NAME=auth_approle_role_bff
+# for simplicity, all examples use a path to a file
+DATA_FILE=$SECRET_DATA_HYDRATE_DIR/secret_kv1.env.auth_approle_role_bff.json
 
+create secret kv1 $ROLE_NAME $DATA_FILE
 
 ####################### PREVIOUS
-####################### all of this should be grouped by endpoint
+####################### all of this should be grouped by domain
 ./script.vault.sh poop poop poop
 
 # enable a kv-2 secret engine at path secret/
