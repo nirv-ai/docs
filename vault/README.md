@@ -386,14 +386,11 @@ export VAULT_TOKEN='poop'
 ## KV V1 secret engine: hydrate_kv1.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
 ## e.g. secret_kv1.env.auth_approle_role_bff.json
 ## ^ upsert data at secret-path auth_approle_role_bff in the kv1 engine enabled at env
-## ^ you can retrieve the data via env/auth_approle_role_bff
 
 ## KV V2 secret engine: hydrate_kv2.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
 ## e.g. secret_kv2.secret.auth_approle_role_bff.json
 ## ^ upsert data at secret-path auth_approle_role_bff in the kv2 engine enabled at secret
-## ^ you can retrieve the data via secret/data/auth_approle_role_bff
-
-./script.vault.sh process secret_data_in_dir $TOKEN_INIT_DIR
+./script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ```
 
 #### next steps
@@ -489,7 +486,7 @@ export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_toke
 ./script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
 ./script.vault.sh process engine_config $SECRET_ENGINE_DIR
 ./script.vault.sh process token_in_dir $TOKEN_INIT_DIR
-
+./script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ########################## COPYPASTA END
 
 # TODO: add these to video

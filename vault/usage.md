@@ -56,7 +56,7 @@ rm approle-role $ROLE_NAME
 # for simplicity, all examples store secrets under a rolename
 ROLE_NAME=auth_approle_role_bff
 # all examples use the following file path
-DATA_FILE=$SECREAT_DATA_INIT_DIR/secret_kv1.env.auth_approle_role_bff.json
+DATA_FILE=$SECRET_DATA_INIT_DIR/secret_kv1.env.auth_approle_role_bff.json
 
 create secret kv1 $ROLE_NAME $DATA_FILE
 list secret-keys kv1
@@ -67,7 +67,7 @@ rm secret kv1 $ROLE_NAME
 # for simplicity, all examples store secrets under a rolename
 ROLE_NAME=auth_approle_role_bff
 # all examples use the following file path
-DATA_FILE=$SECREAT_DATA_INIT_DIR/secret_kv2.secret.auth_approle_role_bff.json
+DATA_FILE=$SECRET_DATA_INIT_DIR/secret_kv2.secret.auth_approle_role_bff.json
 
 get secret-kv2-config
 get secret kv2 $ROLE_NAME # latest version
