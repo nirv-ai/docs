@@ -15,7 +15,7 @@ documentation for the NIRVai platform
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/nomad)
 - actively used for working with nomad
-- requires you have a local docker registry setup, see registry above
+- requires you have a [local docker registry setup](../docker/README.md)
 - access the UI @ [https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
 - requires you've setup [TLS with cloudflare cfssl](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
