@@ -37,9 +37,10 @@ export PATH="/home/poop/git/private/nirv/scripts:$PATH"
 
 ## available scripts
 
-- [hashicorp/vault](../vault/README.md)
 - [docker/compose/refresh](../docker/README.md)
 - [docker/compose/reset](../docker/README.md)
 - [docker/container/exec](../docker/README.md)
 - [docker/registry](../docker/README.md)
+- [haproxy](../haproxy/README.md)
 - [hashicorp/nomad](../nomad/README.md)
+- [hashicorp/vault](../vault/README.md)
