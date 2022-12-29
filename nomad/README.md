@@ -55,13 +55,13 @@ documentation for Nomad @ NIRVai
 ### INTERFACE
 
 ```sh
-NOMAD_ADDR_SUBD=${ENV:-dev}
-NOMAD_ADDR_HOST=${NOMAD_ADDR_HOST:-nirv.ai}
-NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
-NOMAD_ADDR="${NOMAD_ADDR:-https://${NOMAD_ADDR_SUBD}.${NOMAD_ADDR_HOST}:${NOMAD_SERVER_PORT}}"
-NOMAD_CACERT="${NOMAD_CACERT:-./tls/nomad-ca.pem}"
-NOMAD_CLIENT_CERT="${NOMAD_CLIENT_CERT:-./tls/cli.pem}"
-NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
+NOMAD_ADDR_SUBD=dev
+NOMAD_ADDR_HOST=nirv.ai
+NOMAD_SERVER_PORT=4646
+NOMAD_ADDR=https://$NOMAD_ADDR_SUBD.$NOMAD_ADDR_HOST:$NOMAD_SERVER_PORT
+NOMAD_CACERT=./tls/nomad-ca.pem
+NOMAD_CLIENT_CERT=./tls/cli.pem
+NOMAD_CLIENT_KEY=./tls/cli-key.pem
 
 ```
 
@@ -114,6 +114,7 @@ script.nmd.sh start c -config=development.client.nomad
 # check the team status
 script.nmd.sh get status team
 
+# open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
 ### deploy nomad jobspec
