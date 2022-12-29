@@ -445,6 +445,12 @@ export NIRV_SCRIPT_DEBUG=0
 
 
 cd $CORE_SERVICE_DIR_NAME
+if [ "$?" -gt 0 ]; then
+  echo -e "\n\nyou executed this script in the wrong directory"
+  echo -e "could not cd into $CORE_SERVICE_DIR_NAME"
+  return 1 2>/dev/null
+fi;
+
 docker compose down
 
 
