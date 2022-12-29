@@ -126,11 +126,14 @@ script.nmd.sh get status team
 script.nmd.sh create job dev_core
 
 # get a fresh job plan and retrieve the index number from stdout
+## we validate every config and jobspec, deal with the errors
 script.nmd.sh get plan dev_core
 
 # deploy job dev_core
 script.nmd.sh run dev_core indexNumber
-script.nmd.sh dockerlogs # [optional] see logs of all running containers
+
+# review logs of containers initialized by nomad
+script.nmd.sh dockerlogs
 
 # on error run
 script.nmd.sh get status job jobName # includes all allocationIds
