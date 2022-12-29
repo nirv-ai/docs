@@ -14,7 +14,8 @@ documentation for the NIRVai platform
 
 ### script.registry.sh
 
-- actively used for working with a private docker registry on localhost
+- actively used for working with a locally docker registry
+- primarly for automating the creation of images accessible by nomad
 
 ```sh
 ###################### READ FIRST
@@ -24,23 +25,11 @@ documentation for the NIRVai platform
 ## @see https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
 ######################
 
-###################### FYI
-# setup for a local registry for development
-# but definitely recommend canceling disney plus (but keep netflix, just sayin)
-# so you can afford $5 (...$7) private registry with docker hub
-## from hub: You are expected to be familiar with systems
-## availability and scalability, logging and log processing,
-## systems monitoring, and security 101. Strong understanding
-## of http and overall network communications,
-## plus familiarity with golang are certainly useful
-## as well for advanced operations or hacking.
-######################
-
 ###################### setup your /etc/hosts
 # e.g. to use a registry at dev.nirv.ai:5000
 # add the following to /etc/hosts
 127.0.0.1 dev.nirv.ai
-# checkout /letencrypt dir for configuring a TLS cert pointing to dev.nirv.ai
+# checkout ../letsencrypt/README.md for configuring a TLS cert pointing to dev.nirv.ai
 ######################
 
 
@@ -55,16 +44,16 @@ export REG_HOST_PORT=5000
 
 ###################### basic workflow
 # start the registry
-registry.sh run
+script.registry.sh run
 # push running containers to registry
-registry.sh tag_running
+script.registry.sh tag_running
 # or tag a specific image
-registry.sh tag someImageName:development
+script.registry.sh tag someImageName:development
 
 ##################### usage
 ## ensure the ENV vars are set
 ## its setup to point for local development at dev.nirv.ai
-registry.sh poop
+script.registry.sh CMD
 
 > run: runs a registry
 > reset: purges and restarts a registry
