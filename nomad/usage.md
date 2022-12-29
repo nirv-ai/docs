@@ -9,8 +9,7 @@
 
 ```sh
 ###################### USAGE
-## prefix all cmds with script.nmd.sh poop poop poop
-## poop being one of the below
+## prefix all cmds with script.nmd.sh cmd cmd cmd
 
 # check on the server
 get status team

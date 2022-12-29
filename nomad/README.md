@@ -52,19 +52,6 @@ documentation for Nomad @ NIRVai
 
 ```
 
-### INTERFACE
-
-```sh
-NOMAD_ADDR_SUBD=dev
-NOMAD_ADDR_HOST=nirv.ai
-NOMAD_SERVER_PORT=4646
-NOMAD_ADDR=https://$NOMAD_ADDR_SUBD.$NOMAD_ADDR_HOST:$NOMAD_SERVER_PORT
-NOMAD_CACERT=./tls/nomad-ca.pem
-NOMAD_CLIENT_CERT=./tls/cli.pem
-NOMAD_CLIENT_KEY=./tls/cli-key.pem
-
-```
-
 ### setup env for development validation in Nomad
 
 - transitioning from: active development in docker compose
@@ -98,6 +85,21 @@ script.registry.sh tag_running
 
 ## stop all development containers (nomad uses the images in the registry)
 docker compose down
+
+```
+
+### INTERFACE
+
+```sh
+########### cd ./apps/nirvai-core-nomad/dev
+
+NOMAD_ADDR_SUBD=dev
+NOMAD_ADDR_HOST=nirv.ai
+NOMAD_SERVER_PORT=4646
+NOMAD_ADDR=https://$NOMAD_ADDR_SUBD.$NOMAD_ADDR_HOST:$NOMAD_SERVER_PORT
+NOMAD_CACERT=./tls/nomad-ca.pem
+NOMAD_CLIENT_CERT=./tls/cli.pem
+NOMAD_CLIENT_KEY=./tls/cli-key.pem
 
 ```
 
