@@ -19,23 +19,50 @@ documentation for the NIRVai platform
 - access the UI @ [https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
 - requires you've setup [TLS with cloudflare cfssl](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
-```sh
-###################### helpful links
-# @see https://github.com/hashicorp/nomad
-# @see https://discuss.hashicorp.com/t/failed-to-find-plugin-bridge-in-path/3095
-## ^ need to enable cni plugin
-# @see https://developer.hashicorp.com/nomad/docs/drivers/docker#enabled-1
-## ^ need to enable bind mounts
-# @see https://developer.hashicorp.com/nomad/docs/drivers/docker#allow_caps
-## ^ for vault you need to enable cap_add ipc_lock
-## ^ for debugging set it to "all"
-# @see registry.sh
-# failed to find docker auth
-## update your server config to not fault on auth errors, or set an auth (see nomad && docker docs)
-######################
+#### helpful links
 
-###################### interface:
-# export as ENV vars to enable cli use without going through script.nmd.sh
+- [error about cni plugin](https://discuss.hashicorp.com/t/failed-to-find-plugin-bridge-in-path/3095)
+- [enabling bind mounts](https://developer.hashicorp.com/nomad/docs/drivers/docker#enabled-1)
+- [vault container requires ipc_lock](https://developer.hashicorp.com/nomad/docs/drivers/docker#allow_caps)
+
+#### REQUIREMENTS
+
+- [you have nirvai/scripts in your path](../scripts/README.md)
+- your directory structure looks like this
+
+```sh
+./you-are-here
+├── configs # TODO: put development nomad configs here
+├── core # your monorepo
+    ├── apps
+        ├── nirvai-core-nomad
+            ├── dev
+                ├── tls
+                    ├── cfssl.json
+                    ├── cli.csr
+                    ├── client.csr
+                    ├── client-key.pem
+                    ├── client.pem
+                    ├── cli-key.pem
+                    ├── cli.pem
+                    ├── nomad-ca.csr
+                    ├── nomad-ca-key.pem
+                    ├── nomad-ca.pem
+                    ├── server.csr
+                    ├── server-key.pem
+                    └── server.pem
+                ├── development.client.nomad
+                ├── development.dev_core.nomad
+                ├── development.server.nomad
+                ├── .env.development.compose.(json|yaml)
+├── scripts
+
+```
+
+#### INTERFACE
+
+```sh
+# script.nmd.sh requires the following vars
 NOMAD_ADDR_SUBD=${ENV:-dev}
 NOMAD_ADDR_HOST=${NOMAD_ADDR_HOST:-nirv.ai}
 NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
@@ -44,7 +71,11 @@ NOMAD_CACERT="${NOMAD_CACERT:-./tls/nomad-ca.pem}"
 NOMAD_CLIENT_CERT="${NOMAD_CLIENT_CERT:-./tls/cli.pem}"
 NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
 
-###################### basic workflow
+```
+
+#### basic workflow
+
+```sh
 ########### cd nirvai/core
 # refresh development compose containers and upsert .env.${ENV}.compose.{json,yaml}
 script.refresh.compose.sh
@@ -60,13 +91,9 @@ docker compose down
 
 
 ########### cd ./apps/nirvai-core-nomad/dev
-# you only need to do this the first time
-# symlink the json & yaml files
+# symlink the json & yaml development variables to nomad dev dir
 ln -s ../../../.env.development.compose.* .
-# symlink the nomad script (expected to be a sibling of nirvai/core)
-ln -s ../../../../scripts/script.nmd.sh .
 
-###################### now you can operate nomad
 # start server agent in bg
 script.nmd.sh start s -config=development.server.nomad
 # start client agent in bg

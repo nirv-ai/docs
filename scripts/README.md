@@ -13,7 +13,7 @@
 
 ## INSTALLATION
 
-- wherever you've closed this repo, add the path to your init file
+- wherever you've cloned this repo, add the path to your init file
 
 ```sh
 # if `pwd` === home/poop/git/private/nirv/scripts
