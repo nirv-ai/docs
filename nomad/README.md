@@ -84,9 +84,9 @@ script.registry.sh run
 ## ^ your local images are up to date
 ## ^ you havent made any changes to development environment variables
 
-## recreate .env.development.compose.{json,yaml} and symlink to nomad/dev
+## recreate .env.development.compose.{json,yaml} and force it to nomad/dev
 script.refresh.compose.sh
-ln -s ./.env.development.compose.* ./apps/nirvai-core-nomad/dev/
+cp -f ./.env.development.compose.* ./apps/nirvai-core-nomad/dev/
 
 
 # skip this step if:
@@ -120,8 +120,10 @@ script.nmd.sh get status team
 ### deploy nomad jobspec
 
 ```sh
-# if ./development.dev_core.nomad doesnt exist
-# create it and get the index number from stdout
+# if ./development.dev_core.nomad doesnt exist create it
+script.nmd.sh create job dev_core
+
+# get a fresh job plan and retrieve the index number from stdout
 script.nmd.sh get plan dev_core
 
 # deploy job dev_core
