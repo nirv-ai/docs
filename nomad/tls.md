@@ -1,15 +1,8 @@
 # nomad TLS
 
-- keys are kept where the secrets are kept
-- the UI will be available @ [https://mad.nirv.ai:446](https://mad.nirv.ai:4646)
-  - update your /etc/hosts
-  - cant use same subdomain as web as nomad requires a private CA
+- [hashicorp docs](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
-## links
-
-- [tutorial](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
-
-## quickies
+## setup TLS for mad.nirv.ai:4646
 
 ```sh
 ############################## initial setup of nomad TLS + cloudflare CFSSL
@@ -44,7 +37,7 @@ echo '{}' | cfssl gencert -ca=nomad-ca.pem -ca-key=nomad-ca-key.pem -profile=cli
 ln -s /path/to/where/you/keep/secrets/tls .
 
 # generate a gossipkey and add to the server configuration
-nmd.sh create gossipkey
+script.nmd.sh create gossipkey
 # nomad should already be configured to use the tls directory
 # for both client & server
 

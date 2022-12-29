@@ -13,7 +13,7 @@ documentation for the NIRVai platform
 
 https://user-images.githubusercontent.com/10324554/209851393-89d9d825-c3de-4eaf-96d1-191f35554a30.mp4
 
-## NIRVai Beliefs
+## NIRVai First Principles
 
 > const devExperience = {
 >
@@ -29,9 +29,9 @@ https://user-images.githubusercontent.com/10324554/209851393-89d9d825-c3de-4eaf-
 
 ## documentation
 
+- [vault](./vault/README.md)
+- [nomad](./nomad/README.md)
 - [configuration](./configs/README.md)
 - [docker](./docker/README.md)
-- [nomad](./nomad/README.md)
 - [scripts](./scripts/README.md)
 - [terraform](./terraform/README.md)
-- [vault](./vault/README.md)
