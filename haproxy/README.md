@@ -1,6 +1,6 @@
-# nirvai docs
+# NIRVai HAProxy
 
-documentation for the NIRVai platform
+documentation for the HAProxy @ NIRVai
 
 ## RACEXP
 
@@ -10,3 +10,26 @@ documentation for the NIRVai platform
 ## setup
 
 - [stats page @ ENV.nirv.ai:8404/edge](https://dev.nirv.ai:8404/edge)
+
+## script.haproxy.sh
+
+### INTERFACE
+
+```sh
+# the prefix to all your container names
+## we add this to each cmd automatically where apropriate
+PREFIX=nirvai_
+
+```
+
+### basic workflow
+
+```sh
+# prefix all cmds with script.haproxy.sh
+
+## validate configuration for running container: nirvai_core_proxy
+conf validate core_proxy
+
+## reload configuration for running container: nirvai_core_proxy
+conf reload core_proxy
+```
