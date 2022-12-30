@@ -9,7 +9,7 @@
 
 ```sh
 ###################### USAGE
-## prefix all cmds with script.nmd.sh cmd cmd cmd
+## prefix all cmds with script.nmd.sh
 
 # check on the server
 get status team

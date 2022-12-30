@@ -20,6 +20,10 @@ documentation for the HAProxy @ NIRVai
 ## we add this to each cmd automatically where apropriate
 SERVICE_PREFIX=nirvai
 
+# where all your .cfg files are kept
+## e.g. /usr/local/etc/haproxy/configs
+HAPROXY_CONFIG_DIR=./configs
+
 ```
 
 ### basic workflow
@@ -30,6 +34,9 @@ SERVICE_PREFIX=nirvai
 ## validate configuration for running container: nirvai_core_proxy
 conf validate core_proxy
 
-## reload configuration for running container: nirvai_core_proxy
+## validate then reload configuration for running container: nirvai_core_proxy
 conf reload core_proxy
+
+## get server status for running container: nirvai_core_proxy
+conf info core_proxy
 ```
