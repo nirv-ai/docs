@@ -20,6 +20,10 @@ documentation for the HAProxy @ NIRVai
 ## we add this to each cmd automatically where apropriate
 SERVICE_PREFIX=nirvai
 
+# where all your .cfg files are kept
+## e.g. /usr/local/etc/haproxy/configs
+HAPROXY_CONFIG_DIR=./configs
+
 ```
 
 ### basic workflow

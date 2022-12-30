@@ -100,7 +100,8 @@ CORE_SERVICE_DIR_NAME=core
 SERVICE_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
-# e.g /core/apps/nirvai-MICRO-SERVICE-NAME/...
+# e.g /core/apps/nirvai-core-vault/...
+# we use the SERVICE_PREFIX to get the full dir name
 VAULT_INSTANCE_DIR_NAME=core-vault
 
 # the path to your monorepo vault server instance src dir
