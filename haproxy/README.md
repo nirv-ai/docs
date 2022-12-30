@@ -32,4 +32,7 @@ conf validate core_proxy
 
 ## reload configuration for running container: nirvai_core_proxy
 conf reload core_proxy
+
+## get server status for running container: nirvai_core_proxy
+conf info core_proxy
 ```
