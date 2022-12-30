@@ -94,17 +94,17 @@
 # @see https://github.com/nirv-ai/core-service-template
 CORE_SERVICE_DIR_NAME=core
 
-# prefix of your monorepo services,
-# e.g. /core/apps/PREFIX-nodejs-app/package.json
-# e.g. /core/apps/PREFIX-reactjs-frontend/package.json
-PREFIX=nirvai
+# SERVICE_PREFIX of your monorepo services,
+# e.g. /core/apps/SERVICE_PREFIX-nodejs-app/package.json
+# e.g. /core/apps/SERVICE_PREFIX-reactjs-frontend/package.json
+SERVICE_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
 # e.g /core/apps/nirvai-MICRO-SERVICE-NAME/...
 VAULT_INSTANCE_DIR_NAME=core-vault
 
 # the path to your monorepo vault server instance src dir
-VAULT_INSTANCE_SRC_DIR=apps/$PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+VAULT_INSTANCE_SRC_DIR=apps/$SERVICE_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 
 # the maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
@@ -421,9 +421,9 @@ script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 
 # INPUTS: edit to match the your directory structure
 CORE_SERVICE_DIR_NAME=core
-PREFIX=nirvai
+SERVICE_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=core-vault
-VAULT_INSTANCE_SRC_DIR=apps/$PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+VAULT_INSTANCE_SRC_DIR=apps/$SERVICE_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/

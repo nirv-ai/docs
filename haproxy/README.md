@@ -9,7 +9,7 @@ documentation for the HAProxy @ NIRVai
 
 ## setup
 
-- [stats page @ ENV.nirv.ai:8404/edge](https://dev.nirv.ai:8404/edge)
+- [stats page @ ENV.nirv.ai:8404](https://dev.nirv.ai:8404)
 
 ## script.haproxy.sh
 
@@ -18,7 +18,7 @@ documentation for the HAProxy @ NIRVai
 ```sh
 # the prefix to all your container names
 ## we add this to each cmd automatically where apropriate
-PREFIX=nirvai_
+SERVICE_PREFIX=nirvai
 
 ```
 
