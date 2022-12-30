@@ -34,7 +34,7 @@ HAPROXY_CONFIG_DIR=./configs
 ## validate configuration for running container: nirvai_core_proxy
 conf validate core_proxy
 
-## reload configuration for running container: nirvai_core_proxy
+## validate then reload configuration for running container: nirvai_core_proxy
 conf reload core_proxy
 
 ## get server status for running container: nirvai_core_proxy
