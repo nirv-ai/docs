@@ -52,19 +52,6 @@ documentation for Nomad @ NIRVai
 
 ```
 
-### INTERFACE
-
-```sh
-NOMAD_ADDR_SUBD=${ENV:-dev}
-NOMAD_ADDR_HOST=${NOMAD_ADDR_HOST:-nirv.ai}
-NOMAD_SERVER_PORT="${NOMAD_SERVER_PORT:-4646}"
-NOMAD_ADDR="${NOMAD_ADDR:-https://${NOMAD_ADDR_SUBD}.${NOMAD_ADDR_HOST}:${NOMAD_SERVER_PORT}}"
-NOMAD_CACERT="${NOMAD_CACERT:-./tls/nomad-ca.pem}"
-NOMAD_CLIENT_CERT="${NOMAD_CLIENT_CERT:-./tls/cli.pem}"
-NOMAD_CLIENT_KEY="${NOMAD_CLIENT_KEY:-./tls/cli-key.pem}"
-
-```
-
 ### setup env for development validation in Nomad
 
 - transitioning from: active development in docker compose
@@ -84,9 +71,9 @@ script.registry.sh run
 ## ^ your local images are up to date
 ## ^ you havent made any changes to development environment variables
 
-## recreate .env.development.compose.{json,yaml} and symlink to nomad/dev
+## recreate .env.development.compose.{json,yaml} and force it to nomad/dev
 script.refresh.compose.sh
-ln -s ./.env.development.compose.* ./apps/nirvai-core-nomad/dev/
+cp -f ./.env.development.compose.* ./apps/nirvai-core-nomad/dev/
 
 
 # skip this step if:
@@ -98,6 +85,21 @@ script.registry.sh tag_running
 
 ## stop all development containers (nomad uses the images in the registry)
 docker compose down
+
+```
+
+### INTERFACE
+
+```sh
+########### cd ./apps/nirvai-core-nomad/dev
+
+NOMAD_ADDR_SUBD=dev
+NOMAD_ADDR_HOST=nirv.ai
+NOMAD_SERVER_PORT=4646
+NOMAD_ADDR=https://$NOMAD_ADDR_SUBD.$NOMAD_ADDR_HOST:$NOMAD_SERVER_PORT
+NOMAD_CACERT=./tls/nomad-ca.pem
+NOMAD_CLIENT_CERT=./tls/cli.pem
+NOMAD_CLIENT_KEY=./tls/cli-key.pem
 
 ```
 
@@ -114,18 +116,24 @@ script.nmd.sh start c -config=development.client.nomad
 # check the team status
 script.nmd.sh get status team
 
+# open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
 ### deploy nomad jobspec
 
 ```sh
-# if ./development.dev_core.nomad doesnt exist
-# create it and get the index number for stdout
+# if ./development.dev_core.nomad doesnt exist create it
+script.nmd.sh create job dev_core
+
+# get a fresh job plan and retrieve the index number from stdout
+## we validate every config and jobspec, deal with the errors
 script.nmd.sh get plan dev_core
 
 # deploy job dev_core
 script.nmd.sh run dev_core indexNumber
-script.nmd.sh dockerlogs # [optional] see logs of all running containers
+
+# review logs of containers initialized by nomad
+script.nmd.sh dockerlogs
 
 # on error run
 script.nmd.sh get status job jobName # includes all allocationIds
@@ -151,49 +159,35 @@ nomad system gc
 
 - TODO: still havent setup playwright
 
-## scripts
+### Request PR review
 
-- [scripting architecture & guidance](../scripts/README.md)
+- a successful merge to develop will trigger the CD pipeline
+  - each env consists of obfuscation and validation
+- test.nirv.ai
+  - service specific integration tests
+  - e2e tests
+  - first round of penetration tests
+  - first round of obfuscation
+  - CD to stage
+- stage.nirv.ai:
+  - service specific integration tests
+  - e2e tests
+  - second round of penetration tests
+  - second round of obfuscation
+  - first round of load testing: establish the load at which SLAs are breached
+  - CD to demo
+- demo.nirv.ai
+  - service specific integration tests
+  - e2e tests
+  - third round of penetration tests
+  - third round of obfuscation
+  - second round of load testing: establish the load at which services fail
+  - prod sign off
+  - manual trigger of prod deployment
+- nirv.ai
+  - party time
 
-### script.nmd.sh
+## next steps
 
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/nomad)
-- [access nomad UI for nirvai-core @ https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
-
-```sh
-###################### USAGE
-## prefix all cmds with script.nmd.sh poop poop poop
-## poop being one of the below
-
-# check on the server
-get status team
-get status all
-dockerlogs # following logs of all running containers
-
-# creating stuff
-create gossipkey
-create job myJobName
-get plan myJobName # provides indexNumber
-
-# running stuff
-run myJobName indexNumber
-
-# restarting stuff
-restart loc allocationId taskName # todo: https://developer.hashicorp.com/nomad/docs/commands/alloc/restart
-
-# execing stuff
-exec loc  allocationId cmd .... @ todo https://developer.hashicorp.com/nomad/docs/commands/alloc/exec
-
-# checking on running/failing stuff
-get status node # see client nodes and there ids
-get status node nodeId # provding a clients nodeId is super helpful; also provides allocationId
-get status loc allocationId # super helpful for checking on failed jobs, provides deployment id
-get status dep deploymentId # super helpful
-get logs jobName deploymentId
-
-# stopping stuff
-stop job myJobName
-rm myJobName # this purges the job
-gc # purge system
-
-```
+- Congrats!
+- checkout usage [script.nmd.sh usage docs](./usage.md)
