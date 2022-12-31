@@ -460,31 +460,27 @@ docker compose down
 # resync vault instance configs
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 
+########## START: vault boot type
+########## how are you booting your devstack?
 
-# default: wipe all containers, images and volumes
-# then recreate everything as if its the first time
+## default: wipe all containers, images and volumes
+## then recreate everything as if its the first time
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 script.reset.compose.sh
 
-# alternative 1: only wipe specific services
-## sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
-## rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-## script.reset.compose.sh core_proxy 1
-## script.reset.compose.sh core_postgres 1
-## script.reset.compose.sh core_vault 1
-
-# alternative 2: simple restart of specific service(s)
-## script.refresh.compose.sh core_proxy
-## script.refresh.compose.sh core_postgres
-## script.refresh.compose.sh core_vault
+## alternative 1: only wipe vault & required services
+# sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
+# script.reset.compose.sh core_proxy 1
+# script.reset.compose.sh core_postgres 1
+# script.reset.compose.sh core_vault 1
 
 
-# initialize vault
+## DEFAULT & ALTERNATIVE 1
+## require vault to be initialized
 export VAULT_TOKEN='initilize vault with root pgp key'
 script.vault.sh init
 
-
-# skip this section if admin token has already been created
+## require admin token to be created
 export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -494,9 +490,23 @@ script.vault.sh unseal
 script.vault.sh create poly $ADMIN_POLICY_CONFIG
 script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
+## alternative 2a: reboot your entire stack
+# script.refresh.compose
 
+## alternative 2b: reboot vault & required services
+# script.refresh.compose.sh core_proxy
+# script.refresh.compose.sh core_postgres
+# script.refresh.compose.sh core_vault
+
+########## your devstack is now running!
+########## STOP: vault init type
+
+
+## login as admin token & unseal vault
 export VAULT_TOKEN="$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')"
 script.vault.sh unseal
+
+## (re)sync vault data if changed/starting from scratch
 script.vault.sh process policy_in_dir $POLICY_DIR
 script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
 script.vault.sh process enable_feature $FEATURE_DIR
