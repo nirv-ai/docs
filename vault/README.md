@@ -440,26 +440,30 @@ SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
 TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
 SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
 
+
+# env vars for vault & script.vault.sh
 export JAIL="$(pwd)/secrets/dev/apps/vault"
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
 export NIRV_SCRIPT_DEBUG=0
 
 
+# stop all running containers
 cd $CORE_SERVICE_DIR_NAME
 if [ "$?" -gt 0 ]; then
   echo -e "\n\nyou executed this script in the wrong directory"
   echo -e "could not cd into $CORE_SERVICE_DIR_NAME"
   return 1 2>/dev/null
 fi;
-
 docker compose down
+
+
+# resync vault instance configs
+rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
 
 
 # default: wipe all containers, images and volumes
 # then recreate everything as if its the first time
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
-rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
-# this will start $CORE_SERVICE_DIR_NAME/compose.yaml
 script.reset.compose.sh
 
 # alternative 1: only wipe specific services
@@ -474,6 +478,8 @@ script.reset.compose.sh
 ## script.refresh.compose.sh core_postgres
 ## script.refresh.compose.sh core_vault
 
+
+# initialize vault
 export VAULT_TOKEN='initilize vault with root pgp key'
 script.vault.sh init
 
