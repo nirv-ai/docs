@@ -91,7 +91,7 @@ docker compose down
 ### INTERFACE
 
 ```sh
-########### cd ./apps/nirvai-core-nomad/dev
+########### cd apps/nirvai-core-nomad/dev
 
 NOMAD_ADDR_SUBD=dev
 NOMAD_ADDR_HOST=nirv.ai
@@ -106,7 +106,7 @@ NOMAD_CLIENT_KEY=./tls/cli-key.pem
 ### start nomad server and client agents
 
 ```sh
-########### cd ./apps/nirvai-core-nomad/dev
+########### cd apps/nirvai-core-nomad/dev
 # start server agent in bg
 script.nmd.sh start s -config=development.server.nomad
 
@@ -152,40 +152,8 @@ script.nmd.sh rm dev_core
 kill_service_by_name nomad
 
 # reset nomad to a green state if you dont plan on using it later
-nomad system gc
+script.nmd gc
 ```
-
-### run e2e tests against deployed services
-
-- TODO: still havent setup playwright
-
-### Request PR review
-
-- a successful merge to develop will trigger the CD pipeline
-  - each env consists of obfuscation and validation
-- test.nirv.ai
-  - service specific integration tests
-  - e2e tests
-  - first round of penetration tests
-  - first round of obfuscation
-  - CD to stage
-- stage.nirv.ai:
-  - service specific integration tests
-  - e2e tests
-  - second round of penetration tests
-  - second round of obfuscation
-  - first round of load testing: establish the load at which SLAs are breached
-  - CD to demo
-- demo.nirv.ai
-  - service specific integration tests
-  - e2e tests
-  - third round of penetration tests
-  - third round of obfuscation
-  - second round of load testing: establish the load at which services fail
-  - prod sign off
-  - manual trigger of prod deployment
-- nirv.ai
-  - party time
 
 ## next steps
 

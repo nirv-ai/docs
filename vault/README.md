@@ -493,7 +493,7 @@ script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 ## alternative 2a: reboot your entire stack
 # script.refresh.compose
 
-## alternative 2b: reboot vault & required services
+## alternative 2b: reboot vault & required services only
 # script.refresh.compose.sh core_proxy
 # script.refresh.compose.sh core_postgres
 # script.refresh.compose.sh core_vault
@@ -521,7 +521,7 @@ script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 # script.vault.sh get_unseal_tokens
 
 # via cli
-## validate vault & admin token
+## validate vault & admin token status
 script.vault.sh get status
 script.vault.sh get token self
 script.vault.sh get_unseal_tokens
