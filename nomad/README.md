@@ -113,9 +113,11 @@ script.nmd.sh start s -config=development.server.nomad
 # start client agent in bg
 script.nmd.sh start c -config=development.client.nomad
 
-# check the team status
-script.nmd.sh get status team
+# check the server status
+script.nmd.sh get status servers
 
+# check the client status
+script.nmd.sh get status clients
 # open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
@@ -138,7 +140,7 @@ script.nmd.sh dockerlogs
 # on error run
 script.nmd.sh get status job jobName # includes all allocationIds
 script.nmd.sh get status loc allocationId # in event of deployment failure
-script.nmd.sh get status node # see client nodes and there ids
+script.nmd.sh get status clients # see client nodes and there ids
 script.nmd.sh dockerlogs # following docker logs of all running containers
 nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
@@ -152,7 +154,7 @@ script.nmd.sh rm dev_core
 kill_service_by_name nomad
 
 # reset nomad to a green state if you dont plan on using it later
-script.nmd gc
+script.nmd.sh gc
 ```
 
 ## next steps
