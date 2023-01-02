@@ -33,7 +33,7 @@ echo '{}' | cfssl gencert -ca=nomad-ca.pem -ca-key=nomad-ca-key.pem -profile=cli
 
 
 # now go to wherever you run nomad commands and symlink the TLS dir
-# cd ~/git/private/nirv/core/apps/nirvai-core-nomad/dev
+# cd ~/git/private/nirv/core/apps/nirvai-web-nomad/dev
 ln -s /path/to/where/you/keep/secrets/tls .
 
 # generate a gossipkey and add to the server configuration

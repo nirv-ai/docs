@@ -18,13 +18,6 @@ documentation for the NIRVai platform
 - primarly for automating the creation of images accessible by nomad
 
 ```sh
-###################### READ FIRST
-# @see [repo] https://github.com/distribution/distribution
-# @see [docs] https://github.com/docker/docs/tree/main/registry
-# @see https://www.marcusturewicz.com/blog/build-and-publish-docker-images-with-github-packages/
-## @see https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-######################
-
 ###################### setup your /etc/hosts
 # e.g. to use a registry at dev.nirv.ai:5000
 # add the following to /etc/hosts
@@ -34,7 +27,8 @@ documentation for the NIRVai platform
 
 
 ###################### interface
-export REG_CERTS_PATH=apps/nirvai-core-letsencrypt/dev-nirv-ai
+# TODO: explain concat: $REG_CERTS_PATH/$REG_SUBD.$REG_DOMAIN/*.pem
+export REG_CERTS_PATH=/etc/ssl/certs
 export REG_DOMAIN=nirv.ai
 export REG_SUBD=dev
 export REG_HOST_PORT=5000
@@ -73,3 +67,18 @@ script.registry.sh CMD
 ### script.exec.cunt.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.exec.cunt.sh)
+
+```sh
+##################### INTERFACE
+# if you prefix all your container names
+export SERVICE_PREFIX=nirvai_
+
+
+
+##################### usage
+# exec bash, else sh into $SERVICE_PREFIX$NAME
+> script.exec.cunt.sh NAME
+
+# exec bash, else sh into $NAME
+> script.exec.cunt.sh cunt NAME
+```

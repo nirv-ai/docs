@@ -5,7 +5,7 @@
 ### script.nmd.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/nomad)
-- [access nomad UI for nirvai-core @ https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
+- [access nomad UI for nirvai-web @ https://mad.nirv.ai:4646](https://mad.nirv.ai:4646/ui/jobs)
 
 ```sh
 ###################### USAGE

@@ -31,12 +31,12 @@ HAPROXY_CONFIG_DIR=./configs
 ```sh
 # prefix all cmds with script.haproxy.sh
 
-## validate configuration for running container: nirvai_core_proxy
+## validate configuration for running container: nirvai_web_proxy
 conf validate core_proxy
 
-## validate then reload configuration for running container: nirvai_core_proxy
+## validate then reload configuration for running container: nirvai_web_proxy
 conf reload core_proxy
 
-## get server status for running container: nirvai_core_proxy
+## get server status for running container: nirvai_web_proxy
 conf info core_proxy
 ```

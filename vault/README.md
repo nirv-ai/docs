@@ -100,7 +100,7 @@ CORE_SERVICE_DIR_NAME=core
 SERVICE_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
-# e.g /core/apps/nirvai-core-vault/...
+# e.g /core/apps/nirvai-web-vault/...
 # we use the SERVICE_PREFIX to get the full dir name
 VAULT_INSTANCE_DIR_NAME=core-vault
 
@@ -231,7 +231,7 @@ docker compose down
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 
 # finally: reset the vault server
-script.reset.compose.sh core_vault
+script.reset.compose.sh web_vault
 
 ######################### initial and unseal vault
 export VAULT_TOKEN='initialzing vault'
@@ -471,8 +471,8 @@ script.reset.compose.sh
 ## alternative 1: only wipe vault & required services
 # sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 # script.reset.compose.sh core_proxy 1
-# script.reset.compose.sh core_postgres 1
-# script.reset.compose.sh core_vault 1
+# script.reset.compose.sh web_postgres 1
+# script.reset.compose.sh web_vault 1
 
 
 ## DEFAULT & ALTERNATIVE 1
@@ -495,8 +495,8 @@ script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
 
 ## alternative 2b: reboot vault & required services only
 # script.refresh.compose.sh core_proxy
-# script.refresh.compose.sh core_postgres
-# script.refresh.compose.sh core_vault
+# script.refresh.compose.sh web_postgres
+# script.refresh.compose.sh web_vault
 
 ########## your devstack is now running!
 ########## STOP: vault init type
