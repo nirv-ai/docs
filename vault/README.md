@@ -343,7 +343,7 @@ script.vault.sh process enable_feature
 ## e.g. auth/dir/auth_approle_role_cache.json
 ### will create/update approle(s) using the configuration in each file
 
-script.vault.sh process auth_in_dir $AUTH_SCHEME_DIR
+script.vault.sh process auth
 
 ```
 
