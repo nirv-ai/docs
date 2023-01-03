@@ -60,6 +60,28 @@ script.registry.sh CMD
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.refresh.sh)
 
+```sh
+##################### INTERFACE
+# if you prefix all your container names
+export SERVICE_PREFIX=nirvai_
+ENV=${ENV:-development}
+
+
+##################### usage
+# FYI: all cmds create .env.$ENV.compose.[json,yaml]
+# containing all environment vars for the compose stack
+
+
+# stop, rm, then recreate compose.yml in current dir
+> script.refresh.compose.sh
+
+# stop, up CONTAINER_NAME
+> script.refresh.compose.sh CONTAINER_NAME
+
+# stop, rm, rebuild, up CONTAINER_NAME
+> script.refresh.compose.sh CONTAINER_NAME 1
+```
+
 ### script.reset.compose.sh
 
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.reset.sh)
@@ -72,7 +94,6 @@ script.registry.sh CMD
 ##################### INTERFACE
 # if you prefix all your container names
 export SERVICE_PREFIX=nirvai_
-
 
 
 ##################### usage
