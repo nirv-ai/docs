@@ -412,7 +412,7 @@ script.vault.sh process token
 ## KV V2 secret engine: hydrate_kv2.ENABLED_AT_THIS_PATH.STORE_SECRET_AT_THIS_PATH
 ## e.g. secret_kv2.secret.auth_approle_role_bff.json
 ## ^ upsert data at secret-path auth_approle_role_bff in the kv2 engine enabled at secret
-script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
+script.vault.sh process secret_data
 ```
 
 #### next steps
