@@ -311,7 +311,7 @@ script.vault.sh process policy
 ```sh
 # set and verify admin token (@see `# set admin token and unseal db`)
 
-script.vault.sh process token_role_in_dir $TOKEN_ROLE_DIR
+script.vault.sh process token_role
 ```
 
 #### use admin token to enable features in feature dir
