@@ -287,8 +287,8 @@ script.vault.sh process vault_admin
 ```sh
 
 ## using admin (or any previously created) token to authenticate to vault
-USE_VAULT_TOKEN=admin_vault
-export VAULT_TOKEN=$(cat $JAIL/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+USE_VAULT_TOKEN=token_admin_vault
+export VAULT_TOKEN=$(cat $ADMIN_PGP_KEY_DIR/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
 ## unseal the DB if its sealed and verify vault server status & token info
 ## (requires password used when creating the pgp key)
@@ -303,7 +303,7 @@ script.vault.sh get token self
 ```sh
 # set and verify admin token (@see `# set admin token and unseal db`)
 
-script.vault.sh process policy_in_dir $POLICY_DIR
+script.vault.sh process policy
 ```
 
 #### use admin token to create token roles in token role dir
