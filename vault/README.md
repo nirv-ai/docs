@@ -144,6 +144,7 @@ export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
 export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
 export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
+export OTHER_TOKEN_DIR="$$JAIL/tokens/other"
 
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
@@ -368,6 +369,7 @@ script.vault.sh process auth
 
 # this requires a running DB
 ## on subsequent runs you can ignore the db init errors (vault user creds already rotated)
+
 script.vault.sh process secret_engine
 
 ```
@@ -392,7 +394,7 @@ script.vault.sh process secret_engine
 ## ^ save periodic token for role periodic_infra as $JAIL/periodic_infra.ci.json
 #### by default periodic must renew within 30 days: good for CI
 
-script.vault.sh process token_in_dir $TOKEN_INIT_DIR
+script.vault.sh process token
 ```
 
 #### use admin token to hydrate initial secret data for downstream services
