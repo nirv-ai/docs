@@ -44,6 +44,8 @@
 
 - generally this should be the first step _in all microservices_ deployed at NIRVai
 - `unless` your application requires access to 0 sensitive data and relies purely on configuration committed to git
+- nirvai maintains a `core` vault application which you can integrate with by adding a vault app to your monorepo
+  - all directions that follow assume this is your intent
 
 ### REQUIREMENTS
 
@@ -51,21 +53,24 @@
 - simplify modify the inputs in `# INTERFACE` section
 - [get the scripts from here](https://github.com/nirv-ai/scripts)
   - [add them to your path](../scripts/README.md)
-- [get the configs from here](https://github.com/nirv-ai/scripts)
+- [get the configs from here](https://github.com/nirv-ai/configs/vault)
 
 ```sh
 
 ######################### REQUIREMENTS
 # curl @see https://curl.se/docs/manpage.html
 # jq @see https://stedolan.github.io/jq/manual/
-
 # debian compatible host (only tested on ubuntu)
+
 # directory structure matches:
 ├ you-are-here
 ├── configs
-├── ${CORE_SERVICE_DIR_NAME}
+│   ├── vault
+│   │   ├── core # downstream vault instance you're integrating with
+│   │   ├── ${REPO_DIR} # vault instance for development
+├── ${REPO_DIR}
 │   ├── compose.yaml
-│   ├── apps/{app1..X}/{...}
+│   ├── apps/{appX..Y}/...
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   ├── dev
 │   │   ├── apps
@@ -92,7 +97,7 @@
 ######################### interface
 # monorepo containing all of your applications
 # @see https://github.com/nirv-ai/core-service-template
-CORE_SERVICE_DIR_NAME=core
+REPO_DIR=web
 
 # SERVICE_PREFIX of your monorepo services,
 # e.g. /core/apps/SERVICE_PREFIX-nodejs-app/package.json
@@ -165,7 +170,7 @@ export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
 export NIRV_SCRIPT_DEBUG=0
 
 # every CMD after this line expects you to be in the root of your monorepo
-cd $CORE_SERVICE_DIR_NAME
+cd $REPO_DIR
 
 # resync vault configs into your instance dir
 rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
@@ -208,7 +213,7 @@ script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third,
 #### create root and admin_vault pgp keys
 
 ```sh
-######################### cd /nirv/core
+######################### cd $REPO_DIR
 # a human is required to create and distribute
 # root & admin vault tokens and unseal keys
 
@@ -421,7 +426,7 @@ script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 ########################## COPYPASTA START
 
 # INPUTS: edit to match the your directory structure
-CORE_SERVICE_DIR_NAME=core
+REPO_DIR=core
 SERVICE_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=core-vault
 VAULT_INSTANCE_SRC_DIR=apps/$SERVICE_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
@@ -448,10 +453,10 @@ export NIRV_SCRIPT_DEBUG=0
 
 
 # stop all running containers
-cd $CORE_SERVICE_DIR_NAME
+cd $REPO_DIR
 if [ "$?" -gt 0 ]; then
   echo -e "\n\nyou executed this script in the wrong directory"
-  echo -e "could not cd into $CORE_SERVICE_DIR_NAME"
+  echo -e "could not cd into $REPO_DIR"
   return 1 2>/dev/null
 fi;
 docker compose down

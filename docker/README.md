@@ -67,7 +67,7 @@ export CUNT_NAME_PREFIX=nirvai_
 
 
 ##################### usage
-# exec bash, else sh into $CONTAINER_NAME or $SERVICE_PREFIX$CONTAINER_NAME
+# try bash, else sh into $CONTAINER_NAME or $SERVICE_PREFIX$CONTAINER_NAME
 > script.exec.cunt.sh CONTAINER_NAME
 
 ```
