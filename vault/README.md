@@ -67,7 +67,7 @@
 ├ you-are-here
 ├── configs
 │   ├── vault
-│   │   ├── core # proxy init files for upstream vault instance
+│   │   ├── core # init files for upstream vualt server
 │   │   ├── ${REPO_DIR} # init files for this monorepo's vault instance
 │   │   │   ├── # ^ directories above may contain any of: (in initialization order)
 │   │   │   ├── vault-admin/*
@@ -108,18 +108,25 @@
 # monorepo containing all of your applications
 # @see https://github.com/nirv-ai/core-service-template
 BASE_DIR=`pwd`
+
+# the directory name of your mono repo
+# e.g. /git/web/**/*
 REPO_DIR=$BASE_DIR/web
+
+# the directory containing your monorepo apps, as apposed to packages
+# e.g. /git/repo-dir/apps/{app1, app2}/package.json
 REPO_APPS_DIR=$REPO_DIR/apps
 
 # APP_PREFIX of your monorepo services,
-# e.g. /core/apps/APP_PREFIX-nodejs-app/package.json
-# e.g. /core/apps/APP_PREFIX-reactjs-frontend/package.json
+# e.g. /web/apps/nirvai-appname/package.json
 APP_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
-# e.g /core/apps/nirvai-web-vault/...
-# we use the APP_PREFIX to get the full dir name
+# e.g /core/apps/prefix-web-vault/...
 VAULT_INSTANCE_DIR_NAME=web-vault
+
+# service name of your app in your compose.yaml
+VAULT_SERVICE_NAME=web_vault
 
 # the path to your monorepo vault instance src dir
 VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
@@ -214,18 +221,19 @@ docker compose down
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 
 # finally: reset the vault server
-script.reset.compose.sh web_vault
+script.reset.compose.sh $VAULT_SERVICE_NAME
 
-######################### initial and unseal vault
+######################### initialize vault
 export VAULT_TOKEN='initialzing vault'
 
-# confirm `Vault *IS NOT* initialized`
+# verify response.initialized = false
 script.vault.sh get status
 
 # inititialize vault & distribute each unseal_keys_b64 to the appropriate people
+# unseal tokens saved as $JAIL/root.unseal.json
 script.vault.sh init
 
-# verify `Vault *IS* initialized`
+# verify response.initialized = true
 script.vault.sh get status
 
 ```
