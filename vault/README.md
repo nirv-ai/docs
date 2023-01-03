@@ -139,7 +139,11 @@ VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
 # this maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 
+## temporary local jail for initialization purposes only
 export JAIL="$BASE_DIR/secrets/dev/apps/vault"
+export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
+export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
+export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
 
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
@@ -202,20 +206,20 @@ script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third,
 
 ## create root token
 gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/root/root.asc
+gpg --export ABCDEFGHIJKLMNOP | base64 > $ROOT_PGP_KEY
 
 ## create admin token for root
 ## repeat for other admins or to increase the keyshare threshold
 gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/admin.asc
+gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/admin.asc
 
 ### hypothetical token for CISO
 # gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/ciso.asc
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/ciso.asc
 
 ### hypothetical token for head of ops
 # gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/ops.asc
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/ops.asc
 
 ### hypothetical token for head of dev
 # gpg --gen-key
@@ -256,7 +260,7 @@ script.vault.sh get status
 
 ```sh
 ## export root token
-export VAULT_TOKEN=$(cat $JAIL/root.unseal.json \
+export VAULT_TOKEN=$(cat $JAIL/tokens/root/unseal_tokens.json \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
