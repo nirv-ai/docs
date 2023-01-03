@@ -66,9 +66,9 @@
 # directory structure matches:
 ├ you-are-here
 ├── configs
-│   ├── vault
-│   │   ├── core # init files for upstream vualt server
-│   │   ├── ${REPO_DIR} # init files for this monorepo's vault instance
+│   └── vault
+│   │   └── core # init files for upstream vualt server
+│   │   └── ${REPO_DIR} # init files for this monorepo's vault instance
 │   │   │   ├── # ^ directories above may contain any of: (in initialization order)
 │   │   │   ├── vault-admin/*
 │   │   │   ├── policy/*
@@ -82,11 +82,13 @@
 │   ├── compose.yaml
 │   ├── apps/{appX..Y}/...
 ├── secrets # chroot jail, a temporary folder or private git repo
-│   ├── dev
-│   │   ├── apps
+│   └── dev
+│   │   └── apps
 │   │   │   └── vault # pgp.asc files must be manually created (see below)
-│   │   │       ├── admin_vault.asc
-│   │   │       ├── root.asc
+│   │   │   │   └── token
+│   │   │   │   │   ├── root/* # directory for root and unseal tokens
+│   │   │   │   │   ├── admin/* # directory for admin token
+
 
 ```
 
@@ -129,19 +131,13 @@ VAULT_INSTANCE_DIR_NAME=web-vault
 VAULT_SERVICE_NAME=web_vault
 
 # the path to your monorepo vault instance src dir
-VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
-
-# vault instance will initialize based on these configs
-VAULT_INSTANCE_CONFIG_DIR=$VAULT_INSTANCE_SRC_DIR/config
+export VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 
 # vault instance will use these configs as starter templates
 VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
 
 # this maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
-
-# required vault admin token nomad
-USE_VAULT_TOKEN=admin_vault
 
 export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 
@@ -157,8 +153,8 @@ export NIRV_SCRIPT_DEBUG=0
 # every CMD after this line expects you to be in the root of your monorepo
 cd $REPO_DIR
 
-# resync vault configs into your instance dir
-rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_CONFIG_DIR
+# sync base vault configs into your instance dir
+rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
 
 
 ```
@@ -202,13 +198,28 @@ script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third,
 # a human is required to create and distribute
 # root & admin vault tokens and unseal keys
 
-# create root and admin gpg keys if they dont exist in jail
+# create and save pgp keys
+
+## create root token
 gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/root/root.asc
 
-# base64 encode the `gpg: key` value of each gpg-key to $JAIL/_NAME_.asc
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/root.asc
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/admin_vault.asc
+## create admin token for root
+## repeat for other admins or to increase the keyshare threshold
+gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/admin.asc
 
+### hypothetical token for CISO
+# gpg --gen-key
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/ciso.asc
+
+### hypothetical token for head of ops
+# gpg --gen-key
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/ops.asc
+
+### hypothetical token for head of dev
+# gpg --gen-key
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/dev.asc
 ```
 
 #### wipe and initialize vault server
@@ -229,8 +240,11 @@ export VAULT_TOKEN='initialzing vault'
 # verify response.initialized = false
 script.vault.sh get status
 
-# inititialize vault & distribute each unseal_keys_b64 to the appropriate people
-# unseal tokens saved as $JAIL/root.unseal.json
+# inititialize vault with root & admin pgp keys, and create unseal tokens
+# unseal tokens saved as $JAIL/root/unseal_tokens.json
+## you can optionally pass a threshold number
+## which sets the minimum amount of tokens required to unseal db
+## by default its set at 2
 script.vault.sh init
 
 # verify response.initialized = true
@@ -260,8 +274,9 @@ script.vault.sh get token self
 
 ```sh
 # create policy then token for vault administrator
-script.vault.sh create poly $ADMIN_POLICY_CONFIG
-script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
+# script.vault.sh create poly $ADMIN_POLICY_CONFIG
+# script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
+script.vault.sh process vault_admin
 ```
 
 #### set admin token and unseal db
