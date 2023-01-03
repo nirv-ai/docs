@@ -46,11 +46,12 @@
 - `unless` your application requires access to 0 sensitive data and relies purely on configuration committed to git
 - nirvai maintains a `core` vault application which you can integrate with by adding a vault app to your monorepo
   - all directions that follow assume this is your intent
+  - scope all of your things: every service integrates with the same upstream vault server
 
 ### REQUIREMENTS
 
 - if your directory structure does not match below
-- simplify modify the inputs in `# INTERFACE` section
+- modify the inputs in the `# INTERFACE` section that follows
 - [get the scripts from here](https://github.com/nirv-ai/scripts)
   - [add them to your path](../scripts/README.md)
 - [get the configs from here](https://github.com/nirv-ai/configs/vault)
@@ -66,8 +67,8 @@
 ├ you-are-here
 ├── configs
 │   ├── vault
-│   │   ├── core # downstream vault instance you're integrating with
-│   │   ├── ${REPO_DIR} # vault instance for development
+│   │   ├── core # upstream vault instance you're integrating with
+│   │   ├── ${REPO_DIR} # application vault instance integrating with upstream
 ├── ${REPO_DIR}
 │   ├── compose.yaml
 │   ├── apps/{appX..Y}/...
@@ -99,18 +100,18 @@
 # @see https://github.com/nirv-ai/core-service-template
 REPO_DIR=web
 
-# SERVICE_PREFIX of your monorepo services,
-# e.g. /core/apps/SERVICE_PREFIX-nodejs-app/package.json
-# e.g. /core/apps/SERVICE_PREFIX-reactjs-frontend/package.json
-SERVICE_PREFIX=nirvai
+# APP_PREFIX of your monorepo services,
+# e.g. /core/apps/APP_PREFIX-nodejs-app/package.json
+# e.g. /core/apps/APP_PREFIX-reactjs-frontend/package.json
+APP_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
 # e.g /core/apps/nirvai-web-vault/...
-# we use the SERVICE_PREFIX to get the full dir name
+# we use the APP_PREFIX to get the full dir name
 VAULT_INSTANCE_DIR_NAME=core-vault
 
 # the path to your monorepo vault server instance src dir
-VAULT_INSTANCE_SRC_DIR=apps/$SERVICE_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+VAULT_INSTANCE_SRC_DIR=apps/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 
 # the maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
@@ -427,9 +428,9 @@ script.vault.sh process secret_data_in_dir $SECRET_DATA_INIT_DIR
 
 # INPUTS: edit to match the your directory structure
 REPO_DIR=core
-SERVICE_PREFIX=nirvai
+APP_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=core-vault
-VAULT_INSTANCE_SRC_DIR=apps/$SERVICE_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+VAULT_INSTANCE_SRC_DIR=apps/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
 REPO_CONFIG_VAULT_PATH=../configs/vault/
