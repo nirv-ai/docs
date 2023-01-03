@@ -328,7 +328,7 @@ script.vault.sh process token_role
 ### will work: enable.kv-v2.mfe-app1-snazzle
 
 # enable all features in feature dir
-script.vault.sh process enable_feature $FEATURE_DIR
+script.vault.sh process enable_feature
 
 ```
 
