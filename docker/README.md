@@ -52,7 +52,7 @@ ENV=${ENV:-development}
 > script.reset.compose.sh
 
 # stop, rm images and volumes, then recreate SERVICE_NAME
-> script.refresh.compose.sh SERVICE_NAME
+> script.reset.compose.sh SERVICE_NAME
 
 ```
 
