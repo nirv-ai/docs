@@ -12,6 +12,82 @@ documentation for the NIRVai platform
 - [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/docker)
 
+### script.refresh.compose.sh
+
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.refresh.compose.sh)
+
+```sh
+##################### INTERFACE
+ENV=${ENV:-development}
+
+##################### usage
+# FYI: all cmds create .env.$ENV.compose.[json,yaml]
+# containing the canonical compose config
+
+
+# stop, rm, then recreate compose.yml in current dir
+> script.refresh.compose.sh
+
+# stop, rm, then recreate SERVICE_NAME
+> script.refresh.compose.sh SERVICE_NAME
+
+# stop, rm, build image, and recreate CONTAINER_NAME
+> script.refresh.compose.sh SERVICE_NAME 1
+```
+
+### script.reset.compose.sh
+
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.reset.compose.sh)
+
+```sh
+##################### INTERFACE
+ENV=${ENV:-development}
+
+##################### usage
+# FYI: all cmds create .env.$ENV.compose.[json,yaml]
+# containing the canonical compose config
+
+
+# stop, rm images and volumes, then recreate compose.yml in current dir
+> script.reset.compose.sh
+
+# stop, rm images and volumes, then recreate SERVICE_NAME
+> script.refresh.compose.sh SERVICE_NAME
+
+```
+
+### script.exec.cunt.sh
+
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.exec.cunt.sh)
+
+```sh
+##################### INTERFACE
+# if you prefix all your container names
+export CUNT_NAME_PREFIX=nirvai_
+
+
+##################### usage
+# exec bash, else sh into $CONTAINER_NAME or $SERVICE_PREFIX$CONTAINER_NAME
+> script.exec.cunt.sh CONTAINER_NAME
+
+```
+
+### script.log.cunt.sh
+
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.log.cunt.sh)
+
+```sh
+##################### INTERFACE
+# if you prefix all your container names
+export CUNT_NAME_PREFIX=nirvai_
+
+
+##################### usage
+# get the logs on disk for a container, useful if docker logs returns null
+> script.log.cunt.sh disk CONTAINER_NAME
+
+```
+
 ### script.registry.sh
 
 - actively used for working with a locally docker registry
@@ -54,52 +130,4 @@ script.registry.sh CMD
 > tag: tag a single image and pushes it to registry
 > tag_running: tags the image of all running containers and pushes all to registry
 
-```
-
-### script.refresh.compose.sh
-
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.refresh.sh)
-
-```sh
-##################### INTERFACE
-# if you prefix all your container names
-export SERVICE_PREFIX=nirvai_
-ENV=${ENV:-development}
-
-
-##################### usage
-# FYI: all cmds create .env.$ENV.compose.[json,yaml]
-# containing all environment vars for the compose stack
-
-
-# stop, rm, then recreate compose.yml in current dir
-> script.refresh.compose.sh
-
-# stop, up CONTAINER_NAME
-> script.refresh.compose.sh CONTAINER_NAME
-
-# stop, rm, rebuild, up CONTAINER_NAME
-> script.refresh.compose.sh CONTAINER_NAME 1
-```
-
-### script.reset.compose.sh
-
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.compose.reset.sh)
-
-### script.exec.cunt.sh
-
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/script.exec.cunt.sh)
-
-```sh
-##################### INTERFACE
-# if you prefix all your container names
-export SERVICE_PREFIX=nirvai_
-
-
-##################### usage
-# exec bash, else sh into $SERVICE_PREFIX$NAME
-> script.exec.cunt.sh NAME
-
-# exec bash, else sh into $NAME
-> script.exec.cunt.sh cunt NAME
 ```
