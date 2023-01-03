@@ -260,7 +260,7 @@ script.vault.sh get status
 
 ```sh
 ## export root token
-export VAULT_TOKEN=$(cat $JAIL/tokens/root/unseal_tokens.json \
+export VAULT_TOKEN=$(cat $UNSEAL_TOKENS \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
@@ -278,8 +278,7 @@ script.vault.sh get token self
 
 ```sh
 # create policy then token for vault administrator
-# script.vault.sh create poly $ADMIN_POLICY_CONFIG
-# script.vault.sh create token child $ADMIN_TOKEN_CONFIG > $JAIL/admin_vault.json
+# tokens saved in ADMIN_PGP_KEY_DIR
 script.vault.sh process vault_admin
 ```
 
