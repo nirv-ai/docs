@@ -366,8 +366,9 @@ script.vault.sh process auth
 ### NOTE: we only support databases that support rotate-root creds
 ### the vault root creds will be automatically rotated
 
-# this requires a postgres DB to be running, see configs
-script.vault.sh process engine_config $SECRET_ENGINE_DIR
+# this requires a running DB
+## on subsequent runs you can ignore the db init errors (vault user creds already rotated)
+script.vault.sh process secret_engine
 
 ```
 
