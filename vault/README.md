@@ -67,8 +67,17 @@
 ├ you-are-here
 ├── configs
 │   ├── vault
-│   │   ├── core # upstream vault instance you're integrating with
-│   │   ├── ${REPO_DIR} # application vault instance integrating with upstream
+│   │   ├── core # proxy init files for upstream vault instance
+│   │   ├── ${REPO_DIR} # init files for this vault instance
+│   │   │   ├── # ^ directories above may contain any of: (in initialization order)
+│   │   │   ├── vault-admin/*
+│   │   │   ├── policy/*
+│   │   │   ├── token-role/*
+│   │   │   ├── enable-feature/*
+│   │   │   ├── auth/*
+│   │   │   ├── secret-engine/*
+│   │   │   ├── token/*
+│   │   │   ├── secret-data/*
 ├── ${REPO_DIR}
 │   ├── compose.yaml
 │   ├── apps/{appX..Y}/...
@@ -108,7 +117,7 @@ APP_PREFIX=nirvai
 # the name of your monorepo vault server instance
 # e.g /core/apps/nirvai-web-vault/...
 # we use the APP_PREFIX to get the full dir name
-VAULT_INSTANCE_DIR_NAME=core-vault
+VAULT_INSTANCE_DIR_NAME=web-vault
 
 # the path to your monorepo vault server instance src dir
 VAULT_INSTANCE_SRC_DIR=apps/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
@@ -122,8 +131,8 @@ USE_VAULT_TOKEN=admin_vault
 # where your reusable vault configs are stored
 REPO_CONFIG_VAULT_PATH=../configs/vault/
 
-# @see https://github.com/nirv-ai/configs/tree/develop/vault
-# path to the vault admin policy
+## @see https://github.com/nirv-ai/configs/tree/develop/vault
+## path to the vault admin policy
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
 
 # path to the vault admin token config
