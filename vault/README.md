@@ -68,7 +68,7 @@
 ├── configs
 │   ├── vault
 │   │   ├── core # proxy init files for upstream vault instance
-│   │   ├── ${REPO_DIR} # init files for this vault instance
+│   │   ├── ${REPO_DIR} # init files for this monorepo's vault instance
 │   │   │   ├── # ^ directories above may contain any of: (in initialization order)
 │   │   │   ├── vault-admin/*
 │   │   │   ├── policy/*
@@ -107,7 +107,9 @@
 ######################### interface
 # monorepo containing all of your applications
 # @see https://github.com/nirv-ai/core-service-template
-REPO_DIR=web
+BASE_DIR=`pwd`
+REPO_DIR=$BASE_DIR/web
+REPO_APPS_DIR=$REPO_DIR/apps
 
 # APP_PREFIX of your monorepo services,
 # e.g. /core/apps/APP_PREFIX-nodejs-app/package.json
@@ -119,56 +121,22 @@ APP_PREFIX=nirvai
 # we use the APP_PREFIX to get the full dir name
 VAULT_INSTANCE_DIR_NAME=web-vault
 
-# the path to your monorepo vault server instance src dir
-VAULT_INSTANCE_SRC_DIR=apps/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+# the path to your monorepo vault instance src dir
+VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 
-# the maps directly to VAULT_ADDR set in your vault configuration
+# vault instance will initialize based on these configs
+VAULT_INSTANCE_CONFIG_DIR=$VAULT_INSTANCE_SRC_DIR/config
+
+# vault instance will use these configs as starter templates
+VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
+
+# this maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 
-# what to call the admin token
+# required vault admin token nomad
 USE_VAULT_TOKEN=admin_vault
 
-# where your reusable vault configs are stored
-REPO_CONFIG_VAULT_PATH=../configs/vault/
-
-## @see https://github.com/nirv-ai/configs/tree/develop/vault
-## path to the vault admin policy
-ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
-
-# path to the vault admin token config
-ADMIN_TOKEN_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/token_admin_vault.json
-
-# directory filled with HCL files
-## each HCL file is a policy to create
-POLICY_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-001-policy-init
-
-# directory filled with json files
-## each file configures a token role to create
-TOKEN_ROLE_DIR=$VAULT_INSTANCE_SRC_DIR/config/000-002-token-role-init
-
-# directory filled with empty files
-## each filename denotes a feature and the path at which it should be enabled
-FEATURE_DIR=$VAULT_INSTANCE_SRC_DIR/config/001-000-enable-feature
-
-# directory filled with json files
-## each file configures an authentication scheme
-AUTH_SCHEME_DIR=$VAULT_INSTANCE_SRC_DIR/config/002-000-auth-init
-
-# directory filled with json files
-## each filename specifies parameters for a secret engine
-## each file contains data specific to thing being initialized
-SECRET_ENGINE_DIR=$VAULT_INSTANCE_SRC_DIR/config/003-000-secret-engine-init
-
-# directory filled with empty files
-## each filename create a token role token for a downstream service
-TOKEN_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/004-000-token-init
-
-# directory filled with json files
-## each filename denotes a secret engine, path enabled, path to store secret
-SECRET_DATA_INIT_DIR=$VAULT_INSTANCE_SRC_DIR/config/005-000-secret-data-init
-
-# wherever you will temporarily store created secrets on disk
-export JAIL="$(pwd)/secrets/dev/apps/vault"
+export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
@@ -183,7 +151,7 @@ export NIRV_SCRIPT_DEBUG=0
 cd $REPO_DIR
 
 # resync vault configs into your instance dir
-rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_CONFIG_DIR
 
 
 ```
@@ -442,7 +410,7 @@ VAULT_INSTANCE_DIR_NAME=core-vault
 VAULT_INSTANCE_SRC_DIR=apps/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 USE_VAULT_TOKEN=admin_vault
-REPO_CONFIG_VAULT_PATH=../configs/vault/
+VAULT_BASE_CONFIG_DIR=../configs/vault/
 
 # CONFIGS: edit to modify all supported vault features
 ADMIN_POLICY_CONFIG=$VAULT_INSTANCE_SRC_DIR/config/000-000-vault-admin-init/policy_admin_vault.hcl
@@ -473,7 +441,7 @@ docker compose down
 
 
 # resync vault instance configs
-rsync -a --delete $REPO_CONFIG_VAULT_PATH $VAULT_INSTANCE_SRC_DIR/config
+rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
 
 ########## START: vault boot type
 ########## how are you booting your devstack?
