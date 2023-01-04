@@ -448,7 +448,7 @@ export VAULT_TOKEN='initializing vault'
 script.vault.sh init
 script.vault.sh get status
 
-# ## required: root must create atleast 1 admin token
+## required: root must create atleast 1 admin token
 export VAULT_TOKEN=$(cat $UNSEAL_TOKENS \
   | jq -r '.root_token' \
   | base64 --decode \
@@ -459,7 +459,7 @@ script.vault.sh get status
 script.vault.sh process vault_admin
 
 ## alternative 2a: reboot your entire stack
-# script.refresh.compose
+# script.refresh.compose.sh
 
 ## alternative 2b: reboot vault & required services only
 # script.refresh.compose.sh web_postgres
