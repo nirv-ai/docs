@@ -11,7 +11,11 @@ documentation for the NIRVai platform
 
 > if it doesnt copypasta, it doesnt belong in your stack
 
-https://user-images.githubusercontent.com/10324554/209851393-89d9d825-c3de-4eaf-96d1-191f35554a30.mp4
+
+
+https://user-images.githubusercontent.com/10324554/210482519-2ba18a55-d764-47d3-8dbc-1301513e3a05.mp4
+
+
 
 ## NIRVai First Principles
 
