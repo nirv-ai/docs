@@ -144,7 +144,7 @@ export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
 export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
 export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
-export OTHER_TOKEN_DIR="$$JAIL/tokens/other"
+export OTHER_TOKEN_DIR="$JAIL/tokens/other"
 
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
@@ -406,8 +406,10 @@ export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
 export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
 export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
-export OTHER_TOKEN_DIR="$$JAIL/tokens/other"
+export OTHER_TOKEN_DIR="$JAIL/tokens/other"
 
+# only target configs in this dir: e.g. web|core
+export VAULT_CONFIG_TARGET=
 
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
