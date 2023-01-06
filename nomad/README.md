@@ -63,6 +63,9 @@ documentation for Nomad @ NIRVai
 # in all examples: `$CORE` is the root of your monorepo
 
 ########### cd $CORE
+# TODO: this may only be necessary one time
+# ^ `docker info` returns an insecure registry at localhost
+# ^ and I can successfuly tag images there with 0 errors
 # start a docker registry
 script.registry.sh run
 
