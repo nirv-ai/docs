@@ -1,5 +1,8 @@
 # nomad TLS
 
+- todo: move this into cfssl readme
+- ^ it can be used with both nomad & consul
+
 - [hashicorp docs](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 
 ## setup TLS for mad.nirv.ai:4646
@@ -13,7 +16,7 @@ sudo apt install golang-cfssl
 mkdir tls && cd tls
 
 # generate priv key and cert
-## nomad-ca-key.pem: used to sign certs for nomad nodes and must b ekept private
+## nomad-ca-key.pem: used to sign certs for nomad nodes and must be kept private
 ## nomad-ca.pem contains public key for validating nomad certs
 ##  ^ must be distributed to every node requiring access
 cfssl print-defaults csr | cfssl gencert -initca - | cfssljson -bare nomad-ca
@@ -21,7 +24,7 @@ cfssl print-defaults csr | cfssl gencert -initca - | cfssljson -bare nomad-ca
 # create a cfssl.json (see https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
 # generate certs for the nomad server
 echo '{}' | cfssl gencert -ca=nomad-ca.pem -ca-key=nomad-ca-key.pem -config=cfssl.json \
-    -hostname="server.global.nomad,localhost,127.0.0.1,mad.nirv.ai, dev.nirv.ai" - | cfssljson -bare server
+    -hostname="server.global.nomad,localhost,127.0.0.1,mad.nirv.ai,dev.nirv.ai" - | cfssljson -bare server
 
 # generate certs for the client server
 echo '{}' | cfssl gencert -ca=nomad-ca.pem -ca-key=nomad-ca-key.pem -config=cfssl.json \

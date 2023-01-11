@@ -112,26 +112,26 @@
 BASE_DIR=`pwd`
 
 # the directory name of your mono repo
-# e.g. /git/web/**/*
+# e.g. /git/web/**
 REPO_DIR=$BASE_DIR/web
 
 # the directory containing your monorepo apps, as apposed to packages
-# e.g. /git/repo-dir/apps/{app1, app2}/package.json
-REPO_APPS_DIR=$REPO_DIR/apps
+# e.g. /git/$REPO_DIR/apps/**
+APPS_DIR=$REPO_DIR/apps
 
 # APP_PREFIX of your monorepo services,
-# e.g. /web/apps/nirvai-appname/package.json
+# e.g. /$REPO_DIR/$APPS_DIR/nirvai-xxxx/package.json
 APP_PREFIX=nirvai
 
 # the name of your monorepo vault server instance
-# e.g /core/apps/prefix-web-vault/...
+# e.g /$REPO_DIR/$APPS_DIR/$APP_REFIX-web-vault/package.json
 VAULT_INSTANCE_DIR_NAME=web-vault
 
 # service name of your app in your compose.yaml
 VAULT_SERVICE_NAME=web_vault
 
 # the path to your monorepo vault instance src dir
-export VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 
 # vault instance will use these configs as starter templates
 VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
@@ -393,14 +393,14 @@ script.vault.sh process secret_data
 
 BASE_DIR=`pwd`
 REPO_DIR=$BASE_DIR/web
-REPO_APPS_DIR=$REPO_DIR/apps
+APPS_DIR=$REPO_DIR/apps
 APP_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=web-vault
 VAULT_SERVICE_NAME=web_vault
 export NIRV_SCRIPT_DEBUG=0
 
 
-export VAULT_INSTANCE_SRC_DIR=$REPO_APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
+export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
 export JAIL="$BASE_DIR/secrets/dev/apps/vault"
 export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
