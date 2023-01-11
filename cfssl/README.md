@@ -26,8 +26,8 @@
 
 ```sh
 # cfssl: option 1 install from source @see https://github.com/cloudflare/cfssl
-# cfssl: option 2 install via apt-get https://packages.ubuntu.com/search?keywords=golang-cfssl
-# jq @see https://stedolan.github.io/jq/manual/
+# cfssl: option 2 install via apt-get @see https://packages.ubuntu.com/search?keywords=golang-cfssl
+# jq: @see https://stedolan.github.io/jq/manual/
 
 # directory structure matches:
 ├── scripts # git clone git@github.com:nirv-ai/scripts.git
@@ -35,13 +35,10 @@
 │   └── cfssl
 │   │   ├── default.cfssl.json # default cfssl configuration
 │   │   └── arbitrary.domain.name # init files for this CA
-│   │   │   └── hosts
-│   │   │   │   └── entityX..Y
-│   │   │   │   │   ├── 127.0.0.1
-│   │   │   │   │   ├── localhost
-│   │   │   │   │   ├── poop.soup.boop.com
-│   │   │   ├── csr.entityX.json # init file for this CA
-│   │   │   ├── csr.entityY.json # init file for this CA
+│   │   │   ├── csr.root.ca.json # root ca configuration named ca
+│   │   │   ├── csr.client.cli.json # leaf cert configuration for client named cli
+│   │   │   ├── csr.client.client-0.json # leaf cert configuration for client named client-0
+│   │   │   ├── csr.server.server-0.json # leaf cert configuration for server named server-0
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   └── arbitrary.domain.com
 │   │   └── tls # we will persist all files to this directory
