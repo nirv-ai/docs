@@ -37,10 +37,23 @@
 │   │   └── arbitrary.domain.name # init files for this CA
 │   │   │   ├── csr.root.ca.json # root ca configuration named ca
 │   │   │   ├── csr.client.cli.json # leaf cert configuration for client named cli
-│   │   │   ├── csr.client.client-0.json # leaf cert configuration for client named client-0
-│   │   │   ├── csr.server.server-0.json # leaf cert configuration for server named server-0
+│   │   │   ├── csr.client.client.json # leaf cert configuration for client named client
+│   │   │   ├── csr.server.server.json # leaf cert configuration for server named server
 ├── secrets # chroot jail, a temporary folder or private git repo
 │   └── arbitrary.domain.com
 │   │   └── tls # we will persist all files to this directory
+
+```
+
+# USAGE
+
+```sh
+
+# create root ca and save as ca[-key].{pem,csr}
+create rootca mesh.nirv.ai
+
+# create root ca but save as somethingelse
+create rootca mesh.nirv.ai somethingelse[-key].{pem,csr}
+
 
 ```
