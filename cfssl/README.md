@@ -36,7 +36,7 @@
 │   │   ├── cfssl.json # default cfssl configuration
 │   │   └── arbitrary.domain.name # init files for this CA
 │   │   │   ├── csr.root.ca.json # root ca configuration named ca
-│   │   │   ├── csr.client.cli.json # leaf cert configuration for client named cli
+│   │   │   ├── csr.cli.cli.json # leaf cert configuration for cli named cli
 │   │   │   ├── csr.client.client.json # leaf cert configuration for client named client
 │   │   │   ├── csr.server.server.json # leaf cert configuration for server named server
 ├── secrets # chroot jail, a temporary folder or private git repo
@@ -62,9 +62,6 @@ create rootca a.b.c
 create rootca x.y.z somethingelse
 
 ### SERVER CERT
-export CA_NAME=mesh.nirv.ai
-export CA_PEM_NAME=ca
-
 # create 1 server cert and save as server-0[-key].{pem,csr}
 export CA_NAME=mesh.nirv.ai
 export CA_PEM_NAME=ca
@@ -74,7 +71,35 @@ create server
 create server 7
 
 # create arbitrary amount of server certs specifying options
-# ^ custom.cfssl.json should be sibling to the server config, NOT next to the default cfssl.json
-# ^ this way customizations are kept within the parent CA configuration dir
-create server 77 mesh.nirv.ai ca server custom.cfssl.json
+# ^ server.cfssl.json should be sibling to the server config, NOT next to the default cfssl.json
+# ^ this way customizations are kept within the CA configuration dir
+create server 77 mesh.nirv.ai ca server server.cfssl.json
+
+### CLIENT CERT
+# create 1 client cert and save as client-0[-key].{pem,csr}
+export CA_NAME=mesh.nirv.ai
+export CA_PEM_NAME=ca
+export CLIENT_NAME=client
+create client
+# create arbitrary amount of client certs using above vars
+create client 7
+
+# create arbitrary amount of client certs specifying options
+# ^ client.cfssl.json should be sibling to the client config, NOT next to the default cfssl.json
+# ^ this way customizations are kept within the CA configuration dir
+create client 77 mesh.nirv.ai ca client client.cfssl.json
+
+### CLI CERT
+# create 1 cli cert and save as cli-0[-key].{pem,csr}
+export CA_NAME=mesh.nirv.ai
+export CA_PEM_NAME=ca
+export CLI_NAME=cli
+create cli
+# create arbitrary amount of cli certs using above vars
+create cli 7
+
+# create arbitrary amount of cli certs specifying options
+# ^ cli.cfssl.json should be sibling to the client config, NOT next to the default cfssl.json
+# ^ this way customizations are kept within the CA configuration dir
+create cli 77 mesh.nirv.ai ca cli cli.cfssl.json
 ```
