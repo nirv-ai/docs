@@ -63,9 +63,9 @@ export CA_CN=mesh.nirv.ai
 # you shouldnt (but can) change these as well
 # export CFSSL_DIR="${CFSSL_DIR:-$SCRIPTS_DIR_PARENT/$CONFIG_DIR_NAME/cfssl}"
 # export JAIL="${JAIL:-$SCRIPTS_DIR_PARENT/$SECRET_DIR_NAME/$CA_CN}"
-# export JAIL_TLS="${JAIL_TLS:-$JAIL/$TLS_DIR_NAME}"
-# export CA_CERT="${CA_CERT:-$JAIL_TLS/$CA_PEM_NAME}.pem"
-# export CA_PRIVKEY="${CA_PRIVKEY:-$JAIL_TLS/$CA_PEM_NAME}-key.pem"
+# export JAIL_DIR_TLS="${JAIL_DIR_TLS:-$JAIL/$TLS_DIR_NAME}"
+# export CA_CERT="${CA_CERT:-$JAIL_DIR_TLS/$CA_PEM_NAME}.pem"
+# export CA_PRIVKEY="${CA_PRIVKEY:-$JAIL_DIR_TLS/$CA_PEM_NAME}-key.pem"
 ```
 
 ### USAGE

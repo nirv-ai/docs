@@ -18,10 +18,17 @@
 
 ```sh
 
-# copypasta
+# copypasta: cd secrets dir
 sudo mkdir /etc/ssl/certs/{dev,mad,mesh}.nirv.ai
 sudo mkdir /etc/ssl/certs/{aws,vault}
-sudo ln -s ./dev.nirv.ai/letsencrypt/live/dev.nirv.ai/* /etc/ssl/certs/dev.nirv.ai
-sudo ln -s ./mad.nirv.ai/tls/* /etc/ssl/certs/mad.nirv.ai
-sudo ln -s ./mesh.nirv.ai/{tls,tokens}/* /etc/ssl/certs/mesh.nirv.ai
+sudo ln -s `pwd`/dev.nirv.ai/letsencrypt/live/dev.nirv.ai/* /etc/ssl/certs/dev.nirv.ai
+sudo ln -s `pwd`/mad.nirv.ai/tls/* /etc/ssl/certs/mad.nirv.ai
+sudo ln -s `pwd`/mesh.nirv.ai/tls/* /etc/ssl/certs/mesh.nirv.ai
+sudo ln -s `pwd`/consul/tokens/{root,server,service}/* /etc/ssl/certs/mesh.nirv.ai
+
+# we need a better approach
+# if we just kept shiz in the local secrets dir that would alleviate 1 level of these
+sudo chown -R $USER:$USER /etc/ssl/certs/dev.nirv.ai
+sudo chown -R consul:consul ./mesh.nirv.ai
+sudo chown -R consul:consul ./consul
 ```

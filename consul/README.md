@@ -52,6 +52,58 @@ export CA_CN=mesh.nirv.ai
 
 ```
 
+### service mesh workflow
+
+```sh
+################ cd nirv
+# TODO: move this into docs and fkn automate this shiz like script.vault.sh
+# ensure consul:consul is setup on host
+# ensure source (not symlinks) files & secrets on host are owned by consul:consul
+# see dockerfiles for how to force img consul:consul to match host consul:consul
+### create rootca & server certs
+# create tokens rootca, server client & cli certs using script.ssl.sh
+# ^ make sure to create server certs for each service
+# ^ it wont overrwrite existing certs, so just manually run the server create with X total
+# ^^ TODO: fix this logic to start from x+1 based on existing files in dir with same name
+# ^^ scratch that, as we will be moving to vault PKI eventually anyway
+# copy config/server/* to core-consul
+# `create gossipkey` > copy from jail to core-consul
+# delete data/* if starting green
+# script.reset core-consul
+# `get info` >>> Error querying agent: Unexpected response code: 403 (Permission denied: token with AccessorID '00000000-0000-0000-0000-000000000002' lacks permission 'agent:read' on "consul")
+# `create root-token`
+# `source configs/consul/host/.env.cli` # wont set correct values if debugging is on
+# `get info`
+# `get root-token` >>> validate UI login
+# should have access to almost everything
+### create policy files and tokens and push to consul server
+# see config policy dir
+# `create policies`
+# `list policies`
+# `create server-policy-tokens`
+# `create service-policy-tokens` # service names must match svc configs
+# `source configs/consul/host/.env.consul.server`
+# `list tokens`
+# `set server-tokens` >>> from [WARN] agent: ...blocked by acls... --> to agent: synced node info
+# `get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
+### update docker images to include binary (see proxy for ubuntu, vault for alpine)
+### DISCOVERY: add configs for to each client machine
+# @see https://developer.hashicorp.com/consul/tutorials/get-started-vms/virtual-machine-gs-service-discovery
+# create a base discovery/client/config/* that can be used as defaults for each specific client service
+# create discovery/service-name/config/* configs
+# copy discovery/{client,service-name}/configs/* into each app/service-name/consul/src/config
+# copy secrets/gossip to each as well
+# validate each config has the data it needs
+# ^ make sure to (TODO) manually set token values from secrets/consul/token
+# ^ `get team` >>> w00p w00p
+# ^ `get nodes` >>> w00p w00p
+# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
+# script.reset|refresh compose_service_name(s) to boot consul clients
+### MESH: this is a migration from discovery to mesh
+
+
+```
+
 ### USAGE
 
 ```sh

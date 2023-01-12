@@ -38,3 +38,4 @@ https://user-images.githubusercontent.com/10324554/210482519-2ba18a55-d764-47d3-
 - [docker](./docker/README.md)
 - [scripts](./scripts/README.md)
 - [terraform](./terraform/README.md)
+- [consul](./consul/README.md)
