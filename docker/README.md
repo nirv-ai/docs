@@ -103,8 +103,8 @@ export CUNT_NAME_PREFIX=nirvai_
 
 
 ###################### interface
-# TODO: explain concat: $REG_CERTS_PATH/$REG_SUBD.$REG_DOMAIN/*.pem
-export REG_CERTS_PATH=/etc/ssl/certs
+# TODO: explain concat: $REG_CERTS_DIR_CUNT/$REG_SUBD.$REG_DOMAIN/*.pem
+export REG_CERTS_DIR_CUNT=/etc/ssl/certs
 export REG_DOMAIN=nirv.ai
 export REG_SUBD=dev
 export REG_HOST_PORT=5000
