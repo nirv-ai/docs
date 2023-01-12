@@ -33,7 +33,7 @@
 ├── scripts # git clone git@github.com:nirv-ai/scripts.git
 ├── configs # git clone git@github.com:nirv-ai/configs.git
 │   └── cfssl
-│   │   ├── default.cfssl.json # default cfssl configuration
+│   │   ├── cfssl.json # default cfssl configuration
 │   │   └── arbitrary.domain.name # init files for this CA
 │   │   │   ├── csr.root.ca.json # root ca configuration named ca
 │   │   │   ├── csr.client.cli.json # leaf cert configuration for client named cli
@@ -49,11 +49,32 @@
 
 ```sh
 
+### ROOT CA
 # create root ca and save as ca[-key].{pem,csr}
-create rootca mesh.nirv.ai
+export CA_NAME=mesh.nirv.ai
+export CA_PEM_NAME=ca
+create rootca
 
-# create root ca but save as somethingelse
-create rootca mesh.nirv.ai somethingelse[-key].{pem,csr}
+# create root ca for a config and save as ca[-key].{pem,csr}
+create rootca a.b.c
 
+# create root ca for a config but save as somethingelse[-key].{pem,csr}
+create rootca x.y.z somethingelse
 
+### SERVER CERT
+export CA_NAME=mesh.nirv.ai
+export CA_PEM_NAME=ca
+
+# create 1 server cert and save as server-0[-key].{pem,csr}
+export CA_NAME=mesh.nirv.ai
+export CA_PEM_NAME=ca
+export SERVER_NAME=server
+create server
+# create arbitrary amount of server certs using above vars
+create server 7
+
+# create arbitrary amount of server certs specifying options
+# ^ custom.cfssl.json should be sibling to the server config, NOT next to the default cfssl.json
+# ^ this way customizations are kept within the parent CA configuration dir
+create server 77 mesh.nirv.ai ca server custom.cfssl.json
 ```
