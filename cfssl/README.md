@@ -1,6 +1,5 @@
 # NIRVai CFSSL
 
-- documentation for cfssl
 - [scripting architecture & guidance](.scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/cloudflare/script.ssl.sh)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/cfssl)
@@ -97,7 +96,7 @@ create server 77 mesh.nirv.ai ca server server.cfssl.json
 ### CLIENT CERT
 # create 1 client cert and save as client-0[-key].{pem,csr}
 create client
-# create arbitrary amount of client certs using above vars
+# create arbitrary amount of client certs
 create client 7
 
 # create arbitrary amount of client certs specifying options
@@ -108,7 +107,7 @@ create client 77 mesh.nirv.ai ca client client.cfssl.json
 ### CLI CERT
 # create 1 cli cert and save as cli-0[-key].{pem,csr}
 create cli
-# create arbitrary amount of cli certs using above vars
+# create arbitrary amount of cli certs
 create cli 7
 
 # create arbitrary amount of cli certs specifying options
