@@ -1,6 +1,5 @@
 # NIRVai CFSSL
 
-- documentation for cfssl
 - [scripting architecture & guidance](.scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/cloudflare/script.ssl.sh)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/cfssl)
@@ -64,9 +63,9 @@ export CA_CN=mesh.nirv.ai
 # you shouldnt (but can) change these as well
 # export CFSSL_DIR="${CFSSL_DIR:-$SCRIPTS_DIR_PARENT/$CONFIG_DIR_NAME/cfssl}"
 # export JAIL="${JAIL:-$SCRIPTS_DIR_PARENT/$SECRET_DIR_NAME/$CA_CN}"
-# export JAIL_TLS="${JAIL_TLS:-$JAIL/$TLS_DIR_NAME}"
-# export CA_CERT="${CA_CERT:-$JAIL_TLS/$CA_PEM_NAME}.pem"
-# export CA_PRIVKEY="${CA_PRIVKEY:-$JAIL_TLS/$CA_PEM_NAME}-key.pem"
+# export JAIL_DIR_TLS="${JAIL_DIR_TLS:-$JAIL/$TLS_DIR_NAME}"
+# export CA_CERT="${CA_CERT:-$JAIL_DIR_TLS/$CA_PEM_NAME}.pem"
+# export CA_PRIVKEY="${CA_PRIVKEY:-$JAIL_DIR_TLS/$CA_PEM_NAME}-key.pem"
 ```
 
 ### USAGE
@@ -97,7 +96,7 @@ create server 77 mesh.nirv.ai ca server server.cfssl.json
 ### CLIENT CERT
 # create 1 client cert and save as client-0[-key].{pem,csr}
 create client
-# create arbitrary amount of client certs using above vars
+# create arbitrary amount of client certs
 create client 7
 
 # create arbitrary amount of client certs specifying options
@@ -108,7 +107,7 @@ create client 77 mesh.nirv.ai ca client client.cfssl.json
 ### CLI CERT
 # create 1 cli cert and save as cli-0[-key].{pem,csr}
 create cli
-# create arbitrary amount of cli certs using above vars
+# create arbitrary amount of cli certs
 create cli 7
 
 # create arbitrary amount of cli certs specifying options
