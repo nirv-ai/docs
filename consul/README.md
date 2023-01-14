@@ -64,6 +64,7 @@ export CA_CN=mesh.nirv.ai
 # create tokens rootca, server client & cli certs using script.ssl.sh
 # ^ make sure to create server certs for each service
 # ^ it wont overrwrite existing certs, so just manually run the server create with X total
+# ^^ pretty sure services should receive client certs and not server certs
 # ^^ TODO: fix this logic to start from x+1 based on existing files in dir with same name
 # ^^ scratch that, as we will be moving to vault PKI eventually anyway
 # copy config/server/* to core-consul

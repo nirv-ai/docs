@@ -28,7 +28,12 @@ sudo ln -s `pwd`/consul/tokens/{root,server,service}/* /etc/ssl/certs/mesh.nirv.
 
 # we need a better approach
 # if we just kept shiz in the local secrets dir that would alleviate 1 level of these
+# it shouldnt matter, as all of this is only for development anyway
 sudo chown -R $USER:$USER /etc/ssl/certs/dev.nirv.ai
 sudo chown -R consul:consul ./mesh.nirv.ai
 sudo chown -R consul:consul ./consul
+
+# for each multi-container app: e.g. running a consul/envoy service
+sudo chown -R consul:consul apps/nirvai-core-vault/src/consul/
+sudo chown -R consul:consul apps/nirvai-core-proxy/src/consul/
 ```
