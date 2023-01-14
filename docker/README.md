@@ -67,8 +67,9 @@ export CUNT_NAME_PREFIX=nirvai_
 
 
 ##################### usage
-# try bash, else sh into $CONTAINER_NAME or $SERVICE_PREFIX$CONTAINER_NAME
-> script.exec.cunt.sh CONTAINER_NAME
+# try bash, else sh: container name || first container matching STRING ~ $prefix$string
+# string=EXACT_CONTAINER_NAME || string=^SERVICE_PREFIX+STRING* ||
+> script.exec.cunt.sh STRING
 
 ```
 
