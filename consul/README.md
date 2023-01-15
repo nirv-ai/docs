@@ -67,41 +67,44 @@ export CA_CN=mesh.nirv.ai
 # ^^ pretty sure services should receive client certs and not server certs
 # ^^ TODO: fix this logic to start from x+1 based on existing files in dir with same name
 # ^^ scratch that, as we will be moving to vault PKI eventually anyway
-# copy config/server/* to core-consul
 # `create gossipkey` > copy from jail to core-consul
 # delete data/* if starting green
+# `sync-confs` push configs > server & service(s) app directories
 # script.reset core-consul
-# `get info` >>> Error querying agent: Unexpected response code: 403 (Permission denied: token with AccessorID '00000000-0000-0000-0000-000000000002' lacks permission 'agent:read' on "consul")
-# `create root-token`
-# `source configs/consul/host/.env.cli` # wont set correct values if debugging is on
-# `get info`
+# `source configs/consul/.env.cli
+# `get info` >>> ACL NOT FOUND
+# `create root-token` >>> docker log: bootstrap complete
+# `source configs/consul/.env.cli` # wont set correct values if debugging is on
 # `get root-token` >>> validate UI login
 # should have access to almost everything
 ### create policy files and tokens and push to consul server
 # see config policy dir
 # `create policies`
-# `list policies`
 # `create server-policy-tokens`
 # `create service-policy-tokens` # service names must match svc configs
-# `source configs/consul/host/.env.consul.server`
+# `create intentions`
+# `list policies`
 # `list tokens`
-# `set server-tokens` >>> from [WARN] agent: ...blocked by acls... --> to agent: synced node info
+# `set server-tokens` >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
+# ^ just to get through initial setup
+# ^ check how we set the servers DNS_TOKEN and HTTP_TOKEN via bootstrap.sh and /.env
+# ^^ TODO: automate setting .env of all consul containers to appropriate tokens
 # `get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
-### update docker images to include binary (see proxy for ubuntu, vault for alpine)
-### DISCOVERY: add configs for to each client machine
-# @see https://developer.hashicorp.com/consul/tutorials/get-started-vms/virtual-machine-gs-service-discovery
-# create a base discovery/client/config/* that can be used as defaults for each specific client service
-# create discovery/service-name/config/* configs
-# copy discovery/{client,service-name}/configs/* into each app/service-name/consul/src/config
-# copy secrets/gossip to each as well
-# validate each config has the data it needs
-# ^ make sure to (TODO) manually set token values from secrets/consul/token
+# exec into any consul enabled container, and confirm  `consul members`
+### ADR: this is an ideal use-case for multi-app containers
+# update docker images to include binary (see proxy for ubuntu, vault for alpine)
+# `sync-confs` push configs > to server & service(s) app dirs
+# in the docker .env for all serv[ers,ices]: set vars HTTP/DNS tokens vars, see bootstrap.sh files
+# ^ set CONSUL_HTTP_TOKEN=$(script.consul.sh get service-token svc-name) # TODO: move to docker secret
+# ^ TODO: create a token specifically for connect and dont reuse the same agent token
+# ^ TODO: ^ also need modify the policy for agent tokens follow least privileges
+# ^ TODO: or follow consul guidance and create specific intention tokens that are given to admins
+# ^ CONNECT_SIDECAR_FOR=svc-name
+# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
+# script.reset.sh
 # ^ `get team` >>> w00p w00p
 # ^ `get nodes` >>> w00p w00p
-# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
-# script.reset|refresh compose_service_name(s) to boot consul clients
-### MESH: this is a migration from discovery to mesh
-
+#### haproxy north-south + consul dns
 
 ```
 
