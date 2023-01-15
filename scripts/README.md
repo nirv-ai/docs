@@ -43,15 +43,13 @@ export PATH="/home/poop/git/private/nirv/scripts:$PATH"
 ```sh
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
 ######################## INTERFACE
 DOCS_URI='url for your readme file'
 SCRIPTS_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]%/}")" &>/dev/null && pwd)"
-
 SCRIPTS_DIR_PARENT="$(dirname $SCRIPTS_DIR)"
 
-# grouped by increasing order of dependency
 ## add your vars here
 
 ## add vars that should be printed when NIRV_SCRIPT_DEBUG=1
@@ -61,20 +59,27 @@ declare -A EFFECTIVE_INTERFACE=(
 )
 
 ######################## UTILS
-# source utility scripts
-# you should review whats available before continuing
+# source utility scripts: you should review whats available before continuing
 for util in $SCRIPTS_DIR/utils/*.sh; do
   source $util
 done
 
 ######################## CREDIT CHECK
 echo_debug_interface
-
 throw_missing_dir $SCRIPT_DIR_PARENT 500 "somethings wrong: cant find myself in filesystem"
+
+# add aditional checks and balances below this line
 
 ######################## FNS
 ## add your script logic below this line
 
+######################## EXECUTE
+# expose your fns using this case statement
+
+cmd=${1:-''}
+case $cmd in
+  *) invalid_request
+esac
 ```
 
 ## available scripts

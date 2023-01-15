@@ -67,9 +67,9 @@ export CA_CN=mesh.nirv.ai
 # ^^ pretty sure services should receive client certs and not server certs
 # ^^ TODO: fix this logic to start from x+1 based on existing files in dir with same name
 # ^^ scratch that, as we will be moving to vault PKI eventually anyway
-# copy config/server/* to core-consul
 # `create gossipkey` > copy from jail to core-consul
 # delete data/* if starting green
+# `sync-confs` push configs > server & service(s) app directories
 # script.reset core-consul
 # `source configs/consul/.env.cli
 # `get info` >>> ACL NOT FOUND
@@ -86,24 +86,24 @@ export CA_CN=mesh.nirv.ai
 # `list policies`
 # `list tokens`
 # `set server-tokens` >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
-# ^ to get through setup
-# ^ TODO: automate setting .env of all consul containers to appropriate tokens, see bootstrap.sh
+# ^ just to get through initial setup
+# ^ check how we set the servers DNS_TOKEN and HTTP_TOKEN via bootstrap.sh and /.env
+# ^^ TODO: automate setting .env of all consul containers to appropriate tokens
 # `get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
+# exec into any consul enabled container, and confirm  `consul members`
 ### ADR: this is an ideal use-case for multi-app containers
 # update docker images to include binary (see proxy for ubuntu, vault for alpine)
-# copy configs/global*, client/*,service/your-service/*, secrets/gossip
-# ^ into each app/consul/src/config
+# `sync-confs` push configs > to server & service(s) app dirs
 # in the docker .env for all serv[ers,ices]: set vars HTTP/DNS tokens vars, see bootstrap.sh files
 # ^ set CONSUL_HTTP_TOKEN=$(script.consul.sh get service-token svc-name) # TODO: move to docker secret
 # ^ TODO: create a token specifically for connect and dont reuse the same agent token
-# ^ TODO: ^ also need modify the policy to agent tokens follow least privileges
+# ^ TODO: ^ also need modify the policy for agent tokens follow least privileges
 # ^ TODO: or follow consul guidance and create specific intention tokens that are given to admins
 # ^ CONNECT_SIDECAR_FOR=svc-name
+# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
 # script.reset.sh
 # ^ `get team` >>> w00p w00p
 # ^ `get nodes` >>> w00p w00p
-# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
-# script.reset|refresh compose_service_name(s) to boot consul clients
 #### haproxy north-south + consul dns
 
 ```
