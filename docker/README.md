@@ -62,13 +62,20 @@ ENV=${ENV:-development}
 
 ```sh
 ##################### INTERFACE
-# if you prefix all your container names
-export CUNT_NAME_PREFIX=nirvai_
+# set to COMPOSE_PROJECT_NAME (or to empty string)
+# be sure to add the trailing `-` after your project name
+export CUNT_PREFIX=nirvai-
 
 
 ##################### usage
-# try bash, else sh into $CONTAINER_NAME or $SERVICE_PREFIX$CONTAINER_NAME
-> script.exec.cunt.sh CONTAINER_NAME
+## exec into cunt using bash, else sh:
+
+# using the exact container name
+> script.exec.cunt.sh backend-api-us-east-1a-1
+
+# using the service name: execs the first matching container
+> script.exec.cunt.sh backend-api
+> script.exec.cunt.sh b # only backend apis start with `b`
 
 ```
 
@@ -78,8 +85,9 @@ export CUNT_NAME_PREFIX=nirvai_
 
 ```sh
 ##################### INTERFACE
-# if you prefix all your container names
-export CUNT_NAME_PREFIX=nirvai_
+# set to COMPOSE_PROJECT_NAME (or to empty string)
+# be sure to add the trailing `-` after your project name
+export CUNT_PREFIX=nirvai-
 
 
 ##################### usage
