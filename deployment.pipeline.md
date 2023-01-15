@@ -1,0 +1,27 @@
+### Request PR review
+
+- a successful merge to develop will trigger the CD pipeline
+  - each env consists of obfuscation and validation
+- test.nirv.ai
+  - service specific integration tests
+  - e2e tests
+  - first round of penetration tests
+  - first round of obfuscation
+  - CD to stage
+- stage.nirv.ai:
+  - service specific integration tests
+  - e2e tests
+  - second round of penetration tests
+  - second round of obfuscation
+  - first round of load testing: establish the load at which SLAs are breached
+  - CD to demo
+- demo.nirv.ai
+  - service specific integration tests
+  - e2e tests
+  - third round of penetration tests
+  - third round of obfuscation
+  - second round of load testing: establish the load at which services fail
+  - prod sign off
+  - manual trigger of prod deployment
+- nirv.ai
+  - party time

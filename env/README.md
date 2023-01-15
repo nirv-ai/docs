@@ -33,7 +33,8 @@ sudo chown -R $USER:$USER /etc/ssl/certs/dev.nirv.ai
 sudo chown -R consul:consul ./mesh.nirv.ai
 sudo chown -R consul:consul ./consul
 
-# for each multi-container app: e.g. running a consul/envoy service
+# enforce uid/gid to get around docker /run/secrets bug
+sudo chown -R consul:consul apps/nirvai-core-consul/src/
 sudo chown -R consul:consul apps/nirvai-core-vault/src/consul/
 sudo chown -R consul:consul apps/nirvai-core-proxy/src/consul/
 ```
