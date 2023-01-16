@@ -52,13 +52,16 @@
 
 - if your directory structure _does not_ match below
   - modify the inputs in the `# INTERFACE` section that follows
-- CORE vs $REPO_DIR
-  - the core directory should be the single source of truth and under tight security
-  - $REPO_DIR: useful for migrating an app to zero trust and offloading app integration to app owners
-    - owners can bootstrap a development vault instance specific for their service
+- config/core vs config/$APP_NAME & $REPO_DIR
+  - config/core: owned by vault operators
+    - the core directory should be the single source of truth and under tight security
+  - config/$APP_NAME: vault configuration files that have been approved by operators
+  - $REPO_DIR: the vault application being bootstrapped
+    - useful for migrating an app to zero trust while offloading app integration & testing to app owners
     - when integration is complete
-      - operators can validate their vault configs
-      - the core vault server can then consume isolated files with 0 headaches
+      - operators can validate their vault configs: then copy those files into an isolated config/$APP_NAME DIR
+      - the core vault server can then consume those isolated files with 0 headaches
+      - app owners can continue to iterate and repeat the request > approve > bootstrap cycle
 
 ```sh
 
@@ -72,19 +75,19 @@
 ├── configs             # @see https://github.com/nirv-ai/configs
 │   └── vault
 │   │   └── core        # init files for the upstream vault server
-│   │   └── ${APP_NAME} # init files for downstream app migrating to zero trust
-│   │   │   ├──         # core/$REPO_DIR: may contain any of the following (in initialization order)
-│   │   │   ├── vault-admin/*
-│   │   │   ├── policy/*
-│   │   │   ├── token-role/*
-│   │   │   ├── enable-feature/*
-│   │   │   ├── auth/*
-│   │   │   ├── secret-engine/*
-│   │   │   ├── token/*
-│   │   │   ├── secret-data/*
+│   │   └── ${APP_NAME} # init files for an arbitrary app migrating to zero trust
+                        # core/$APP_NAME: may contain any of the following (in initialization order)
+│   │   │   ├── vault-admin/*      # vault super user files
+│   │   │   ├── policy/*           # create policies
+│   │   │   ├── token-role/*       # create token roles
+│   │   │   ├── enable-feature/*   # enable vault features
+│   │   │   ├── auth/*             # configure auth roles
+│   │   │   ├── secret-engine/*    # configure secret engines
+│   │   │   ├── token/*            # configure & create tokens
+│   │   │   ├── secret-data/*      # hydrate secret engines
 ├── ${REPO_DIR}
-│   ├── apps/$APP_PREFIX-$APP_NAME/src/vault/config/*
-├── secrets # chroot jail, a temporary folder or private git repo
+│   └── apps/$APP_PREFIX-$APP_NAME/src/vault/config/*
+├── secrets             # chroot jail, a temporary folder or private git repo
 │   └── vault
 │   │   └── tokens
 │   │   │   ├── root/*  # directory for root and unseal tokens
