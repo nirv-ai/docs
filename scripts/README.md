@@ -90,7 +90,7 @@ echo_debug_interface
 
 # add aditional checks and balances below this line
 # use standard http response codes
-throw_missing_dir $SCRIPT_DIR_PARENT 500 "somethings wrong: cant find myself in filesystem"
+throw_missing_dir $SCRIPTS_DIR_PARENT 500 "somethings wrong: cant find myself in filesystem"
 throw_missing_program curl 404 '@see https://curl.se/download.html'
 throw_missing_program jq 404 '@see https://stedolan.github.io/jq/'
 

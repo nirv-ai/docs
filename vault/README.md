@@ -72,17 +72,17 @@
 ├── configs             # @see https://github.com/nirv-ai/configs
 │   └── vault
 │   │   └── core        # init files for the upstream vault server
-│   │   └── ${APP_NAME} # init files for an arbitrary app migrating to zero trust
-                        # core/$APP_NAME: may contain any of the following (in initialization order)
-│   │   │   ├── vault-admin/*      # vault super user files
-│   │   │   ├── policy/*           # create policies
-│   │   │   ├── token-role/*       # create token roles
-│   │   │   ├── enable-feature/*   # enable vault features
-│   │   │   ├── auth/*             # configure auth roles
-│   │   │   ├── secret-engine/*    # configure secret engines
-│   │   │   ├── token/*            # configure & create tokens
+│   │   └── ${APP_NAME} # isolated init files for an arbitrary app
+                        # core can also contain any of the following (in initiatilization order)
+│   │   │   ├── vault-admin/*      # super user policy
+│   │   │   ├── policy/*           # non super user and machine policies
+│   │   │   ├── token-role/*       # token role policies
+│   │   │   ├── enable-feature/*   # enabled vault features
+│   │   │   ├── auth/*             # auth & app role configuration
+│   │   │   ├── secret-engine/*    # secret engine(s) configuration
+│   │   │   ├── token/*            # hydrate default tokens
 │   │   │   ├── secret-data/*      # hydrate secret engines
-├── ${REPO_DIR}
+├── ${REPO_DIR_NAME}
 │   └── apps/$APP_PREFIX-$APP_NAME/src/vault/config/*
 ├── secrets             # chroot jail, a temporary folder or private git repo
 │   └── vault
@@ -105,46 +105,32 @@
 ```sh
 ######################### platform interface
 # all nirv scripts use this same interface
-APP_DIR_NAME=apps
-APP_PREFIX=nirvai
-CONFIG_DIR_NAME=configs
-JAIL_DIR_NAME=secrets
-NIRV_SCRIPT_DEBUG=0
-PROJECT_HOSTNAME=dev.nirv.ai
-REPO_DIR_NAME=core
+export APP_DIR_NAME=apps
+export APP_PREFIX=nirvai
+export CONFIG_DIR_NAME=configs
+export JAIL_DIR_NAME=secrets
+export NIRV_SCRIPT_DEBUG=0
+export REPO_DIR_NAME=core
 
-# this var is automatically set
-SCRIPTS_DIR_PARENT
-CONFIGS_DIR="${SCRIPTS_DIR_PARENT}/${CONFIG_DIR_NAME}"
-JAIL="${SCRIPTS_DIR_PARENT}/${JAIL_DIR_NAME}"
-REPO_DIR="${SCRIPTS_DIR_PARENT}/${REPO_DIR_NAME}"
-APPS_DIR="${REPO_DIR}/${APP_DIR_NAME}"
 
 ######################### VAULT INTERFACE
-# this maps directly to VAULT_ADDR set in your vault configuration
-VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
-
-# the vault addr with protocol specified, always use HTTPS, even in dev
+# we only support secured vault servers
+export VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8201
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
 
-JAIL_VAULT_ADMIN="${JAIL_VAULT_PGP_DIR:-${JAIL}/tokens/admin}"
-JAIL_VAULT_OTHER="${OTHER_TOKEN_DIR:-${JAIL}/tokens/other}"
-JAIL_VAULT_ROOT="${JAIL_VAULT_ROOT:-${JAIL}/tokens/root}"
-TOKEN="${VAULT_TOKEN:?VAULT_TOKEN not set: exiting}"
-VAULT_APP_SRC_PATH='src/vault'
-VAULT_SERVER_APP_NAME='core-vault'
+# set to empty string if you dont have a token yet
+export VAULT_TOKEN=''
 
-JAIL_VAULT_JAIL_VAULT_ROOT_PGP_KEY="${JAIL_VAULT_ROOT}/root.asc"
-JAIL_VAULT_JAIL_VAULT_UNSEAL_TOKENS="${JAIL_VAULT_ROOT}/JAIL_VAULT_UNSEAL_TOKENS.json"
-VAULT_APP_CONFIG_DIR="$(get_app_dir $VAULT_SERVER_APP_NAME $VAULT_APP_SRC_PATH/config)"
+# set the current admin name
+export VAULT_ADMIN_NAME='admin'
 
-# set to a config target, e.g. core or $APP_NAME
-# if you only want to bootstrap those files
-# else all fileds in $APP_NAME are bootstrapped
-VAULT_APP_TARGET="${VAULT_APP_CONFIG_DIR}/${VAULT_APP_TARGET:-''}"
+# the vault server your bootsrapping
+export VAULT_APP_SRC_PATH='src/vault'
+export VAULT_SERVER_APP_NAME='core-vault'
 
-# forcefully sync base vault configs into your instance dir
-rsync -a --delete $VAULT_APP_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
+# set to a specific app (e.g. core or $APP_NAME)
+# or leave as empty string to bootstrap all vault config files
+export APP_TARGET=''
 
 ```
 
@@ -153,61 +139,70 @@ rsync -a --delete $VAULT_APP_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
 #### create root and admin_vault pgp keys
 
 ```sh
-######################### cd $REPO_DIR
+######################### HUMAN REQUIRED
 # a human is required to create and distribute
 # root & admin vault tokens and unseal keys
+# @see https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key
 
-# create and save pgp keys
+## create root pgp key with optins: 1 > 4096 > 0 > y
+## list the key: will output e.g. sec rsa4096/3AA61DC439A44276 2023-01-16 [SC]
+## then save it as in asc format
+## everything saved in $JAIL/tokens/root/root.{asc,gpg}
+script.vault.sh create gpg root-key
+gpg --list-secret-keys --keyid-format=long
+script.vault.sh create gpg root-asc 3AA61DC439A44276
 
-## create root token
-gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ROOT_PGP_KEY
 
-## create admin token for root
-## repeat for other admins or to increase the keyshare threshold
-gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/admin.asc
+## repeat the process for yourself (default: admin)
+## everything saved in $JAIL/tokens/admin/$VAULT_ADMIN_NAME.{asc,gpg}
+script.vault.sh create gpg admin-key
+gpg --list-secret-keys --keyid-format=long
+script.vault.sh create gpg admin-asc 3AA61DC439A44276
+
+## repeat for as many admins you need
+
+### hypothetical token for CTO
+## everything saved in $JAIL/tokens/admin/armon.{asc,gpg}
+script.vault.sh create gpg admin-key armon-dadgar
+gpg --list-secret-keys --keyid-format=long
+script.vault.sh create gpg admin-asc 3AA61DC439A44276 armon-dadgar
 
 ### hypothetical token for CISO
-# gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/ciso.asc
-
-### hypothetical token for head of ops
-# gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/ops.asc
-
-### hypothetical token for head of dev
-# gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL/tokens/admin/dev.asc
+## everything saved in $JAIL/tokens/admin/mitchell.{asc,gpg}
+script.vault.sh create gpg admin-key mitchell-hashimoto
+gpg --list-secret-keys --keyid-format=long
+script.vault.sh create gpg admin-asc 3AA61DC439A44276 mitchell-hashimoto
 ```
 
 #### wipe and initialize vault server
 
 ```sh
-# stop any running containers
-docker compose down
+## stop and remove any running containers
+# if you added the shell-init scripts, you can run
+dk_stop_rm_cunts
 
 # remove previous vault data {e.g. raft,vault}.db
-# TODO: should be get_app_dir APP_NAME /data
-sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
+script.vault.sh rm vault-data
 
-# finally: reset the vault server
-script.reset.compose.sh $VAULT_SERVER_APP_NAME
+# forcefully sync configs/vault to app_dir/vault
+script.vault.sh sync-confs
+
+# finally: cd to your repo dir and start your entire stack
+script.reset.compose.sh
 
 ######################### initialize vault
 export VAULT_TOKEN='initializing vault'
 
-# verify response.initialized = false
+## verify response.initialized = false & sealed = true
 script.vault.sh get status
 
-# inititialize vault with root & admin pgp keys, and create unseal tokens
-# unseal tokens saved as JAIL_VAULT_UNSEAL_TOKENS
-## you can optionally pass a threshold number
-## which sets the minimum amount of tokens required to unseal db
-## by default is set at 2
+## inititialize vault with root and *all* created admin tokens, and create unseal tokens
+## unseal tokens saved as $JAIL/tokens/root/unseal_tokens.json
+## you can optionally pass a threshold number (default is 2)
 script.vault.sh init
 
-# verify response.initialized = true
+
+# verify response.initialized = true & sealed = true
 script.vault.sh get status
 
 ```
@@ -216,11 +211,8 @@ script.vault.sh get status
 
 ```sh
 ## export root token
-export VAULT_TOKEN=$(cat $JAIL_VAULT_UNSEAL_TOKENS \
-  | jq -r '.root_token' \
-  | base64 --decode \
-  | gpg -dq \
-)
+export NIRV_SCRIPT_DEBUG=0 # must be disabled for retrieving tokens
+export VAULT_TOKEN=$(script.vault.sh get token root)
 
 ## (requires password used when creating the pgp key)
 script.vault.sh unseal
@@ -233,7 +225,8 @@ script.vault.sh get token self
 > this is the last time you should ever use the root token
 
 ```sh
-# create policy then token for vault administrator
+# create policies and tokens for all admins
+# this requires you to setup the token configuration for each (see configs)
 # tokens saved in $JAIL_VAULT_ADMIN
 script.vault.sh process vault_admin
 ```
@@ -241,9 +234,10 @@ script.vault.sh process vault_admin
 #### set admin token and unseal db
 
 ```sh
-## using admin token to authenticate to vault
-USE_VAULT_TOKEN=token_admin_vault
-export VAULT_TOKEN=$(cat $JAIL_VAULT_ADMIN/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+## use any admin token to authenticate to vault
+export NIRV_SCRIPT_DEBUG=0 # must be disabled for retrieving tokens
+export VAULT_ADMIN_NAME=admin
+export VAULT_TOKEN=$(script.vault.sh get token admin)
 
 ## unseal the DB if its sealed and verify vault server status & token info
 ## (requires password used when creating the pgp key)
@@ -407,8 +401,6 @@ if [ "$?" -gt 0 ]; then
   echo -e "could not cd into $REPO_DIR"
   return 1 2>/dev/null
 fi;
-
-
 docker compose down
 
 ########## START: vault boot type
