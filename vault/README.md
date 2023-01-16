@@ -127,8 +127,24 @@ VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
 
-# sync base vault configs into your instance dir
-rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
+JAIL_VAULT_ADMIN="${JAIL_VAULT_PGP_DIR:-${JAIL}/tokens/admin}"
+JAIL_VAULT_OTHER="${OTHER_TOKEN_DIR:-${JAIL}/tokens/other}"
+JAIL_VAULT_ROOT="${JAIL_VAULT_ROOT:-${JAIL}/tokens/root}"
+TOKEN="${VAULT_TOKEN:?VAULT_TOKEN not set: exiting}"
+VAULT_APP_SRC_PATH='src/vault'
+VAULT_SERVER_APP_NAME='core-vault'
+
+JAIL_VAULT_JAIL_VAULT_ROOT_PGP_KEY="${JAIL_VAULT_ROOT}/root.asc"
+JAIL_VAULT_JAIL_VAULT_UNSEAL_TOKENS="${JAIL_VAULT_ROOT}/JAIL_VAULT_UNSEAL_TOKENS.json"
+VAULT_APP_CONFIG_DIR="$(get_app_dir $VAULT_SERVER_APP_NAME $VAULT_APP_SRC_PATH/config)"
+
+# set to a config target, e.g. core or $APP_NAME
+# if you only want to bootstrap those files
+# else all fileds in $APP_NAME are bootstrapped
+VAULT_APP_TARGET="${VAULT_APP_CONFIG_DIR}/${VAULT_APP_TARGET:-''}"
+
+# forcefully sync base vault configs into your instance dir
+rsync -a --delete $VAULT_APP_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
 
 ```
 
@@ -145,20 +161,20 @@ rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
 
 ## create root token
 gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $ROOT_PGP_KEY
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ROOT_PGP_KEY
 
 ## create admin token for root
 ## repeat for other admins or to increase the keyshare threshold
 gpg --gen-key # repeat for for each entity (root, admin) being assigned a gpg key
-gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/admin.asc
+gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/admin.asc
 
 ### hypothetical token for CISO
 # gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/ciso.asc
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/ciso.asc
 
 ### hypothetical token for head of ops
 # gpg --gen-key
-# gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/ops.asc
+# gpg --export ABCDEFGHIJKLMNOP | base64 > $JAIL_VAULT_ADMIN/ops.asc
 
 ### hypothetical token for head of dev
 # gpg --gen-key
@@ -172,10 +188,11 @@ gpg --export ABCDEFGHIJKLMNOP | base64 > $ADMIN_PGP_KEY_DIR/admin.asc
 docker compose down
 
 # remove previous vault data {e.g. raft,vault}.db
+# TODO: should be get_app_dir APP_NAME /data
 sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 
 # finally: reset the vault server
-script.reset.compose.sh $VAULT_SERVICE_NAME
+script.reset.compose.sh $VAULT_SERVER_APP_NAME
 
 ######################### initialize vault
 export VAULT_TOKEN='initializing vault'
@@ -184,10 +201,10 @@ export VAULT_TOKEN='initializing vault'
 script.vault.sh get status
 
 # inititialize vault with root & admin pgp keys, and create unseal tokens
-# unseal tokens saved as $JAIL/root/unseal_tokens.json
+# unseal tokens saved as JAIL_VAULT_UNSEAL_TOKENS
 ## you can optionally pass a threshold number
 ## which sets the minimum amount of tokens required to unseal db
-## by default its set at 2
+## by default is set at 2
 script.vault.sh init
 
 # verify response.initialized = true
@@ -199,7 +216,7 @@ script.vault.sh get status
 
 ```sh
 ## export root token
-export VAULT_TOKEN=$(cat $UNSEAL_TOKENS \
+export VAULT_TOKEN=$(cat $JAIL_VAULT_UNSEAL_TOKENS \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
@@ -217,7 +234,7 @@ script.vault.sh get token self
 
 ```sh
 # create policy then token for vault administrator
-# tokens saved in $ADMIN_PGP_KEY_DIR
+# tokens saved in $JAIL_VAULT_ADMIN
 script.vault.sh process vault_admin
 ```
 
@@ -226,7 +243,7 @@ script.vault.sh process vault_admin
 ```sh
 ## using admin token to authenticate to vault
 USE_VAULT_TOKEN=token_admin_vault
-export VAULT_TOKEN=$(cat $ADMIN_PGP_KEY_DIR/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+export VAULT_TOKEN=$(cat $JAIL_VAULT_ADMIN/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 
 ## unseal the DB if its sealed and verify vault server status & token info
 ## (requires password used when creating the pgp key)
@@ -365,16 +382,16 @@ REPO_DIR=$SCRIPTS_DIR_PARENT/web
 APPS_DIR=$REPO_DIR/apps
 APP_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=web-vault
-VAULT_SERVICE_NAME=web_vault
+VAULT_SERVER_APP_NAME=web_vault
 export NIRV_SCRIPT_DEBUG=0
 
 
 export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
 VAULT_BASE_CONFIG_DIR=$SCRIPTS_DIR_PARENT/configs/vault/
 export JAIL="$SCRIPTS_DIR_PARENT/secrets/dev/apps/vault"
-export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
-export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
-export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
+export JAIL_VAULT_UNSEAL_TOKENS="$JAIL/tokens/root/JAIL_VAULT_UNSEAL_TOKENS.json"
+export JAIL_VAULT_ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
+export JAIL_VAULT_ADMIN="$JAIL/tokens/admin"
 export OTHER_TOKEN_DIR="$JAIL/tokens/other"
 
 # only target configs in this dir: e.g. web|core
@@ -410,7 +427,7 @@ script.reset.compose.sh
 ## alternative 1: only wipe vault & required services
 # sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
 # script.reset.compose.sh web_postgres
-# script.reset.compose.sh $VAULT_SERVICE_NAME
+# script.reset.compose.sh $VAULT_SERVER_APP_NAME
 
 
 ## DEFAULT & ALTERNATIVE 1
@@ -420,7 +437,7 @@ script.vault.sh init
 script.vault.sh get status
 
 ## required: root must create atleast 1 admin token
-export VAULT_TOKEN=$(cat $UNSEAL_TOKENS \
+export VAULT_TOKEN=$(cat $JAIL_VAULT_UNSEAL_TOKENS \
   | jq -r '.root_token' \
   | base64 --decode \
   | gpg -dq \
@@ -441,7 +458,7 @@ script.vault.sh process vault_admin
 
 ## login as admin & unseal vault
 USE_VAULT_TOKEN=token_admin_vault
-export VAULT_TOKEN=$(cat $ADMIN_PGP_KEY_DIR/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+export VAULT_TOKEN=$(cat $JAIL_VAULT_ADMIN/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
 script.vault.sh unseal
 script.vault.sh get status
 
@@ -463,7 +480,7 @@ script.vault.sh process secret_data
 echo -e "\n\nwhoami"
 script.vault.sh get status
 script.vault.sh get token self
-script.vault.sh get_unseal_tokens
+script.vault.sh get_JAIL_VAULT_UNSEAL_TOKENS
 
 # validate dynamic db creds
 echo -e "\n\ndb creds"
@@ -506,7 +523,7 @@ history -c
 ################# DANGER ###################
 # this logs all your unseal tokens & vault token as plain text in your shell
 # this logs the minimum amount of unseal tokens required to unseal vault
-script.vault.sh get_unseal_tokens
+script.vault.sh get_JAIL_VAULT_UNSEAL_TOKENS
 # or you can retrieve a single unseal token only (wont log your vault token)
 script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
 ################# DANGER ###################
