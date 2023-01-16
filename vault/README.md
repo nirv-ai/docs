@@ -64,12 +64,11 @@
 # debian compatible host (only tested on ubuntu)
 
 # directory structure matches:
-├ you-are-here
 ├── configs
 │   └── vault
-│   │   └── core # init files for upstream vualt server
+│   │   └── core        # init files for the upstream vualt server
 │   │   └── ${REPO_DIR} # init files for this monorepo's vault instance
-│   │   │   ├── # ^ directories above may contain any of: (in initialization order)
+│   │   │   ├──         # core/$REPO_DIR: may contain any of the following (in initialization order)
 │   │   │   ├── vault-admin/*
 │   │   │   ├── policy/*
 │   │   │   ├── token-role/*
@@ -79,15 +78,13 @@
 │   │   │   ├── token/*
 │   │   │   ├── secret-data/*
 ├── ${REPO_DIR}
-│   ├── compose.yaml
-│   ├── apps/{appX..Y}/...
+│   ├── apps/$APP_PREFIX-$APP_NAME/src/vault/config/*
 ├── secrets # chroot jail, a temporary folder or private git repo
-│   └── dev
-│   │   └── apps
-│   │   │   └── vault # pgp.asc files must be manually created (see below)
-│   │   │   │   └── token
-│   │   │   │   │   ├── root/* # directory for root and unseal tokens
-│   │   │   │   │   ├── admin/* # directory for admin token(s)
+│   └── vault
+│   │   └── tokens
+│   │   │   ├── root/*  # directory for root and unseal tokens
+│   │   │   ├── admin/* # directory for admin token(s)
+│   │   │   ├── other/* # directory for admin token(s)
 
 
 ```
