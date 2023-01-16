@@ -44,24 +44,21 @@
 
 - generally this should be the first step _in all microservices_ deployed at NIRVai
 - `unless` your application requires access to 0 sensitive data and relies purely on configuration committed to git
-- nirvai maintains a `core` vault application which you can integrate with by adding a vault app to your monorepo
-  - all directions that follow assume this is your intent
-  - scope all of your things: every service integrates with the same upstream vault server
-
-### REQUIREMENTS
-
-- if your directory structure _does not_ match below
-  - modify the inputs in the `# INTERFACE` section that follows
 - config/core vs config/$APP_NAME & $REPO_DIR
   - config/core: owned by vault operators
     - the core directory should be the single source of truth and under tight security
-  - config/$APP_NAME: vault configuration files that have been approved by operators
-  - $REPO_DIR: the vault application being bootstrapped
+  - config/$APP_NAME: vault configuration files for a downstream app approved by operators
+  - $REPO_DIR: the vault application being bootstrapped: could be config/core or config/$APP_NAME
     - useful for migrating an app to zero trust while offloading app integration & testing to app owners
     - when integration is complete
       - operators can validate their vault configs: then copy those files into an isolated config/$APP_NAME DIR
       - the core vault server can then consume those isolated files with 0 headaches
       - app owners can continue to iterate and repeat the request > approve > bootstrap cycle
+
+### REQUIREMENTS
+
+> if your directory structure _does not_ match below
+> modify the inputs in the `# INTERFACE` section that follows
 
 ```sh
 
@@ -106,62 +103,29 @@
   - store root token next to your grenade launchers
 
 ```sh
-
-######################### FYI
-# setup a chroot jail: @see https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/
-
-
-######################### interface
-# monorepo containing all of your applications
-# @see https://github.com/nirv-ai/core-service-template
-BASE_DIR=`pwd`
-
-# the directory name of your mono repo
-# e.g. /git/web/**
-REPO_DIR=$BASE_DIR/web
-
-# the directory containing your monorepo apps, as apposed to packages
-# e.g. /git/$REPO_DIR/apps/**
-APPS_DIR=$REPO_DIR/apps
-
-# APP_PREFIX of your monorepo services,
-# e.g. /$REPO_DIR/$APPS_DIR/nirvai-xxxx/package.json
+######################### platform interface
+# all nirv scripts use this same interface
+APP_DIR_NAME=apps
 APP_PREFIX=nirvai
+CONFIG_DIR_NAME=configs
+JAIL_DIR_NAME=secrets
+NIRV_SCRIPT_DEBUG=0
+PROJECT_HOSTNAME=dev.nirv.ai
+REPO_DIR_NAME=core
 
-# the name of your monorepo vault server instance
-# e.g /$REPO_DIR/$APPS_DIR/$APP_REFIX-web-vault/package.json
-VAULT_INSTANCE_DIR_NAME=web-vault
+# this var is automatically set
+SCRIPTS_DIR_PARENT
+CONFIGS_DIR="${SCRIPTS_DIR_PARENT}/${CONFIG_DIR_NAME}"
+JAIL="${SCRIPTS_DIR_PARENT}/${JAIL_DIR_NAME}"
+REPO_DIR="${SCRIPTS_DIR_PARENT}/${REPO_DIR_NAME}"
+APPS_DIR="${REPO_DIR}/${APP_DIR_NAME}"
 
-# service name of your app in your compose.yaml
-VAULT_SERVICE_NAME=web_vault
-
-# the path to your monorepo vault instance src dir
-export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
-
-# vault instance will use these configs as starter templates
-VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
-
+######################### VAULT INTERFACE
 # this maps directly to VAULT_ADDR set in your vault configuration
 VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
 
-## temporary local jail for initialization purposes only
-export JAIL="$BASE_DIR/secrets/dev/apps/vault"
-export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
-export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
-export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
-export OTHER_TOKEN_DIR="$JAIL/tokens/other"
-
 # the vault addr with protocol specified, always use HTTPS, even in dev
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
-
-# set to 1 to turn on debugging and log statements made via script.vault.sh
-# run `unset NIRV_SCRIPT_DEBUG && history -c` to delete history after debugging
-## this will create invalid json files if set 1, as log statements will be in the file
-## this bug is a feature, so you dont forget to turn it off
-export NIRV_SCRIPT_DEBUG=0
-
-# every CMD after this line expects you to be in the root of your monorepo
-cd $REPO_DIR
 
 # sync base vault configs into your instance dir
 rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
@@ -396,8 +360,8 @@ script.vault.sh process secret_data
 # from hashicorp docs: a human is required to create the initial root and admin tokens
 # before continuing: complete `create root and admin_vault tokens`
 
-BASE_DIR=`pwd`
-REPO_DIR=$BASE_DIR/web
+SCRIPTS_DIR_PARENT=`pwd`
+REPO_DIR=$SCRIPTS_DIR_PARENT/web
 APPS_DIR=$REPO_DIR/apps
 APP_PREFIX=nirvai
 VAULT_INSTANCE_DIR_NAME=web-vault
@@ -406,8 +370,8 @@ export NIRV_SCRIPT_DEBUG=0
 
 
 export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
-VAULT_BASE_CONFIG_DIR=$BASE_DIR/configs/vault/
-export JAIL="$BASE_DIR/secrets/dev/apps/vault"
+VAULT_BASE_CONFIG_DIR=$SCRIPTS_DIR_PARENT/configs/vault/
+export JAIL="$SCRIPTS_DIR_PARENT/secrets/dev/apps/vault"
 export UNSEAL_TOKENS="$JAIL/tokens/root/unseal_tokens.json"
 export ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
 export ADMIN_PGP_KEY_DIR="$JAIL/tokens/admin"
