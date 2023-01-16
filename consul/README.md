@@ -83,6 +83,7 @@ export CA_CN=mesh.nirv.ai
 # `create server-policy-tokens`
 # `create service-policy-tokens` # service names must match svc configs
 # `create intentions`
+# `create defaults`
 # `list policies`
 # `list tokens`
 # `set server-tokens` >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
