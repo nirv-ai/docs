@@ -75,7 +75,7 @@ export CUNT_PREFIX=nirvai-
 
 # using the service name: execs the first matching container
 > script.exec.cunt.sh backend-api
-> script.exec.cunt.sh b # only backend apis start with `b`
+> script.exec.cunt.sh b # the first container whose name includes b
 
 ```
 
