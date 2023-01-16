@@ -50,11 +50,15 @@
 
 ### REQUIREMENTS
 
-- if your directory structure does not match below
-- modify the inputs in the `# INTERFACE` section that follows
-- [get the scripts from here](https://github.com/nirv-ai/scripts)
-  - [add them to your path](../scripts/README.md)
-- [get the configs from here](https://github.com/nirv-ai/configs/vault)
+- if your directory structure _does not_ match below
+  - modify the inputs in the `# INTERFACE` section that follows
+- CORE vs $REPO_DIR
+  - the core directory should be the single source of truth and under tight security
+  - $REPO_DIR: useful for migrating an app to zero trust and offloading app integration to app owners
+    - owners can bootstrap a development vault instance specific for their service
+    - when integration is complete
+      - operators can validate their vault configs
+      - the core vault server can then consume isolated files with 0 headaches
 
 ```sh
 
@@ -64,12 +68,12 @@
 # debian compatible host (only tested on ubuntu)
 
 # directory structure matches:
-├ you-are-here
-├── configs
+├── scripts             # @see https://github.com/nirv-ai/scripts
+├── configs             # @see https://github.com/nirv-ai/configs
 │   └── vault
-│   │   └── core # init files for upstream vualt server
-│   │   └── ${REPO_DIR} # init files for this monorepo's vault instance
-│   │   │   ├── # ^ directories above may contain any of: (in initialization order)
+│   │   └── core        # init files for the upstream vault server
+│   │   └── ${APP_NAME} # init files for downstream app migrating to zero trust
+│   │   │   ├──         # core/$REPO_DIR: may contain any of the following (in initialization order)
 │   │   │   ├── vault-admin/*
 │   │   │   ├── policy/*
 │   │   │   ├── token-role/*
@@ -79,15 +83,13 @@
 │   │   │   ├── token/*
 │   │   │   ├── secret-data/*
 ├── ${REPO_DIR}
-│   ├── compose.yaml
-│   ├── apps/{appX..Y}/...
+│   ├── apps/$APP_PREFIX-$APP_NAME/src/vault/config/*
 ├── secrets # chroot jail, a temporary folder or private git repo
-│   └── dev
-│   │   └── apps
-│   │   │   └── vault # pgp.asc files must be manually created (see below)
-│   │   │   │   └── token
-│   │   │   │   │   ├── root/* # directory for root and unseal tokens
-│   │   │   │   │   ├── admin/* # directory for admin token(s)
+│   └── vault
+│   │   └── tokens
+│   │   │   ├── root/*  # directory for root and unseal tokens
+│   │   │   ├── admin/* # directory for admin token(s)
+│   │   │   ├── other/* # directory for admin token(s)
 
 
 ```
