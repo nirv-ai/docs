@@ -10,6 +10,12 @@
 - [NIRV DOCS project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fdocs%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
+## NIRVai Mindset
+
+> if it doesnt copypasta, it doesnt belong in your stack
+
+https://user-images.githubusercontent.com/10324554/212817830-3cfe7012-d408-4dab-af08-aace1763dfd0.mp4
+
 ## WHY VAULT ?
 
 - vault is an opensource database for sensitive data storage, access and control
