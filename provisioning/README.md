@@ -1,4 +1,4 @@
-### Request PR review
+### Deploy Pipeline
 
 - a successful merge to develop will trigger the CD pipeline
   - each env consists of obfuscation and validation

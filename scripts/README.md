@@ -1,9 +1,6 @@
 # nirvai scripts
 
-> CLI-as-a-Service
-
-- guides for writing cross-platform, resiliant posix compliant shell scripts.
-- nirvai scripts is a single interface to all CLIs supporting NIRVai platform components and packages
+- modern, cross-platform and resiliant shell scripts.
 - [source code](https://github.com/nirv-ai/scripts)
 
 ## RACEXP
@@ -22,21 +19,25 @@ export PATH="/home/poop/git/private/nirv/scripts:$PATH"
 
 # if you're an operator, also source the shell-init dir
 for operator_script in /home/poop/git/private/nirv/scripts/shell-init/*.sh; do
-	source $operator_script
+  source $operator_script
 done;
 
 ```
 
 ## best practices
 
+### CLI-as-a-Service
+
+- nirvai scripts is a single interface to all CLIs supporting NIRVai platform services
+- new scripts should match existing interfaces, or force the evolution of existing scripts
+  - a NIMlang binary is on the roadmap to provide a gateway to all scripts
+
 ### never use a low-level CLI directly, always create a wrapper
 
-- if a cli is integral to the use of your service, create a wrapper for your future self and others
-- platform wide upgrades: move to the latest version and update in a single place
-- useful side effects: wouldnt it be great to run fmt, check, and validate on every nomad cmd?
-  - we even run nomad format on vault and consul configuration files: hashicorp eslint baby
-- standardized interfaces
-- CLIs as a service
+- if a CLI is integral to the use of your service, create a wrapper for your future self and others, this enables
+  - platform wide upgrades: move to the latest version and update in a single place
+  - pipelines for common activities: [thats why MAKE is still popular](https://www.cs.tufts.edu/comp/15/reference/make/makefile.pdf)
+  - standardized interfaces: integration through interfaces is key
 
 ### always use #!/usr/bin/env [SHELL]
 
@@ -48,6 +49,11 @@ done;
 - a solid platform architecture reuses common patterns for common use cases
 - reuse scripts/utils as much as possible to help enforce and build upon those standards
 
+### limit use of the dark side of the Force
+
+- scripting provides a wide gamut of styles and expressions
+- but dont forget your building a product for developers
+
 ### use this boilerplate
 
 - it enables your script to be in compliance with NIRVai best practices
@@ -55,7 +61,7 @@ done;
   - platform env: env vars that provide a common interface across all scripts
   - platform debug: debug logic and debug echo
   - platform errors: trap error and echo error
-  - platform get app: get the location of an arbitrary app or a dir within it
+  - platform get app: get the location of an arbitrary app or a dir therein contained
   - platform invalid request: inform the user we need better documentation, its not their fault
   - platform request sudo: never use sudo without telling consumers why
 
