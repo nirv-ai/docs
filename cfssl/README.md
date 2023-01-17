@@ -10,6 +10,12 @@
 - [NIRVai security project board](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fsecurity%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
+## NIRVai Mindset
+
+> if it doesnt copypasta, it doesnt belong in your stack
+
+https://user-images.githubusercontent.com/10324554/213013912-dd5e8229-d7b0-4124-a67e-648f4f3644e9.mp4
+
 ## WHY CFSSL ?
 
 - there are quite few respectable alternatives: [ejcba](https://www.ejbca.org/),[openvpns easy-rsa](https://github.com/OpenVPN/easy-rsa), [smallsteps step-ca](https://github.com/smallstep/certificates) - even vault has a [pki secrets engine](https://developer.hashicorp.com/vault/docs/secrets/pki)
