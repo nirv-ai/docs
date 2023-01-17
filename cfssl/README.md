@@ -22,7 +22,7 @@
 
 ### REQUIREMENTS
 
-````sh
+```sh
 # cfssl: option 1 install from source @see https://github.com/cloudflare/cfssl
 # cfssl: option 2 install via apt-get @see https://packages.ubuntu.com/search?keywords=golang-cfssl
 # jq: @see https://stedolan.github.io/jq/manual/
@@ -41,7 +41,7 @@
 ├── secrets             # chroot jail, a temporary folder or private git repo
 │   └── $CA_CN
 │   │   └── tls         # we will persist created files to this directory
-`
+```
 
 ### INTERFACE
 
@@ -64,7 +64,7 @@ export CA_CN=mesh.nirv.ai
 ## else: configs/cfssl.json
 # export CFSSL_CONFIG_NAME=cfssl.json
 
-````
+```
 
 ### USAGE
 
@@ -135,4 +135,44 @@ info csr ca
 info csr cli-0
 info csr client-0
 info csr server-0
+```
+
+#### next steps
+
+- Congrats! you have a private CA and the ability to create server, client and CLI certs to encrypt communication between your services
+- We have a little secret:
+
+> _you can bootstrap your entire stack with this copypasta_
+
+##### copypasta: cfsssl initialization
+
+```sh
+export CA_CN=mesh.nirv.ai
+script.ssl.sh create rootca
+# 2 consul servers
+script.ssl.sh create server 2
+# 3 client applications
+script.ssl.sh create client 3
+# 1 operator
+script.ssl.sh create cli
+
+export CA_CN=mad.nirv.ai
+script.ssl.sh create rootca
+# 2 nomad server agents
+script.ssl.sh create server 2
+# 3 nomad client agents
+script.ssl.sh create client 3
+# 1 operator
+script.ssl.sh create cli 1
+```
+
+##### copypasta: cfsssl validation
+
+```sh
+# you can repeat for server, client and cli certs as well
+export CA_CN=mad.nirv.ai
+script.ssl.sh info cert ca
+
+export CA_CN=mesh.nirv.ai
+script.ssl.sh info cert ca
 ```
