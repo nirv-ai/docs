@@ -12,47 +12,45 @@
 
 ## WHY CFSSL ?
 
-- there are quite few respectable alternatives like [ejcba](https://www.ejbca.org/),[openvpns easy-rsa](https://github.com/OpenVPN/easy-rsa), [smallsteps step-ca](https://github.com/smallstep/certificates) - even vault has a [pki secrets engine](https://developer.hashicorp.com/vault/docs/secrets/pki)
-- we chose [cfssl](https://blog.cloudflare.com/introducing-cfssl/) because based on the following requirements
+- there are quite few respectable alternatives: [ejcba](https://www.ejbca.org/),[openvpns easy-rsa](https://github.com/OpenVPN/easy-rsa), [smallsteps step-ca](https://github.com/smallstep/certificates) - even vault has a [pki secrets engine](https://developer.hashicorp.com/vault/docs/secrets/pki)
+- we chose [cfssl](https://blog.cloudflare.com/introducing-cfssl/) to achieve the following goals:
   - straight forward to install and automate
-  - backed by people smarter than us
   - completely configurable with 0 opinions
+  - self-contained while effectively integrating with our stack (specifically vault, consul and nomad)
 
 ## Setting up CFSSL
 
 ### REQUIREMENTS
 
-```sh
+````sh
 # cfssl: option 1 install from source @see https://github.com/cloudflare/cfssl
 # cfssl: option 2 install via apt-get @see https://packages.ubuntu.com/search?keywords=golang-cfssl
 # jq: @see https://stedolan.github.io/jq/manual/
 
 # directory structure matches:
-├── scripts            # @see https://github.com/nirv-ai/scripts
-├── configs            # @see https://github.com/nirv-ai/configs
+├── scripts             # @see https://github.com/nirv-ai/scripts
+├── configs             # @see https://github.com/nirv-ai/configs
 │   └── cfssl
-│   │   ├── cfssl.json # default cfssl configuration
-│   │   └── arbitrary.domain.name      # init files for this CA
-│   │   │   ├── custom.cfssl.json      # optional cfssl configuration, the default is used...by default
-│   │   │   ├── csr.root.ca.json       # root ca configuration named ca
-│   │   │   ├── csr.cli.cli.json       # leaf cert configuration for cli named cli
-│   │   │   ├── csr.client.client.json # leaf cert configuration for client named client
-│   │   │   ├── csr.server.server.json # leaf cert configuration for server named server
-├── secrets            # chroot jail, a temporary folder or private git repo
-│   └── arbitrary.domain.com
-│   │   └── tls        # we will persist all created certs inside this directory
-
-```
+│   │   ├── cfssl.json  # the default cfssl.json
+│   │   └── $CA_CN
+│   │   │   ├── csr.cli.cli.json       # conf for CLI TLS certs
+│   │   │   ├── csr.client.client.json # conf for client TLS certs
+│   │   │   ├── csr.root.ca.json       # conf for root private cert authority
+│   │   │   ├── csr.server.server.json # conf for server TLS certs
+│   │   │   ├── custom.cffsl.json      # optional cffsl json if not using default
+├── secrets             # chroot jail, a temporary folder or private git repo
+│   └── $CA_CN
+│   │   └── tls         # we will persist created files to this directory
+`
 
 ### INTERFACE
 
 ```sh
-# you generally only need to set the CA_CN var when your directory structure matches
+## set the cert authority's common name, e.g.
 export CA_CN=mesh.nirv.ai
 
-# else you can map the these values to the directory structure above
+## vars are available for modification
 # export CA_PEM_NAME=ca
-# export CFSSL_CONFIG_NAME=custom.cfssl.json
 # export CLI_NAME=cli
 # export CLIENT_NAME=client
 # export CONFIG_DIR_NAME=configs
@@ -60,13 +58,13 @@ export CA_CN=mesh.nirv.ai
 # export SERVER_NAME=server
 # export TLS_DIR_NAME=tls
 
-# you shouldnt (but can) change these as well
-# export CFSSL_DIR="${SCRIPTS_DIR_PARENT/$CONFIG_DIR_NAME/cfssl}"
-# export JAIL="${SCRIPTS_DIR_PARENT/$SECRET_DIR_NAME/$CA_CN}"
-# export JAIL_DIR_TLS="${$JAIL/$TLS_DIR_NAME}"
-# export CA_CERT="${$JAIL_DIR_TLS/$CA_PEM_NAME}.pem"
-# export CA_PRIVKEY="${$JAIL_DIR_TLS/$CA_PEM_NAME}-key.pem"
-```
+## lookup order for $CFSSL_CONFIG_NAME
+## if: configs/$CA_CN/$CFSSL_CONFIG_NAME
+## elif: configs/$CFSSL_CONFIG_NAME
+## else: configs/cfssl.json
+# export CFSSL_CONFIG_NAME=cfssl.json
+
+````
 
 ### USAGE
 
@@ -77,11 +75,23 @@ export CA_CN=mesh.nirv.ai
 # create root ca and save as ca[-key].{pem,csr}
 create rootca
 
-# create root ca for a config and save as ca[-key].{pem,csr}
-create rootca a.b.c
+# create root ca for a different CA_CN and save as ca[-key].{pem,csr}
+create rootca mesh.prod.nirv.ai
 
-# create root ca for a config but save as somethingelse[-key].{pem,csr}
-create rootca x.y.z somethingelse
+# create root ca for a different CA_CN but save as somethingelse[-key].{pem,csr}
+create rootca mesh.test.nirv.ai somethingelse
+
+
+### FYI ON SERVER/CLIENT/CLI CERT CREATION
+## the TOTAL always represents how many SHOULD exist
+## not necessarily how many you want to create
+## e.g. if you want 10 and 0 exists
+# create 10 will create 10 new certs starting at 0
+## e.g. if you want 10 and 5 already exist
+# create 10 will create 5 additional certs in index order (0-9) filling in any gaps
+# that way you can delete cert at index 3 (e.g. its been compromised)
+# invoke create 10 (because you need a total of 10)
+# but only cert at index 3 will be created (wont disturb any existing certs)
 
 ### SERVER CERT
 # create 1 server cert and save as server-0[-key].{pem,csr}

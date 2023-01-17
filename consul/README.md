@@ -43,8 +43,8 @@ insert video here
 # directory structure matches:
 ├── scripts         # @see https://github.com/nirv-ai/scripts
 ├── configs         # @see https://github.com/nirv-ai/configs
-│   └── consul
-│   │   └── config  #
+│   └── cfssl
+│   │   └── $CA_CN
 │   │   │   ├── poop.soup.boop #
 │   │   └── host    #
 │   │   │   ├── poop.soup.boop #
@@ -55,8 +55,8 @@ insert video here
 │   │   ├── cfssl.json #
 │   │   │   ├── poop.soup.boop #
 ├── secrets         # chroot jail, a temporary folder or private git repo
-│   └── arbitrary.domain.com
-│   │   └── tls     # should contain all required tls certs
+│   └── $CA_CN
+│   │   └── tls     # we will persist created files to this directory
 ```
 
 ### INTERFACE
