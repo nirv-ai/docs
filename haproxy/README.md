@@ -40,3 +40,17 @@ conf reload core_proxy
 ## get server status for running container: nirvai_web_proxy
 conf info core_proxy
 ```
+
+### helpful stuff
+
+```sh
+# consul backend server: hardcoded
+# consul: test with `consul members` to get the ip
+server consul-hardcoded "192.168.176.2:${VAULT_PORT_CUNT}" check ssl verify none maxconn ${PROXY_MAXCONN_PRIV} weight 100 backup
+
+# consul backend server: with consul-template
+# consul-template
+{{ range service "core-vault" }}
+  server {{.Node}} {{.Address}}:{{.Port}} check ssl verify none maxconn ${PROXY_MAXCONN_PRIV} weight 255 {{ end }}
+
+```
