@@ -1,7 +1,7 @@
 # NIRVai VAULT
 
 - documentation for vault
-- [scripting architecture & guidance](.scripts/README.md)
+- [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/vault)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
 
@@ -89,7 +89,7 @@
 │   │   └── tokens
 │   │   │   ├── root/*  # directory for root and unseal tokens
 │   │   │   ├── admin/* # directory for admin token(s)
-│   │   │   ├── other/* # directory for admin token(s)
+│   │   │   ├── other/* # directory for non-admin and machine token(s)
 
 
 ```
