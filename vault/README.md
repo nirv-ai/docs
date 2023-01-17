@@ -163,15 +163,15 @@ script.vault.sh create gpg admin-asc 3AA61DC439A44276
 
 ### hypothetical token for CTO
 ## everything saved in $JAIL/tokens/admin/armon.{asc,gpg}
-script.vault.sh create gpg admin-key armon-dadgar
+script.vault.sh create gpg admin-key armon
 gpg --list-secret-keys --keyid-format=long
-script.vault.sh create gpg admin-asc 3AA61DC439A44276 armon-dadgar
+script.vault.sh create gpg admin-asc 3AA61DC439A44276 armon
 
 ### hypothetical token for CISO
 ## everything saved in $JAIL/tokens/admin/mitchell.{asc,gpg}
-script.vault.sh create gpg admin-key mitchell-hashimoto
+script.vault.sh create gpg admin-key mitchell
 gpg --list-secret-keys --keyid-format=long
-script.vault.sh create gpg admin-asc 3AA61DC439A44276 mitchell-hashimoto
+script.vault.sh create gpg admin-asc 3AA61DC439A44276 mitchell
 ```
 
 #### wipe and initialize vault server
@@ -371,88 +371,69 @@ script.vault.sh process secret_data
 # from hashicorp docs: a human is required to create the initial root and admin tokens
 # before continuing: complete `create root and admin_vault tokens`
 
-SCRIPTS_DIR_PARENT=`pwd`
-REPO_DIR=$SCRIPTS_DIR_PARENT/web
-APPS_DIR=$REPO_DIR/apps
-APP_PREFIX=nirvai
-VAULT_INSTANCE_DIR_NAME=web-vault
-VAULT_SERVER_APP_NAME=web_vault
+export APP_DIR_NAME=apps
+export APP_PREFIX=nirvai
+export CONFIG_DIR_NAME=configs
+export JAIL_DIR_NAME=secrets
 export NIRV_SCRIPT_DEBUG=0
-
-
-export VAULT_INSTANCE_SRC_DIR=$APPS_DIR/$APP_PREFIX-$VAULT_INSTANCE_DIR_NAME/src
-VAULT_BASE_CONFIG_DIR=$SCRIPTS_DIR_PARENT/configs/vault/
-export JAIL="$SCRIPTS_DIR_PARENT/secrets/dev/apps/vault"
-export JAIL_VAULT_UNSEAL_TOKENS="$JAIL/tokens/root/JAIL_VAULT_UNSEAL_TOKENS.json"
-export JAIL_VAULT_ROOT_PGP_KEY="$JAIL/tokens/root/root.asc"
-export JAIL_VAULT_ADMIN="$JAIL/tokens/admin"
-export OTHER_TOKEN_DIR="$JAIL/tokens/other"
-
-# only target configs in this dir: e.g. web|core
-export VAULT_CONFIG_TARGET=
-
-VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8300
+export REPO_DIR_NAME=core
+export VAULT_DOMAIN_AND_PORT=dev.nirv.ai:8201
 export VAULT_ADDR="https://${VAULT_DOMAIN_AND_PORT}"
-
-
-cd $REPO_DIR
-if [ "$?" -gt 0 ]; then
-  echo -e "\n\nyou executed this script in the wrong directory"
-  echo -e "could not cd into $REPO_DIR"
-  return 1 2>/dev/null
-fi;
-docker compose down
+export VAULT_TOKEN=''
+export VAULT_ADMIN_NAME='admin'
+export VAULT_APP_SRC_PATH='src/vault'
+export VAULT_SERVER_APP_NAME='core-vault'
 
 ########## START: vault boot type
+# stop and remove running containers
+dk_stop_rm_cunts
 
-## uncomment to resync base configs into vault instance dir
-rsync -a --delete $VAULT_BASE_CONFIG_DIR $VAULT_INSTANCE_SRC_DIR/config
+# sync app confs with the source of truth
+script.vault.sh sync-confs
+
 
 ########## how are you booting your devstack?
+# you need to be wherever your compose.yaml file is
+cd $REPO_DIR_NAME
 
-## default: wipe all containers, images and volumes
-## then boot your entire stack like its your first time
-sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
+## default: wipe system and start from scratch
+dk_rm_all
+script.vault.sh rm vault-data
 script.reset.compose.sh
 
+# it takes a few seconds for services to register with consul
+sleep 1s
 
-## alternative 1: only wipe vault & required services
-# sudo rm -rf $VAULT_INSTANCE_SRC_DIR/data/*
-# script.reset.compose.sh web_postgres
-# script.reset.compose.sh $VAULT_SERVER_APP_NAME
-
+## alternative 1: wipe vault, but keep everything else
+# script.vault.sh rm vault-data
+# script.refresh.compose.sh
 
 ## DEFAULT & ALTERNATIVE 1
 ## required: vault must be initialized
 export VAULT_TOKEN='initializing vault'
 script.vault.sh init
-script.vault.sh get status
 
 ## required: root must create atleast 1 admin token
-export VAULT_TOKEN=$(cat $JAIL_VAULT_UNSEAL_TOKENS \
-  | jq -r '.root_token' \
-  | base64 --decode \
-  | gpg -dq \
-)
+export VAULT_TOKEN=$(script.vault.sh get token root)
 script.vault.sh unseal
-script.vault.sh get status
 script.vault.sh process vault_admin
 
-## alternative 2a: reboot your entire stack
+## alternative 2a: simple reboot
 # script.refresh.compose.sh
 
-## alternative 2b: reboot vault & required services only
-# script.refresh.compose.sh web_postgres
-# script.refresh.compose.sh web_vault
+########## your devstack is now running! but we need a database
+# for demonstrative purposes, lets use a DB in a totally different project
+cd ../web
+script.reset.compose.sh web_postgres 1
 
-########## your devstack is now running!
+# connect vault to the webnetwork so they can chat
+docker network connect webnetwork nirvai-core-vault-1
+
 ########## time to bootstrap vault
 
 ## login as admin & unseal vault
-USE_VAULT_TOKEN=token_admin_vault
-export VAULT_TOKEN=$(cat $JAIL_VAULT_ADMIN/$USE_VAULT_TOKEN.json | jq -r '.auth.client_token')
+export VAULT_TOKEN=$(script.vault.sh get token admin)
 script.vault.sh unseal
-script.vault.sh get status
 
 ## (re)sync vault data if changed/starting from scratch
 script.vault.sh process policy
@@ -472,7 +453,7 @@ script.vault.sh process secret_data
 echo -e "\n\nwhoami"
 script.vault.sh get status
 script.vault.sh get token self
-script.vault.sh get_JAIL_VAULT_UNSEAL_TOKENS
+script.vault.sh get_unseal_tokens
 
 # validate dynamic db creds
 echo -e "\n\ndb creds"
@@ -515,7 +496,7 @@ history -c
 ################# DANGER ###################
 # this logs all your unseal tokens & vault token as plain text in your shell
 # this logs the minimum amount of unseal tokens required to unseal vault
-script.vault.sh get_JAIL_VAULT_UNSEAL_TOKENS
+script.vault.sh get_unseal_tokens
 # or you can retrieve a single unseal token only (wont log your vault token)
 script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
 ################# DANGER ###################
