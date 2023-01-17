@@ -1,7 +1,7 @@
 # NIRVai CONSUL
 
-- [scripting architecture & guidance](.scripts/README.md)
-- [source code](https://github.com/nirv-ai/scripts/blob/develop/consul/script.consul.sh)
+- [scripting architecture & guidance](../scripts/README.md)
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/consul)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/consul)
 - [based heavily on these scripts by hashicorp](https://github.com/hashicorp-education/learn-consul-get-started-vms/tree/main/scripts)
 
@@ -10,33 +10,53 @@
 - [NIRVai networking project](https://github.com/orgs/nirv-ai/projects/6/views/1?filterQuery=repo%3A%22nirv-ai%2Fnetworking%22)
 - [RACEXP docs](https://github.com/noahehall/theBookOfNoah/blob/master/0current/architectural%20thinking/0racexp.md)
 
+## NIRVai Mindset
+
+> if it doesnt copypasta, it doesnt belong in your stack
+
+insert video here
+
 ## WHY CONSUL ?
+
+- consul, in its final form, is an authnz service mesh with support for dynamic configuration (kv) management and first class envoyproxy integration for east-west/north-south traffic, and second class (but well documented) support for haproxy
+- we are happy with the HAProxy for north-south traffic, and it can be just as dynamic as envoy, but lacks the intuitive interface consul-envoy provides even considering haproxy's first class consul support via dataplane api
+- Our goal is to achieve:
+  - zero trust
+  - complete immutable infrastructure from dev to prod
+  - north-south authN service discovery (haproxy > envoy > consul > envoy > app)
+  - east-west authN+Z service mesh (app > envoy > consul > envoy > app)
+  - dynamic service configuration (consul-template, envconsul, cli, http)
+
+### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
+
+> all services must follow [PoLP](https://www.upguard.com/blog/principle-of-least-privilege) and require authnz
 
 ## Setting up CONSUL
 
 ### REQUIREMENTS
 
+- [complete CFSSL setup](../cfssl/README.md)
+
 ```sh
-# complete CFSSL documentation: @see https://github.com/nirv-ai/docs/blob/main/cfssl/README.md
 # jq: @see https://stedolan.github.io/jq/manual/
 
 # directory structure matches:
-├── scripts # git clone git@github.com:nirv-ai/scripts.git
-├── configs # you can use ours: git clone git@github.com:nirv-ai/configs.git
-│   └── consul
-│   │   └── config #
+├── scripts         # @see https://github.com/nirv-ai/scripts
+├── configs         # @see https://github.com/nirv-ai/configs
+│   └── cfssl
+│   │   └── $CA_CN
 │   │   │   ├── poop.soup.boop #
-│   │   └── host #
+│   │   └── host    #
 │   │   │   ├── poop.soup.boop #
-│   │   └── policy #
+│   │   └── policy  #
 │   │   │   ├── poop.soup.boop #
 │   │   └── service #
 │   │   │   ├── poop.soup.boop #
 │   │   ├── cfssl.json #
 │   │   │   ├── poop.soup.boop #
-├── secrets # chroot jail, a temporary folder or private git repo
-│   └── arbitrary.domain.com
-│   │   └── tls # should contain all required tls certs
+├── secrets         # chroot jail, a temporary folder or private git repo
+│   └── $CA_CN
+│   │   └── tls     # we will persist created files to this directory
 ```
 
 ### INTERFACE
@@ -112,5 +132,6 @@ export CA_CN=mesh.nirv.ai
 ### USAGE
 
 ```sh
+### prefix all cmds with script.consul.sh
 
 ```
