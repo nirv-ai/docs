@@ -374,7 +374,7 @@ script.vault.sh process secret_data
 
 ```sh
 ######################### FYI
-# from hashicorp docs: a human is required to create the initial root and admin tokens
+# a human is required to create the initial root and admin tokens
 # before continuing: complete `create root and admin_vault tokens`
 
 export APP_DIR_NAME=apps
@@ -484,26 +484,21 @@ history -c
 #### Log into the UI
 
 ```sh
-
-# the below steps require you to _atleast_ complete:
+## the below steps require completion of:
 ## section: `create root and admin_vault tokens`
 ## section: `use root token to create admin policy & token`
 
-## I recommended you come back
-## after you've reached the end of this file instead
-
-# if logging in through the UI:
 ## copypasta the tokens and open the browser to $VAULT_ADDR
-## if you've logged in at the same VAULT_ADDR created with a different root token
-## you may need to clear your browser storage & cache
-
+## authenticating a VAULT_ADDR initialized with a different root token is prohibited
+## requires clearing your browser storage and cache
 
 ############################################
 ################# DANGER ###################
-# this logs all your unseal tokens & vault token as plain text in your shell
-# this logs the minimum amount of unseal tokens required to unseal vault
+## this logs all your unseal tokens & vault token as plain text in your shell
+## this logs the minimum amount of unseal tokens required to unseal vault
 script.vault.sh get_unseal_tokens
-# or you can retrieve a single unseal token only (wont log your vault token)
+
+## or you can retrieve a single unseal token only (wont log your vault token)
 script.vault.sh get_single_unseal_token 0 # or 1 for the second, or 2 for third, etc.
 ################# DANGER ###################
 ############################################
