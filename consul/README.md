@@ -38,8 +38,8 @@ insert video here
 - [complete CFSSL setup](../cfssl/README.md)
 
 ```sh
-# jq: @see https://stedolan.github.io/jq/manual/
-
+# jq:               # @see https://stedolan.github.io/jq/manual/
+# consul:           # @see https://developer.hashicorp.com/consul/docs/install
 # directory structure matches:
 ├── scripts         # @see https://github.com/nirv-ai/scripts
 ├── configs         # @see https://github.com/nirv-ai/configs
@@ -76,7 +76,6 @@ export CA_CN=mesh.nirv.ai
 
 ```sh
 ################ cd nirv
-# TODO: move this into docs and fkn automate this shiz like script.vault.sh
 # ensure consul:consul is setup on host
 # ensure source (not symlinks) files & secrets on host are owned by consul:consul
 # see dockerfiles for how to force img consul:consul to match host consul:consul
