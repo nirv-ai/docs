@@ -1,6 +1,5 @@
 # NIRVai VAULT
 
-- documentation for vault
 - [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/vault)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/vault)
@@ -18,10 +17,13 @@ https://user-images.githubusercontent.com/10324554/212817830-3cfe7012-d408-4dab-
 
 ## WHY VAULT ?
 
-- vault is an opensource database for sensitive data storage, access and control
-- our goal is to have:
-  - an immutable vault instance: automation from greenfield to prod
-  - persistent storage: vault server life cycle should have 0 impact on data persistence
+- vault is an opensource database for sensitive data storage with dynamic TTL authnz for a broad set of stores and cloud services
+- our goal is to achieve:
+  - zero trust
+  - complete immutable infrastructure from dev to prod
+  - single source of truth for data access, control and expiration
+  - automated east-west credential provisioning
+  - developer empowerment with operator oversight
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 

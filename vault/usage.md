@@ -4,8 +4,7 @@
   - its missing massive amounts of documentation
 
 ```sh
-####################### USAGE
-vault.sh arg arg arg
+### prefix all cmds with script.vault.sh
 
 ############ enabling features: enable engine_type at_path
 # enable a kv-2 secret engine at path secret/

@@ -1,6 +1,6 @@
 # NIRVai CFSSL
 
-- [scripting architecture & guidance](.scripts/README.md)
+- [scripting architecture & guidance](../scripts/README.md)
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/cloudflare/script.ssl.sh)
 - [configuration](https://github.com/nirv-ai/configs/tree/develop/cfssl)
 - [based heavily on this doc by hashicorp](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls)
@@ -28,19 +28,19 @@
 # jq: @see https://stedolan.github.io/jq/manual/
 
 # directory structure matches:
-├── scripts # git clone git@github.com:nirv-ai/scripts.git
-├── configs # you can use ours: git clone git@github.com:nirv-ai/configs.git
+├── scripts            # @see https://github.com/nirv-ai/scripts
+├── configs            # @see https://github.com/nirv-ai/configs
 │   └── cfssl
 │   │   ├── cfssl.json # default cfssl configuration
-│   │   └── arbitrary.domain.name # init files for this CA
-│   │   │   ├── custom.cfssl.json # optional cfssl configuration, the default is used...by default
-│   │   │   ├── csr.root.ca.json # root ca configuration named ca
-│   │   │   ├── csr.cli.cli.json # leaf cert configuration for cli named cli
+│   │   └── arbitrary.domain.name      # init files for this CA
+│   │   │   ├── custom.cfssl.json      # optional cfssl configuration, the default is used...by default
+│   │   │   ├── csr.root.ca.json       # root ca configuration named ca
+│   │   │   ├── csr.cli.cli.json       # leaf cert configuration for cli named cli
 │   │   │   ├── csr.client.client.json # leaf cert configuration for client named client
 │   │   │   ├── csr.server.server.json # leaf cert configuration for server named server
-├── secrets # chroot jail, a temporary folder or private git repo
+├── secrets            # chroot jail, a temporary folder or private git repo
 │   └── arbitrary.domain.com
-│   │   └── tls # we will persist all created certs inside this directory
+│   │   └── tls        # we will persist all created certs inside this directory
 
 ```
 
@@ -61,16 +61,17 @@ export CA_CN=mesh.nirv.ai
 # export TLS_DIR_NAME=tls
 
 # you shouldnt (but can) change these as well
-# export CFSSL_DIR="${CFSSL_DIR:-$SCRIPTS_DIR_PARENT/$CONFIG_DIR_NAME/cfssl}"
-# export JAIL="${JAIL:-$SCRIPTS_DIR_PARENT/$SECRET_DIR_NAME/$CA_CN}"
-# export JAIL_DIR_TLS="${JAIL_DIR_TLS:-$JAIL/$TLS_DIR_NAME}"
-# export CA_CERT="${CA_CERT:-$JAIL_DIR_TLS/$CA_PEM_NAME}.pem"
-# export CA_PRIVKEY="${CA_PRIVKEY:-$JAIL_DIR_TLS/$CA_PEM_NAME}-key.pem"
+# export CFSSL_DIR="${SCRIPTS_DIR_PARENT/$CONFIG_DIR_NAME/cfssl}"
+# export JAIL="${SCRIPTS_DIR_PARENT/$SECRET_DIR_NAME/$CA_CN}"
+# export JAIL_DIR_TLS="${$JAIL/$TLS_DIR_NAME}"
+# export CA_CERT="${$JAIL_DIR_TLS/$CA_PEM_NAME}.pem"
+# export CA_PRIVKEY="${$JAIL_DIR_TLS/$CA_PEM_NAME}-key.pem"
 ```
 
 ### USAGE
 
 ```sh
+### prefix all cmds with script.ssl.sh
 
 ### ROOT CA
 # create root ca and save as ca[-key].{pem,csr}
