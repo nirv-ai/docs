@@ -36,12 +36,6 @@ insert video here
 
 ### REQUIREMENTS
 
-- [complete CFSSL setup](../cfssl/README.md)
-  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
-- if using our one of our [docker configs](https://github.com/nirv-ai/configs/tree/develop/docker)
-  - take a look at core/{consul/vault/haproxy} bootstrap.sh files
-  - ^ varies depending if initiating a consul server or client
-
 ```sh
 # jq:       # @see https://stedolan.github.io/jq/manual/
 # consul:   # @see https://developer.hashicorp.com/consul/docs/install
@@ -110,26 +104,57 @@ export SERVER_TOKEN_NAME='acl-policy-consul'
 
 ### NEW SERVICE MESH SETUP
 
-```sh
-################ cd nirv
+- [complete CFSSL setup](../cfssl/README.md)
+  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
+- if using our one of our [docker configs](https://github.com/nirv-ai/configs/tree/develop/docker)
+  - take a look at core/{consul/vault/haproxy}
+    - bootstrap.sh files: varies depending if initiating a consul server or client and type of application
+    - compose.yaml: we inject the TLS certs as secrets into the container
 
-### create rootca & server certs
-# create tokens rootca, server client & cli certs using script.ssl.sh
-# ^ make sure to create server certs for each service
-# ^ it wont overrwrite existing certs, so just manually run the server create with X total
-# ^^ pretty sure services should receive client certs and not server certs
-# ^^ TODO: fix this logic to start from x+1 based on existing files in dir with same name
-# ^^ scratch that, as we will be moving to vault PKI eventually anyway
-# `create gossipkey` > copy from jail to core-consul
-# delete data/* if starting green
-# `sync-confs` push configs > server & service(s) app directories
-# script.reset core-consul
-# `source configs/consul/.env.cli
-# `get info` >>> ACL NOT FOUND
-# `create root-token` >>> docker log: bootstrap complete
-# `source configs/consul/.env.cli` # wont set correct values if debugging is on
-# `get root-token` >>> validate UI login
-# should have access to almost everything
+```sh
+## > see bootstrap.sh files for clients
+# need to set token specifically for connect
+# ^ else the default is used for envoy
+# ^ this new token should be set in src/.env.auto
+# need to ensure no one uses the management token
+# ^ create a admin tokens like in vault
+```
+
+#### create gossip key & root token, sync confs and start your stack
+
+```sh
+################
+# cd to your app dir
+cd $REPO_DIR_NAME
+
+
+################ delete data and existing tokens
+sudo rm -rf apps/*/src/consul/data/*
+rm -rf ../secrets/consul/tokens/*
+
+
+################# create gossipkey, sync confs and start your stack
+## create gossip key
+script.consul.sh create gossipkey
+script.consul.sh sync-confs
+script.reset.compose.sh # >>> docker logs: blocked by ACLS
+
+
+################# create root token and setup your cli
+## copy and execute the cmd thats output
+## ignore errors as we havent set the token yet
+script.consul.sh get cli-env
+script.consul.sh create root-token # >>> docker log: bootstrap complete
+
+## copy and execute the cmd thats output
+## the errors should be gone and the consul server should be logged
+script.consul.sh get cli-env
+```
+
+#### use root token to create initial policies and tokens
+
+```sh
+## complete section `
 ### create policy files and tokens and push to consul server
 # see config policy dir
 # `create policies`
@@ -162,9 +187,32 @@ export SERVER_TOKEN_NAME='acl-policy-consul'
 
 ```
 
+#### logging into the UI
+
+```sh
+script.consul.sh get root-token
+
+```
+
 ### USAGE
 
 ```sh
 ### prefix all cmds with script.consul.sh
+
+```
+
+#### next steps
+
+- Congrats! you have a zero trust sservice mesh backed by CONSUL!
+- We have a little secret:
+
+> _you can bootstrap your entire stack with this copypasta_
+
+##### copypasta: consul initialization
+
+```sh
+# create gossip key
+# sync confs
+# delete data/* if starting green
 
 ```
