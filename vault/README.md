@@ -61,7 +61,7 @@ https://user-images.githubusercontent.com/10324554/212817830-3cfe7012-d408-4dab-
     - when integration is complete
       - operators can validate their vault configs: then copy those files into an isolated config/$APP_NAME DIR
       - the core vault server can then consume those isolated files with 0 headaches
-      - app owners can continue to iterate and repeat the request > approve > bootstrap cycle
+      - app owners can continue to iterate and repeat the request > approve > cycle
 
 ### REQUIREMENTS
 

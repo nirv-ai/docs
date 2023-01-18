@@ -146,6 +146,8 @@ info csr server-0
 #### next steps
 
 - Congrats! you have a private CA and the ability to create server, client and CLI certs to encrypt communication between your services
+- if you're using these TLS certs with NOMAD/CONSUL
+  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
 - We have a little secret:
 
 > _you can bootstrap your entire stack with this copypasta_

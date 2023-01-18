@@ -23,63 +23,96 @@ insert video here
 - Our goal is to achieve:
   - zero trust
   - complete immutable infrastructure from dev to prod
-  - north-south authN service discovery (haproxy > envoy > consul > envoy > app)
+  - north-south service discovery (haproxy > envoy > consul > envoy > app)
   - east-west authN+Z service mesh (app > envoy > consul > envoy > app)
   - dynamic service configuration (consul-template, envconsul, cli, http)
-  - multi-app containers: consul and envoy should be baked into the service container
+  - multi-app containers: consul and envoy should be baked into the service image
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
 > all services must follow [PoLP](https://www.upguard.com/blog/principle-of-least-privilege) and require authnz
 
-## Setting up CONSUL
+## Setting up consul
 
 ### REQUIREMENTS
 
 - [complete CFSSL setup](../cfssl/README.md)
+  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
+- if using our one of our [docker configs](https://github.com/nirv-ai/configs/tree/develop/docker)
+  - take a look at core/{consul/vault/haproxy} bootstrap.sh files
+  - ^ varies depending if initiating a consul server or client
 
 ```sh
-# jq:               # @see https://stedolan.github.io/jq/manual/
-# consul:           # @see https://developer.hashicorp.com/consul/docs/install
+# jq:       # @see https://stedolan.github.io/jq/manual/
+# consul:   # @see https://developer.hashicorp.com/consul/docs/install
+
 # directory structure matches:
-├── scripts         # @see https://github.com/nirv-ai/scripts
-├── configs         # @see https://github.com/nirv-ai/configs
-│   └── cfssl
-│   │   └── $CA_CN
-│   │   │   ├── poop.soup.boop #
-│   │   └── host    #
-│   │   │   ├── poop.soup.boop #
-│   │   └── policy  #
-│   │   │   ├── poop.soup.boop #
-│   │   └── service #
-│   │   │   ├── poop.soup.boop #
-│   │   ├── cfssl.json #
-│   │   │   ├── poop.soup.boop #
-├── secrets         # chroot jail, a temporary folder or private git repo
-│   └── $CA_CN
-│   │   └── tls     # we will persist created files to this directory
+├── scripts                     # @see https://github.com/nirv-ai/scripts
+├── configs                     # @see https://github.com/nirv-ai/configs
+│   └── consul
+│   │   └── client              # client agent confs
+│   │   └── defaults            # default confs for client services
+│   │   └── global              # confs applied to both server & client agents
+│   │   └── intention           # service authZ confs
+│   │   └── policy
+│   │   │   └── server          # acl policies for server agents
+│   │   │   └── service         # acl policiess for services
+│   │   └── server              # server agent confs
+│   │   └── service/$APP_X..Y
+│   │   │   └── config          # confs for this consul service
+│   │   │   └── envoy           # static envoy confs
+│   │   ├── .env.cli            # source this file to authnz with a consul server from host
+├── secrets                     # chroot jail, a temporary folder or private git repo
+│   └── consul
+│   │   └── keys                # we will persist created files to this directory
+│   │   └── tokens              # we will persist created files to this directory
+├── ${REPO_DIR_NAME}
+│   └── apps/$APP_PREFIX-$APP_X..Y
+│   │   ├── $APP_ENV_AUTO                         # where vars are injected
+│   │   │   ├── CONSUL_HTTP_TOKEN                 # consul agent token
+│   │   │   ├── CONNECT_SIDECAR_FOR               # for envoy proxy
+│   │   │   ├── CONSUL_DNS_TOKEN                  # set as the default token for servers
+│   │   └── src/consul
+│   │   │   │   ├── consul.compose.bootstrap.sh   # runtime init for consul & envoy
+│   │   │   └── config
+│   │   │   │   ├── env.token.hcl                 # contains the agent & default token
+│   │   │   │   ├── config.global.*               # server & clients confs
+│   │   │   │   ├── config.server.*               # server only confs
+│   │   │   │   ├── config.client.*               # client only confs
+│   │   │   │   ├── config.service.$APP_X..Y      # service specific confs
 ```
 
 ### INTERFACE
 
 ```sh
-# you generally only need to set the CA_CN var when your directory structure matches
-export CA_CN=mesh.nirv.ai
+######################### platform interface
+# all nirv scripts use this same interface
+export APP_DIR_NAME=apps
+export APP_ENV_AUTO=.env.auto
+export APP_PREFIX=nirvai
+export CERTS_DIR_HOST=/etc/ssl/certs
+export MESH_HOSTNAME=mesh.nirv.ai
+export NIRV_SCRIPT_DEBUG=0
+export REPO_DIR_NAME=core
 
-# else you can map the these values to the directory structure above
+######################### CONSUL INTERFACE
+# path within the app dir
+export CONSUL_APP_SRC_PATH='src/consul'
 
-
-# you shouldnt (but can) change these as well
-
+# e.g. /etc/ssl/certs/mesh.nirv.ai
+export CONSUL_DIR_CERTS="${CERTS_DIR_HOST}/${MESH_HOSTNAME}"
+export CONSUL_SERVER_APP_NAME='core-consul'
+export DATA_CENTER='us-east'
+export DNS_TOKEN_NAME='acl-policy-dns'
+export ROOT_TOKEN_NAME='root'
+export SERVER_TOKEN_NAME='acl-policy-consul'
 ```
 
-### service mesh workflow
+### NEW SERVICE MESH SETUP
 
 ```sh
 ################ cd nirv
-# ensure consul:consul is setup on host
-# ensure source (not symlinks) files & secrets on host are owned by consul:consul
-# see dockerfiles for how to force img consul:consul to match host consul:consul
+
 ### create rootca & server certs
 # create tokens rootca, server client & cli certs using script.ssl.sh
 # ^ make sure to create server certs for each service

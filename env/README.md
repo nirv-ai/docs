@@ -18,17 +18,17 @@
 
 ```sh
 
-# copypasta: cd secrets dir
+# copypasta: cd secrets
 sudo mkdir /etc/ssl/certs/{dev,mad,mesh}.nirv.ai
 sudo mkdir /etc/ssl/certs/{aws,vault}
 sudo ln -s `pwd`/dev.nirv.ai/letsencrypt/live/dev.nirv.ai/* /etc/ssl/certs/dev.nirv.ai
 sudo ln -s `pwd`/mad.nirv.ai/tls/* /etc/ssl/certs/mad.nirv.ai
 sudo ln -s `pwd`/mesh.nirv.ai/tls/* /etc/ssl/certs/mesh.nirv.ai
-# no longer doing this, as tokens are set in .env and .hcl created via bootstrap.sh
-# sudo ln -s `pwd`/consul/tokens/{root,server,service}/* /etc/ssl/certs/mesh.nirv.ai
 
 # we need a better approach than all this chowning around
+# @see https://github.com/docker/compose/issues/9648
 sudo chown -R $USER:$USER /etc/ssl/certs/dev.nirv.ai
-sudo chown -R consul:consul ./mesh.nirv.ai
+sudo chown -R $USER:$USER /etc/ssl/certs/mad.nirv.ai
+sudo chown -R consul:consul /etc/ssl/certs/mesh.nirv.ai
 
 ```
