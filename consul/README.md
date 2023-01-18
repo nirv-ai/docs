@@ -129,6 +129,7 @@ cd $REPO_DIR_NAME
 
 
 ################ delete data and existing tokens
+## TODO: move these to consul.sh
 sudo rm -rf apps/*/src/consul/data/*
 rm -rf ../secrets/consul/tokens/*
 
@@ -151,28 +152,36 @@ script.consul.sh create root-token # >>> docker log: bootstrap complete
 script.consul.sh get cli-env
 ```
 
-#### use root token to create initial policies and tokens
+#### use root token to create initial service mesh config
 
 ```sh
-## complete section `
-### create policy files and tokens and push to consul server
-# see config policy dir
-# `create policies`
-# `create server-policy-tokens`
-# `create service-policy-tokens` # service names must match svc configs
-# `create intentions`
-# `create defaults`
-# `list policies`
-# `list tokens`
-# `set server-tokens` >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
-# ^ just to get through initial setup
+################# create policies, tokens, intentions and service defaults
+script.consul.sh create policies
+script.consul.sh create server-policy-tokens
+## FYI: service names must match svc configs
+script.consul.sh create service-policy-tokens
+script.consul.sh create intentions
+script.consul.sh create defaults
+
+
+################# review created policies and tokens
+script.consul.sh list policies
+script.consul.sh list tokens
+
+
+################# update .env.auto and restart your stack
+## TODO: we shouldnt do this anymore and rely on .env.auto
 # ^ check how we set the servers DNS_TOKEN and HTTP_TOKEN via bootstrap.sh and /.env
 # ^^ TODO: automate setting .env of all consul containers to appropriate tokens
-# `get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
+## >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
+script.consul.sh set server-tokens
+
+
+script.consul.sh get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
 # exec into any consul enabled container, and confirm  `consul members`
 ### ADR: this is an ideal use-case for multi-app containers
 # update docker images to include binary (see proxy for ubuntu, vault for alpine)
-# `sync-confs` push configs > to server & service(s) app dirs
+script.consul.sh sync-confs` push configs > to server & service(s) app dirs
 # in the docker .env for all serv[ers,ices]: set vars HTTP/DNS tokens vars, see bootstrap.sh files
 # ^ set CONSUL_HTTP_TOKEN=$(script.consul.sh get service-token svc-name) # TODO: move to docker secret
 # ^ TODO: create a token specifically for connect and dont reuse the same agent token
