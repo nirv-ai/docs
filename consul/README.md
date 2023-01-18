@@ -96,6 +96,7 @@ export CONSUL_APP_SRC_PATH='src/consul'
 # e.g. /etc/ssl/certs/mesh.nirv.ai
 export CONSUL_DIR_CERTS="${CERTS_DIR_HOST}/${MESH_HOSTNAME}"
 export CONSUL_SERVER_APP_NAME='core-consul'
+export CONSUL_SERVER_NODE_PREFIX='consul'
 export DATA_CENTER='us-east'
 export DNS_TOKEN_NAME='acl-policy-dns'
 export ROOT_TOKEN_NAME='root'
@@ -142,14 +143,16 @@ script.reset.compose.sh # >>> docker logs: blocked by ACLS
 
 
 ################# create root token and setup your cli
-## copy and execute the cmd thats output
-## ignore errors as we havent set the token yet
+## copy and execute the cmd thats output then create a root token
+## this is a manual step: you have to copy paste the output
 script.consul.sh get cli-env
 script.consul.sh create root-token # >>> docker log: bootstrap complete
 
-## copy and execute the cmd thats output
-## the errors should be gone and the consul server should be logged
+## re-execute the cmd output by cli-env
+## this is a manual step: you have to copy paste the output
+## the consul server(s) should be the only member on the team
 script.consul.sh get cli-env
+# re-enable debug
 ```
 
 #### use root token to create initial service mesh config
@@ -174,14 +177,14 @@ script.consul.sh list tokens
 # ^ check how we set the servers DNS_TOKEN and HTTP_TOKEN via bootstrap.sh and /.env
 # ^^ TODO: automate setting .env of all consul containers to appropriate tokens
 ## >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
-script.consul.sh set server-tokens
+# script.consul.sh set server-tokens
+script.consul.sh sync-envs
 
 
-script.consul.sh get nodes` > every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
-# exec into any consul enabled container, and confirm  `consul members`
-### ADR: this is an ideal use-case for multi-app containers
-# update docker images to include binary (see proxy for ubuntu, vault for alpine)
-script.consul.sh sync-confs` push configs > to server & service(s) app dirs
+# every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
+script.consul.sh get nodes
+script.consul.sh sync-confs
+
 # in the docker .env for all serv[ers,ices]: set vars HTTP/DNS tokens vars, see bootstrap.sh files
 # ^ set CONSUL_HTTP_TOKEN=$(script.consul.sh get service-token svc-name) # TODO: move to docker secret
 # ^ TODO: create a token specifically for connect and dont reuse the same agent token
