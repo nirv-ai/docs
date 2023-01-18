@@ -26,6 +26,7 @@ insert video here
   - north-south authN service discovery (haproxy > envoy > consul > envoy > app)
   - east-west authN+Z service mesh (app > envoy > consul > envoy > app)
   - dynamic service configuration (consul-template, envconsul, cli, http)
+  - multi-app containers: consul and envoy should be baked into the service container
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
 
