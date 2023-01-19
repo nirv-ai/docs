@@ -60,7 +60,7 @@ insert video here
 │   └── consul
 │   │   └── keys                # we will persist created keys to this directory
 │   │   └── tokens              # we will persist created tokens to this directory
-├── ${REPO_DIR_NAME}
+├── $REPO_DIR_NAME
 │   └── apps/$APP_PREFIX-$APP_X..Y
 │   │   ├── $APP_ENV_AUTO                         # non empty file where vars are injected
 │   │   │   ├── CONSUL_HTTP_TOKEN                 # consul agent token
@@ -136,7 +136,7 @@ cd $REPO_DIR_NAME
 ################ delete data and existing tokens
 ## TODO: move these to consul.sh
 sudo rm -rf apps/*/src/consul/data/*
-rm -rf ../secrets/consul/tokens/*
+sudo rm -rf ../secrets/consul/{tokens,keys}/*
 
 
 ################# create gossipkey, sync confs and start your stack
