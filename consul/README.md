@@ -156,7 +156,6 @@ script.consul.sh create root-token # >>> docker log: bootstrap complete
 ## this is a manual step: you have to copy paste the output
 ## the consul server(s) should be the only member on the team
 script.consul.sh get cli-env
-# re-enable debug
 ```
 
 #### use root token to create initial service mesh config
