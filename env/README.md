@@ -18,9 +18,9 @@
 
 ```sh
 
-# copypasta: cd secrets
+# copypasta: `cd secrets`
 # permissions come from source, not symlinks
-# @see https://github.com/docker/compose/issues/9648
+# docker secrets bug: @see https://github.com/docker/compose/issues/9648
 sudo chown -R $USER:$USER dev.nirv.ai
 sudo chown -R $USER:$USER mad.nirv.ai
 sudo chown -R consul:consul mesh.nirv.ai

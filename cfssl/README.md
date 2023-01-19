@@ -112,10 +112,16 @@ create server 77 mesh.nirv.ai ca server server.cfssl.json
 create client
 # create arbitrary amount of client certs
 create client 7
+# create a p12 cert for your browser so you can access service UIs over https
+# you will need to provide an arbitrary password
+# you will need to install the p12 cert into your browser
+create p12 client-0
 
 # create arbitrary amount of client certs specifying options
 # total ca_cn ca_name cert_name config_name
 create client 77 mesh.nirv.ai ca client client.cfssl.json
+# p12 cert specifying the ca_cn
+create p12 client-0 mesh.nirv.ai
 
 ### CLI CERT
 # create 1 cli cert and save as cli-0{-key}.{pem,csr}
@@ -123,9 +129,11 @@ create cli
 # create arbitrary amount of cli certs
 create cli 7
 
+
 # create arbitrary amount of cli certs specifying options
 # total ca_cn ca_name cert_name config_name
 create cli 77 mesh.nirv.ai ca cli cli.cfssl.json
+
 
 ### CERT and CSR info
 # get info on cert file
@@ -161,6 +169,8 @@ script.ssl.sh create server 2
 script.ssl.sh create client 3
 # 1 operator
 script.ssl.sh create cli
+# 1 p12 cert for the browser
+create p12 client-0
 
 export CA_CN=mad.nirv.ai
 script.ssl.sh create rootca
@@ -170,6 +180,8 @@ script.ssl.sh create server 2
 script.ssl.sh create client 3
 # 1 operator
 script.ssl.sh create cli 1
+# 1 p12 cert for the browser
+create p12 client-0
 ```
 
 ##### copypasta: cfssl validation
