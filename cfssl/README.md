@@ -78,13 +78,13 @@ export CA_CN=mesh.nirv.ai
 ### prefix all cmds with script.ssl.sh
 
 ### ROOT CA
-# create root ca and save as ca[-key].{pem,csr}
+# create root ca and save as ca{-key}.{pem,csr}
 create rootca
 
-# create root ca for a different CA_CN and save as ca[-key].{pem,csr}
+# create root ca for a different CA_CN and save as ca{-key}.{pem,csr}
 create rootca mesh.prod.nirv.ai
 
-# create root ca for a different CA_CN but save as somethingelse[-key].{pem,csr}
+# create root ca for a different CA_CN but save as somethingelse{-key}.{pem,csr}
 create rootca mesh.test.nirv.ai somethingelse
 
 
@@ -95,12 +95,10 @@ create rootca mesh.test.nirv.ai somethingelse
 # create 10 will create 10 new certs starting at 0
 ## e.g. if you want 10 and 5 already exist
 # create 10 will create 5 additional certs in index order (0-9) filling in any gaps
-# that way you can delete cert at index 3 (e.g. its been compromised)
-# invoke create 10 (because you need a total of 10)
-# but only cert at index 3 will be created (wont disturb any existing certs)
+# that way you can delete cert at index X (e.g. its been compromised) and it will be recreated
 
 ### SERVER CERT
-# create 1 server cert and save as server-0[-key].{pem,csr}
+# create 1 server cert and save as server-0{-key}.{pem,csr}
 create server
 # create arbitrary amount of server certs using above vars
 create server 7
@@ -110,7 +108,7 @@ create server 7
 create server 77 mesh.nirv.ai ca server server.cfssl.json
 
 ### CLIENT CERT
-# create 1 client cert and save as client-0[-key].{pem,csr}
+# create 1 client cert and save as client-0{-key}.{pem,csr}
 create client
 # create arbitrary amount of client certs
 create client 7
@@ -120,7 +118,7 @@ create client 7
 create client 77 mesh.nirv.ai ca client client.cfssl.json
 
 ### CLI CERT
-# create 1 cli cert and save as cli-0[-key].{pem,csr}
+# create 1 cli cert and save as cli-0{-key}.{pem,csr}
 create cli
 # create arbitrary amount of cli certs
 create cli 7
@@ -146,11 +144,13 @@ info csr server-0
 #### next steps
 
 - Congrats! you have a private CA and the ability to create server, client and CLI certs to encrypt communication between your services
+- if you're using these TLS certs with NOMAD/CONSUL
+  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
 - We have a little secret:
 
 > _you can bootstrap your entire stack with this copypasta_
 
-##### copypasta: cfsssl initialization
+##### copypasta: cfssl initialization
 
 ```sh
 export CA_CN=mesh.nirv.ai
@@ -172,7 +172,7 @@ script.ssl.sh create client 3
 script.ssl.sh create cli 1
 ```
 
-##### copypasta: cfsssl validation
+##### copypasta: cfssl validation
 
 ```sh
 # you can repeat for server, client and cli certs as well
