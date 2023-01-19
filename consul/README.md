@@ -23,9 +23,9 @@ insert video here
 - Our goal is to achieve:
   - zero trust
   - complete immutable infrastructure from dev to prod
-  - north-south service discovery (haproxy > envoy > consul > envoy > app)
+  - north-south authN+Z service discovery (haproxy > envoy > consul > envoy > app)
   - east-west authN+Z service mesh (app > envoy > consul > envoy > app)
-  - dynamic service configuration (consul-template, envconsul, cli, http)
+  - dynamic service configuration (consul-template, cli, http)
   - multi-app containers: consul and envoy should be baked into the service image
 
 ### NIRVai is a [zero trust](https://www.nist.gov/publications/zero-trust-architecture) open source platform
@@ -62,18 +62,18 @@ insert video here
 │   │   └── tokens              # we will persist created tokens to this directory
 ├── ${REPO_DIR_NAME}
 │   └── apps/$APP_PREFIX-$APP_X..Y
-│   │   ├── $APP_ENV_AUTO                         # where vars are injected
+│   │   ├── $APP_ENV_AUTO                         # non empty file where vars are injected
 │   │   │   ├── CONSUL_HTTP_TOKEN                 # consul agent token
-│   │   │   ├── CONNECT_SIDECAR_FOR               # for envoy proxy
+│   │   │   ├── CONSUL_NODE_PREFIX                # for setting -node=THIS_NAME-$(hostname)
 │   │   │   ├── CONSUL_DNS_TOKEN                  # set as the default token for servers
 │   │   └── src/consul
 │   │   │   │   ├── consul.compose.bootstrap.sh   # runtime init for consul & envoy
 │   │   │   └── config
-│   │   │   │   ├── env.token.hcl                 # contains the agent & default token
+│   │   │   │   ├── config.client.*               # client only confs
 │   │   │   │   ├── config.global.*               # server & clients confs
 │   │   │   │   ├── config.server.*               # server only confs
-│   │   │   │   ├── config.client.*               # client only confs
 │   │   │   │   ├── config.service.$APP_X..Y      # service specific confs
+│   │   │   │   ├── env.token.hcl                 # created by bootstrap.sh: agent & default token
 ```
 
 ### INTERFACE
