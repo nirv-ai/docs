@@ -58,8 +58,8 @@ insert video here
 │   │   ├── .env.cli            # source this file to authnz with a consul server from host
 ├── secrets                     # chroot jail, a temporary folder or private git repo
 │   └── consul
-│   │   └── keys                # we will persist created files to this directory
-│   │   └── tokens              # we will persist created files to this directory
+│   │   └── keys                # we will persist created keys to this directory
+│   │   └── tokens              # we will persist created tokens to this directory
 ├── ${REPO_DIR_NAME}
 │   └── apps/$APP_PREFIX-$APP_X..Y
 │   │   ├── $APP_ENV_AUTO                         # where vars are injected
@@ -119,6 +119,10 @@ export SERVER_TOKEN_NAME='acl-policy-consul'
 # ^ this new token should be set in src/.env.auto
 # need to ensure no one uses the management token
 # ^ create a admin tokens like in vault
+# TODO: create a token specifically for connect and dont reuse the same agent token
+# TODO: ^ also need modify the policy for agent tokens follow least privileges
+# TODO: or follow consul guidance and create specific intention tokens that are given to admins
+
 ```
 
 #### create gossip key & root token, sync confs and start your stack
@@ -172,30 +176,15 @@ script.consul.sh list policies
 script.consul.sh list tokens
 
 
-################# update .env.auto and restart your stack
-## TODO: we shouldnt do this anymore and rely on .env.auto
-# ^ check how we set the servers DNS_TOKEN and HTTP_TOKEN via bootstrap.sh and /.env
-# ^^ TODO: automate setting .env of all consul containers to appropriate tokens
-## >>> docker log from [WARN] agent: ...blocked by acls... --> to agent: synced node info
-# script.consul.sh set server-tokens
-script.consul.sh sync-envs
-
+################# update .env.auto, resync confs and restart stack
+script.consul.sh sync-env-auto
+script.consul.sh sync-confs
+script.reset.compose.sh
 
 # every node should have a taggedAddress, else ACLs/tokens/wtf arent setup properely
+## >>> docker log: agent: synced node info
 script.consul.sh get nodes
-script.consul.sh sync-confs
-
-# in the docker .env for all serv[ers,ices]: set vars HTTP/DNS tokens vars, see bootstrap.sh files
-# ^ set CONSUL_HTTP_TOKEN=$(script.consul.sh get service-token svc-name) # TODO: move to docker secret
-# ^ TODO: create a token specifically for connect and dont reuse the same agent token
-# ^ TODO: ^ also need modify the policy for agent tokens follow least privileges
-# ^ TODO: or follow consul guidance and create specific intention tokens that are given to admins
-# ^ CONNECT_SIDECAR_FOR=svc-name
-# sudo rm -rf app/svc-name/src/consul/data/* if starting from scratch
-# script.reset.sh
-# ^ `get team` >>> w00p w00p
-# ^ `get nodes` >>> w00p w00p
-#### haproxy north-south + consul dns
+script.consul.sh get team
 
 ```
 
