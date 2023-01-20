@@ -16,7 +16,6 @@
 
 https://user-images.githubusercontent.com/10324554/213592540-91807478-e218-4c78-8355-06c706da19cc.mp4
 
-
 ## WHY CONSUL ?
 
 - consul, in its final form, is an authnz service mesh with support for dynamic configuration (kv) management and first class envoyproxy integration for east-west/north-south traffic, and second class (but well documented) support for haproxy
@@ -36,6 +35,14 @@ https://user-images.githubusercontent.com/10324554/213592540-91807478-e218-4c78-
 ## Setting up consul
 
 ### REQUIREMENTS
+
+- [complete CFSSL setup](../cfssl/README.md)
+  - be sure to create a p12 cert to access consul UI from your browser
+- [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
+- if using our one of our [docker configs](https://github.com/nirv-ai/configs/tree/develop/docker)
+  - take a look at core/{consul/vault/haproxy}
+    - bootstrap.sh files: varies depending if initiating a consul server or client and type of application
+    - compose.yaml: we inject the TLS certs as secrets into the container
 
 ```sh
 # jq:       # @see https://stedolan.github.io/jq/manual/
@@ -105,13 +112,6 @@ export SERVER_TOKEN_NAME='acl-policy-consul'
 ```
 
 ### NEW SERVICE MESH SETUP
-
-- [complete CFSSL setup](../cfssl/README.md)
-  - [see the env docs for how to set up /etc/ssl/certs](../env/README.md)
-- if using our one of our [docker configs](https://github.com/nirv-ai/configs/tree/develop/docker)
-  - take a look at core/{consul/vault/haproxy}
-    - bootstrap.sh files: varies depending if initiating a consul server or client and type of application
-    - compose.yaml: we inject the TLS certs as secrets into the container
 
 ```sh
 ## > see bootstrap.sh files for clients
