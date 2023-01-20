@@ -107,28 +107,34 @@ create server 7
 # total ca_cn ca_name cert_name config_name
 create server 77 mesh.nirv.ai ca server server.cfssl.json
 
+
 ### CLIENT CERT
 # create 1 client cert and save as client-0{-key}.{pem,csr}
 create client
 # create arbitrary amount of client certs
 create client 7
-# create a p12 cert for your browser so you can access service UIs over https
-# you will need to provide an arbitrary password
-# you will need to install the p12 cert into your browser
-create p12 client-0
 
 # create arbitrary amount of client certs specifying options
 # total ca_cn ca_name cert_name config_name
 create client 77 mesh.nirv.ai ca client client.cfssl.json
+
+
+### BROWSER P12 CERT
+# create a p12 cert for your browser so you can access UIs over https
+# you will need to provide an arbitrary password
+# you will need to install the p12 cert into your browser (google it)
+# this uses the client-0 created earlier to for the p12 cert
+create p12 client-0
+
 # p12 cert specifying the ca_cn
 create p12 client-0 mesh.nirv.ai
+
 
 ### CLI CERT
 # create 1 cli cert and save as cli-0{-key}.{pem,csr}
 create cli
 # create arbitrary amount of cli certs
 create cli 7
-
 
 # create arbitrary amount of cli certs specifying options
 # total ca_cn ca_name cert_name config_name
