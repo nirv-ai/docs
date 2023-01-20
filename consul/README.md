@@ -14,7 +14,8 @@
 
 > if it doesnt copypasta, it doesnt belong in your stack
 
-insert video here
+https://user-images.githubusercontent.com/10324554/213592540-91807478-e218-4c78-8355-06c706da19cc.mp4
+
 
 ## WHY CONSUL ?
 
