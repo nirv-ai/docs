@@ -194,13 +194,6 @@ script.consul.sh get root-token
 
 ```
 
-### USAGE
-
-```sh
-### prefix all cmds with script.consul.sh
-
-```
-
 #### next steps
 
 - Congrats! you have a zero trust sservice mesh backed by CONSUL!
@@ -211,8 +204,53 @@ script.consul.sh get root-token
 ##### copypasta: consul initialization
 
 ```sh
-# create gossip key
-# sync confs
-# delete data/* if starting green
+# setup vars
+export APP_DIR_NAME=apps
+export APP_ENV_AUTO=.env.auto
+export APP_PREFIX=nirvai
+export CERTS_DIR_HOST=/etc/ssl/certs
+export MESH_HOSTNAME=mesh.nirv.ai
+export NIRV_SCRIPT_DEBUG=0
+export REPO_DIR_NAME=core
+export CONSUL_APP_SRC_PATH='src/consul'
+export CONSUL_DIR_CERTS="${CERTS_DIR_HOST}/${MESH_HOSTNAME}"
+export CONSUL_SERVER_APP_NAME='core-consul'
+export CONSUL_SERVER_NODE_PREFIX='consul'
+export DATA_CENTER='us-east'
+export DNS_TOKEN_NAME='acl-policy-dns'
+export ROOT_TOKEN_NAME='root'
+export SERVER_TOKEN_NAME='acl-policy-consul'
+
+# move into your repo dir
+cd $REPO_DIR_NAME
+
+# rm previous consul data and tokens
+sudo rm -rf apps/*/src/consul/data/*
+sudo rm -rf ../secrets/consul/{tokens,keys}/*
+
+# create gossipkey and start stack
+script.consul.sh create gossipkey
+script.consul.sh sync-confs
+script.reset.compose.sh # >>> docker logs: blocked by ACLS
+
+# setup your cli and create root-token
+sleep 2s # wait 2s for services to start
+source ../configs/consul/.env.cli
+script.consul.sh create root-token
+source ../configs/consul/.env.cli
+
+# create policies, tokens, intentions, etc
+script.consul.sh create policies
+script.consul.sh create server-policy-tokens
+## FYI: service names must match svc configs
+script.consul.sh create service-policy-tokens
+script.consul.sh create intentions
+script.consul.sh create defaults
+
+
+# update service envs then restart
+script.consul.sh sync-env-auto
+script.consul.sh sync-confs
+script.reset.compose.sh
 
 ```

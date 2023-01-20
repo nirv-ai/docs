@@ -170,7 +170,7 @@ script.ssl.sh create client 3
 # 1 operator
 script.ssl.sh create cli
 # 1 p12 cert for the browser
-create p12 client-0
+script.ssl.sh create p12 client-0
 
 export CA_CN=mad.nirv.ai
 script.ssl.sh create rootca
@@ -181,7 +181,7 @@ script.ssl.sh create client 3
 # 1 operator
 script.ssl.sh create cli 1
 # 1 p12 cert for the browser
-create p12 client-0
+script.ssl.sh create p12 client-0
 ```
 
 ##### copypasta: cfssl validation
