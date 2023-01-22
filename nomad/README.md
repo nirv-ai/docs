@@ -83,18 +83,19 @@ NOMAD_CLIENT_KEY=/etc/ssl/certs/mad.nirv.ai/cli-0-key.pem
 ### start nomad server and client agents
 
 ```sh
-########### cd apps/nirvai-web-nomad/dev
+# prefix all cmds with script.nmd.sh
+###########
 # start server agent in bg
-script.nmd.sh start s -config=server.nomad
+start server
 
 # start client agent in bg
-script.nmd.sh start c -config=client.nomad
+start client
 
 # check the server status
-script.nmd.sh get status servers
+get status servers
 
 # check the client status
-script.nmd.sh get status clients
+get status clients
 # open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
@@ -102,39 +103,39 @@ script.nmd.sh get status clients
 
 ```sh
 # if ./development.dev_core.nomad doesnt exist create it
-script.nmd.sh create job dev_core
+create job dev_core
 
 # get a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
-script.nmd.sh get plan dev_core
+get plan dev_core
 
 # deploy job dev_core
-script.nmd.sh run dev_core indexNumber
+run dev_core indexNumber
 
 # review logs of containers initialized by nomad
-script.nmd.sh dockerlogs
+dockerlogs
 
 # on error run
-script.nmd.sh get status job jobName # includes all allocationIds
-script.nmd.sh get status loc allocationId # in event of deployment failure
-script.nmd.sh get status clients # see client nodes and there ids
-script.nmd.sh dockerlogs # following docker logs of all running containers
+get status job jobName # includes all allocationIds
+get status loc allocationId # in event of deployment failure
+get status clients # see client nodes and there ids
+dockerlogs # following docker logs of all running containers
 nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
 nomad job history -p job_name # todo
 
 # cleanup
 # rm the job
-script.nmd.sh rm dev_core
+rm dev_core
 
 # kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
 kill_service_by_name nomad
 
 # reset nomad to a green state if you dont plan on using it later
-script.nmd.sh gc
+gc
 ```
 
 ## next steps
 
 - Congrats!
-- checkout usage [script.nmd.sh usage docs](./usage.md)
+- checkout usage [usage docs](./usage.md)
