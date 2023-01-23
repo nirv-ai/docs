@@ -92,8 +92,7 @@ export CUNT_PREFIX=nirvai-
 
 ### script.registry.sh
 
-- actively used for working with a locally docker registry
-- primarly for automating the creation of images accessible by nomad
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.registry.sh)
 
 ```sh
 ###################### setup your /etc/hosts
