@@ -17,8 +17,6 @@ documentation for the NIRVai platform
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.refresh.compose.sh)
 
 ```sh
-##################### INTERFACE
-
 ##################### usage
 # FYI: all cmds create .env.compose.[json,yaml]
 # containing the canonical compose config
@@ -39,8 +37,6 @@ documentation for the NIRVai platform
 - [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.reset.compose.sh)
 
 ```sh
-##################### INTERFACE
-
 ##################### usage
 # FYI: all cmds create .env.compose.[json,yaml]
 # containing the canonical compose config
@@ -104,25 +100,24 @@ export CUNT_PREFIX=nirvai-
 # e.g. to use a registry at dev.nirv.ai:5000
 # add the following to /etc/hosts
 127.0.0.1 dev.nirv.ai
-# checkout ../letsencrypt/README.md for configuring a TLS cert pointing to dev.nirv.ai
 ######################
 
 
 ###################### interface
-# TODO: explain concat: $REG_CERTS_DIR_CUNT/$REG_SUBD.$REG_DOMAIN/*.pem
-export REG_CERTS_DIR_CUNT=/etc/ssl/certs
-export REG_DOMAIN=nirv.ai
-export REG_SUBD=dev
+export CERTS_DIR_CUNT=/run/secrets
+export CERTS_DIR_HOST=/etc/ssl/certs
 export REG_HOST_PORT=5000
-## your registry will be available at dev.nirv.ai:5000
-## will auto tag images to that registry
-## will auto remove images sourced from hub to push to that registry
+export REG_HOSTNAME=dev.nirv.ai # echo 127.0.0.1 dev.nirv.ai >> /etc/hosts
+export REG_NAME=registry
+export REG_PRVKEY_NAME=privkey.pem
+export REG_PUBKEY_NAME=fullchain.pem
+export REG_VOL_NAME=registry_volume
 
 ###################### basic workflow
 # start the registry
 script.registry.sh run
 # push running containers to registry
-script.registry.sh tag_running
+script.registry.sh tag-running
 # or tag a specific image
 script.registry.sh tag someImageName:development
 
@@ -134,6 +129,6 @@ script.registry.sh CMD
 > run: runs a registry
 > reset: purges and restarts a registry
 > tag: tag a single image and pushes it to registry
-> tag_running: tags the image of all running containers and pushes all to registry
+> tag-running: tags the image of all running containers and pushes all to registry
 
 ```
