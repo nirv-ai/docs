@@ -81,6 +81,9 @@ for util in $SCRIPTS_DIR/utils/*.sh; do
   source $util
 done
 
+# SHELL UTILS
+# todo: scripts should be able to source files from shell-init
+
 ######################## INTERFACE
 # group by increasing order of dependency
 # add your vars here
