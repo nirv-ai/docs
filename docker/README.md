@@ -18,10 +18,9 @@ documentation for the NIRVai platform
 
 ```sh
 ##################### INTERFACE
-ENV=${ENV:-development}
 
 ##################### usage
-# FYI: all cmds create .env.$ENV.compose.[json,yaml]
+# FYI: all cmds create .env.compose.[json,yaml]
 # containing the canonical compose config
 
 
@@ -41,10 +40,9 @@ ENV=${ENV:-development}
 
 ```sh
 ##################### INTERFACE
-ENV=${ENV:-development}
 
 ##################### usage
-# FYI: all cmds create .env.$ENV.compose.[json,yaml]
+# FYI: all cmds create .env.compose.[json,yaml]
 # containing the canonical compose config
 
 

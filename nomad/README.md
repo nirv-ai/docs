@@ -102,12 +102,11 @@ get status clients
 ### deploy nomad jobspec
 
 ```sh
-# if ./development.dev_core.nomad doesnt exist create it
-create job dev_core
+create stack core
 
 # get a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
-get plan dev_core
+get plan core
 
 # deploy job dev_core
 run dev_core indexNumber
