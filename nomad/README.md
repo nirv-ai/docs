@@ -104,17 +104,17 @@ get status clients
 ```sh
 create stack core
 
-# get a fresh job plan and retrieve the index number from stdout
+## get a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
 get plan core
 
-# deploy job dev_core
-run dev_core indexNumber
+## deploy the core stack
+run core indexNumber
 
-# review logs of containers initialized by nomad
+## review logs of containers initialized by nomad
 dockerlogs
 
-# on error run
+## on error run
 get status job jobName # includes all allocationIds
 get status loc allocationId # in event of deployment failure
 get status clients # see client nodes and there ids
@@ -123,14 +123,14 @@ nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
 nomad job history -p job_name # todo
 
-# cleanup
-# rm the job
-rm dev_core
+## cleanup
+## rm the job
+rm core
 
-# kill the team @see https://github.com/noahehall/theBookOfNoah/blob/master/linux/bash_cli_fns/000util.sh
-kill_service_by_name nomad
+## requires shell-init
+kill
 
-# reset nomad to a green state if you dont plan on using it later
+## reset nomad to a green state if you dont plan on using it later
 gc
 ```
 
