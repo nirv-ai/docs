@@ -113,9 +113,11 @@ run core indexNumber
 
 ## review logs of containers initialized by nomad
 dockerlogs
+dockerlogs-kill # cleanup when finished
 
 ## on error run
-get status job jobName # includes all allocationIds
+get status stacks # all stacks
+get status stack stackName # includes all allocationIds
 get status loc allocationId # in event of deployment failure
 get status clients # see client nodes and there ids
 dockerlogs # following docker logs of all running containers
@@ -124,8 +126,9 @@ nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #t
 nomad job history -p job_name # todo
 
 ## cleanup
-## rm the job
+## rm/stop the job
 rm core
+stop core
 
 ## requires shell-init
 kill
