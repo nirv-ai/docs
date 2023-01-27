@@ -115,12 +115,16 @@ run core indexNumber
 dockerlogs
 dockerlogs-kill # cleanup when finished
 
-## on error run
+## inspection
 get status stacks # all stacks
 get status stack stackName # includes all allocationIds
 get status loc allocationId # in event of deployment failure
-get status clients # see client nodes and there ids
+get status clients # outputs detailed client info, pipe to jq
+get status servers
 dockerlogs # following docker logs of all running containers
+# these wont work anymore unless you set the CA_CERT related vars
+# as we've set verify true to everything
+# we should add these to script.nmd.sh
 nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
 nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
 nomad job history -p job_name # todo
