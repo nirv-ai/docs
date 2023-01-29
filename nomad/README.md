@@ -104,32 +104,12 @@ get status clients
 ```sh
 create stack core
 
-# TODO: change this to just `plan core`
-## get a fresh job plan and retrieve the index number from stdout
+## create a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
-get plan core
+create plan core
 
 ## deploy the core stack
 run core indexNumber
-
-## review logs of containers initialized by nomad
-dockerlogs
-dockerlogs-kill # cleanup when finished
-
-# TODO: change this to just `status X`
-## inspection
-get status stacks # all stacks
-get status stack stackName # includes all allocationIds
-get status loc allocationId # in event of deployment failure
-get status clients # outputs detailed client info, pipe to jq
-get status servers
-dockerlogs # following docker logs of all running containers
-# these wont work anymore unless you set the CA_CERT related vars
-# as we've set verify true to everything
-# we should add these to script.nmd.sh
-nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
-nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
-nomad job history -p job_name # todo
 
 ## cleanup
 ## rm/stop the job
@@ -143,7 +123,39 @@ kill
 gc
 ```
 
+## usage
+
+- TODO: move this entire section to usage.md
+
+```sh
+
+## review logs of running containers
+## TODO: move this to one of the docker scripts
+dockerlogs
+dockerlogs-kill # cleanup when finished
+
+## inspection
+get client [ID]
+get dep [DEPLOYMENT_ID] # all/specific deployment
+get eval [EVAL_ID] # all/specific evaluation
+get loc [ALLOCATION_ID] # get all/specific allocation info
+get self # info about local nomad agent
+get server
+get service [SRV_NAME] # list all/specific services
+get stack [STACK_ID] # all/specific stack (jobs)
+
+
+## these wont work anymore unless you set the CA_CERT related vars
+## as we've set verify true to everything
+## we should add these to script.nmd.sh
+nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
+nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
+nomad job history -p job_name # todo
+
+```
+
 ## next steps
 
 - Congrats!
 - checkout usage [usage docs](./usage.md)
+  - TODO: this file is seriously out of date
