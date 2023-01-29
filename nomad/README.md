@@ -91,11 +91,12 @@ start server
 # start client agent in bg
 start client
 
-# check the server status
-get status servers
+# check status of all servers
+get server
 
-# check the client status
-get status clients
+# check status of all clients
+get client
+
 # open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
@@ -104,28 +105,21 @@ get status clients
 ```sh
 create stack core
 
-## get a fresh job plan and retrieve the index number from stdout
+## create a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
-get plan core
+create plan core
 
 ## deploy the core stack
 run core indexNumber
 
-## review logs of containers initialized by nomad
-dockerlogs
-
-## on error run
-get status job jobName # includes all allocationIds
-get status loc allocationId # in event of deployment failure
-get status clients # see client nodes and there ids
-dockerlogs # following docker logs of all running containers
-nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
-nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
-nomad job history -p job_name # todo
+# check stacks & specifically core
+get stack # list all stacks
+get stack core # check on the core stack
 
 ## cleanup
-## rm the job
+## rm/stop the job
 rm core
+stop core
 
 ## requires shell-init
 kill
@@ -134,7 +128,32 @@ kill
 gc
 ```
 
+## usage
+
+- TODO: move this entire section to usage.md
+
+```sh
+
+## review logs of running containers
+## TODO: move this to one of the docker scripts
+dockerlogs
+dockerlogs-kill # cleanup when finished
+
+## inspection
+get client [ID] # all/specific client agent
+get dep [DEPLOYMENT_ID] # all/specific deployment
+get eval [EVAL_ID] # all/specific evaluation
+get loc [ALLOCATION_ID] # get all/specific allocation
+get self # info about local nomad agent
+get server # info about server agents
+get service [SRV_NAME] # list all/specific service
+get stack [STACK_ID] # all/specific stack (jobs)
+
+
+```
+
 ## next steps
 
 - Congrats!
 - checkout usage [usage docs](./usage.md)
+  - TODO: this file is seriously out of date

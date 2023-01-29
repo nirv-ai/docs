@@ -67,8 +67,10 @@ export CUNT_PREFIX=nirvai-
 # using the exact container name
 > script.exec.cunt.sh backend-api-us-east-1a-1
 
-# using the service name: execs the first matching container
-> script.exec.cunt.sh backend-api
+# using the container name: execs the first matching container
+# you can send and unique portion of the container name
+> script.exec.cunt.sh backend-api # any backend-api container
+> script.exec.cunt.sh nd-a # matches backend-api
 > script.exec.cunt.sh b # the first container whose name includes b
 
 ```
@@ -92,8 +94,7 @@ export CUNT_PREFIX=nirvai-
 
 ### script.registry.sh
 
-- actively used for working with a locally docker registry
-- primarly for automating the creation of images accessible by nomad
+- [source code](https://github.com/nirv-ai/scripts/blob/develop/docker/script.registry.sh)
 
 ```sh
 ###################### setup your /etc/hosts
