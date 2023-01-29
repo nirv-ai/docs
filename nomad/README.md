@@ -91,11 +91,12 @@ start server
 # start client agent in bg
 start client
 
-# check the server status
-get status servers
+# check status of all servers
+get server
 
-# check the client status
-get status clients
+# check status of all clients
+get client
+
 # open the Nomad UI: https://mad.nirv.ai:4646
 ```
 
@@ -110,6 +111,10 @@ create plan core
 
 ## deploy the core stack
 run core indexNumber
+
+# check stacks & specifically core
+get stack # list all stacks
+get stack core # check on the core stack
 
 ## cleanup
 ## rm/stop the job
@@ -135,22 +140,15 @@ dockerlogs
 dockerlogs-kill # cleanup when finished
 
 ## inspection
-get client [ID]
+get client [ID] # all/specific client agent
 get dep [DEPLOYMENT_ID] # all/specific deployment
 get eval [EVAL_ID] # all/specific evaluation
-get loc [ALLOCATION_ID] # get all/specific allocation info
+get loc [ALLOCATION_ID] # get all/specific allocation
 get self # info about local nomad agent
-get server
-get service [SRV_NAME] # list all/specific services
+get server # info about server agents
+get service [SRV_NAME] # list all/specific service
 get stack [STACK_ID] # all/specific stack (jobs)
 
-
-## these wont work anymore unless you set the CA_CERT related vars
-## as we've set verify true to everything
-## we should add these to script.nmd.sh
-nomad alloc exec -i -t -task sidekiq fa2b2ed6 /bin/bash # todo,
-nomad alloc exec -i -t -task puma fa2b2ed6 /bin/bash -c "bundle exec rails c" #todo
-nomad job history -p job_name # todo
 
 ```
 
