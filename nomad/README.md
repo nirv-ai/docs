@@ -104,6 +104,7 @@ get status clients
 ```sh
 create stack core
 
+# TODO: change this to just `plan core`
 ## get a fresh job plan and retrieve the index number from stdout
 ## we validate every config and jobspec, deal with the errors
 get plan core
@@ -115,6 +116,7 @@ run core indexNumber
 dockerlogs
 dockerlogs-kill # cleanup when finished
 
+# TODO: change this to just `status X`
 ## inspection
 get status stacks # all stacks
 get status stack stackName # includes all allocationIds
