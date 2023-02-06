@@ -63,6 +63,7 @@ export CUNT_PREFIX=nirvai-
 
 ##################### usage
 ## exec into cunt using bash, else sh:
+## FYI: you can append a username as the last arg to all cmds
 
 # using the exact container name
 > script.exec.cunt.sh backend-api-us-east-1a-1

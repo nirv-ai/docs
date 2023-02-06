@@ -85,6 +85,10 @@ NOMAD_CLIENT_KEY=/etc/ssl/certs/mad.nirv.ai/cli-0-key.pem
 ```sh
 # prefix all cmds with script.nmd.sh
 ###########
+# sync configs
+# we validate every config and jobspec, deal with the errors
+sync-confs
+
 # start server agent in bg
 start server
 
@@ -106,7 +110,6 @@ get client
 create stack core
 
 ## create a fresh job plan and retrieve the index number from stdout
-## we validate every config and jobspec, deal with the errors
 create plan core
 
 ## deploy the core stack

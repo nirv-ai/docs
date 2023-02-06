@@ -123,6 +123,8 @@ export SERVER_TOKEN_NAME='acl-policy-consul'
 # TODO: create a token specifically for connect and dont reuse the same agent token
 # TODO: ^ also need modify the policy for agent tokens follow least privileges
 # TODO: or follow consul guidance and create specific intention tokens that are given to admins
+# ^ for now you can get root-token in development with : `script.consul.sh get root-token`
+# ^ without an upgrade to the token logic this is only useful for dev & validation
 
 ```
 
